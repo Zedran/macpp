@@ -1,27 +1,44 @@
 #include <curl/curl.h>
-#include <nlohmann/json.hpp>
+#include <memory>
+#include <sstream>
+#include <vector>
 
 #include "AppError.hpp"
+#include "Vendor.hpp"
 #include "utils.hpp"
 
 // WRITEFUNCTION function for cURL.
-size_t write_data(char* buffer, size_t size, size_t nmemb, std::vector<char>* userp) {
-    try {
-        userp->reserve(userp->size() + size * nmemb);
-    } catch (const std::bad_alloc&) {
-        return 0;
-    }
+size_t write_data(void* buffer, size_t size, size_t nmemb, void* userp) {
+    std::string* data = static_cast<std::string*>(userp);
 
-    userp->insert(userp->end(), buffer, buffer + size * nmemb);
+    data->append(static_cast<char*>(buffer), size * nmemb);
     return size * nmemb;
 }
 
-// Downloads and parses JSON data.
-nlohmann::json download_json() {
-    const char* URL = "https://maclookup.app/downloads/json-database/get-db";
+// Parses raw CSV data into a vector of Vendor structs.
+std::vector<Vendor> parse_csv(const std::string& data) {
+    std::vector<Vendor> vendors;
 
-    CURLcode          code;
-    std::vector<char> stream;
+    std::istringstream stream(data);
+    std::string        line;
+
+    // Discard the header line
+    std::getline(stream, line);
+
+    while (std::getline(stream, line)) {
+        if (!line.empty()) {
+            vendors.push_back(Vendor(line));
+        }
+    }
+
+    return vendors;
+}
+
+std::vector<Vendor> download_data() {
+    const char* URL = "https://maclookup.app/downloads/csv-database/get-db";
+
+    CURLcode    code;
+    std::string readBuffer;
 
     code = curl_global_init(CURL_GLOBAL_DEFAULT);
     if (code != CURLE_OK) {
@@ -40,7 +57,7 @@ nlohmann::json download_json() {
 
     curl_easy_setopt(curl.get(), CURLOPT_URL, URL);
     curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &stream);
+    curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &readBuffer);
 
     code = curl_easy_perform(curl.get());
 
@@ -48,5 +65,5 @@ nlohmann::json download_json() {
         throw(AppError(curl_easy_strerror(code)));
     }
 
-    return nlohmann::json::parse(stream);
+    return parse_csv(readBuffer);
 }

@@ -24,7 +24,6 @@ function(add_test_file test_name)
 	target_link_libraries(${test_name}
 		PRIVATE Catch2::Catch2WithMain
 		CURL::libcurl
-		nlohmann_json::nlohmann_json
 	)
 
 	add_test(
@@ -35,3 +34,5 @@ function(add_test_file test_name)
 
 	set_tests_properties(${test_name} PROPERTIES TIMEOUT 30)
 endfunction()
+
+add_test_file(test_Vendor)

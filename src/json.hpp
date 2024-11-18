@@ -1,5 +1,8 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include <vector>
 
-nlohmann::json download_json();
+#include "Vendor.hpp"
+
+// Downloads the CSV file and returns the result of parse_csv.
+std::vector<Vendor> download_data();
