@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.11)
 project(macpp)
 
+option(MAKE_TESTS OFF)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD           20)
@@ -17,6 +19,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(JSON_VERSION v3.11.3)
+set(CATCH2_VERSION v3.7.1)
 
 find_package(CURL REQUIRED)
 
@@ -36,3 +39,8 @@ add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl nlohmann_json::nlohmann_json)
+
+if (MAKE_TESTS)
+	enable_testing()
+	add_subdirectory(tests)
+endif()
