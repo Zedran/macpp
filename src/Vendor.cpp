@@ -1,8 +1,10 @@
 #include <regex>
+#include <sqlite3.h>
 #include <sstream>
 #include <string>
 
 #include "Vendor.hpp"
+#include "utils.hpp"
 
 Vendor::Vendor(const std::string line) {
     // :0C,"Cisco Systems, Inc.",f
@@ -36,6 +38,15 @@ Vendor::Vendor(std::string mac_prefix, std::string vendor_name, bool is_private,
       is_private(is_private),
       block_type(block_type),
       last_update(last_update) {}
+
+int Vendor::bind(sqlite3_stmt* stmt) {
+    return sqlite3_bind_int64(stmt, 1, prefix_to_id(mac_prefix)) +
+           sqlite3_bind_text(stmt, 2, mac_prefix.c_str(), -1, SQLITE_TRANSIENT) +
+           sqlite3_bind_text(stmt, 3, vendor_name.c_str(), -1, SQLITE_TRANSIENT) +
+           sqlite3_bind_int(stmt, 4, is_private ? 1 : 0) +
+           sqlite3_bind_text(stmt, 5, block_type.c_str(), -1, SQLITE_TRANSIENT) +
+           sqlite3_bind_text(stmt, 6, last_update.c_str(), -1, SQLITE_TRANSIENT);
+}
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
     os << "MAC prefix   " << v.mac_prefix << "\n"

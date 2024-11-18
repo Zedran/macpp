@@ -2,20 +2,15 @@
 #include <iostream>
 
 #include "AppError.hpp"
-#include "Vendor.hpp"
-#include "download.hpp"
+#include "cache.hpp"
 
 int main() {
-    std::vector<Vendor> data;
-
     try {
-        data = download_data();
+        create_cache("mac.db");
     } catch (const AppError& e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
-
-    std::cout << data[0] << std::endl;
 
     return 0;
 }

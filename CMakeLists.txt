@@ -30,7 +30,7 @@ add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
+target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl sqlite3)
 
 if (MAKE_TESTS)
 	enable_testing()

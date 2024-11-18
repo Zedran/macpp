@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <string>
+
 template <class F>
 struct FinalAction {
     F act;
@@ -12,3 +15,6 @@ template <class F>
 [[nodiscard]] auto finally(F f) {
     return FinalAction{f};
 }
+
+// Converts MAC prefix (10:10:10) from string to an integer.
+int64_t prefix_to_id(const std::string& prefix);
