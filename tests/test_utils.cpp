@@ -17,3 +17,20 @@ TEST_CASE("prefix_to_id") {
         REQUIRE(prefix_to_id(input) == expected);
     }
 }
+
+TEST_CASE("replace_escaped_quotes") {
+    const std::map<const std::string, const std::string> cases = {
+        {R"(IEE&E ""Black"" ops)", R"(IEE&E "Black" ops)"},
+        {R"(")", R"(")"},
+        {R"("")", R"(")"},
+        {R"(abc "def" ghe)", R"(abc "def" ghe)"},
+        {R"(abc)", R"(abc)"},
+    };
+
+    for (auto& [input, expected] : cases) {
+        std::string mod = input;
+
+        replace_escaped_quotes(mod);
+        REQUIRE(mod == expected);
+    }
+}

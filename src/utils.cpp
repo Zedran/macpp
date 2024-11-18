@@ -8,3 +8,15 @@ int64_t prefix_to_id(const std::string& prefix) {
 
     return std::stoll(s, nullptr, 16);
 }
+
+void replace_escaped_quotes(std::string& str) {
+    const std::string target      = "\"\"";
+    const std::string replacement = "\"";
+
+    size_t pos = 0;
+
+    while ((pos = str.find(target, pos)) != std::string::npos) {
+        str.replace(pos, target.length(), replacement);
+        pos += replacement.length();
+    }
+}

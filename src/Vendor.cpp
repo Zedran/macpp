@@ -19,8 +19,12 @@ Vendor::Vendor(const std::string line) {
     if (std::regex_search(line, submatch, quotes)) {
         vendor_name = submatch.str();
         line_stream.seekg(vendor_name.length(), std::ios::cur);
+
+        // Erase extra characters captured by regex, leaving only vendor name
         vendor_name.erase(0, vendor_name.find('"') + 1);
         vendor_name.erase(vendor_name.length() - 3, 3);
+
+        replace_escaped_quotes(vendor_name);
     } else {
         std::getline(line_stream, vendor_name, ',');
     }
