@@ -13,26 +13,25 @@ if (NOT Catch2_FOUND)
 	endif()
 endif()
 
-function(add_test_file test_name)
-	add_executable(${test_name} "${test_name}.cpp" ${SOURCES})
-	set_target_properties(${test_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+set(test_name t)
+file(GLOB TEST_SOURCES ${PROJECT_SOURCE_DIR}/tests/test_*.cpp)
 
-	target_include_directories(${test_name}
-		PRIVATE ${PROJECT_SOURCE_DIR}/src
-	)
+add_executable(${test_name} ${TEST_SOURCES} ${SOURCES})
+set_target_properties(${test_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
-	target_link_libraries(${test_name}
-		PRIVATE Catch2::Catch2WithMain
-		CURL::libcurl
-	)
+target_include_directories(${test_name}
+	PRIVATE ${PROJECT_SOURCE_DIR}/src
+)
 
-	add_test(
-		NAME ${test_name}
-		COMMAND $<TARGET_FILE:${test_name}>
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-	)
+target_link_libraries(${test_name}
+	PRIVATE Catch2::Catch2WithMain
+	CURL::libcurl
+)
 
-	set_tests_properties(${test_name} PROPERTIES TIMEOUT 30)
-endfunction()
+add_test(
+	NAME ${test_name}
+	COMMAND $<TARGET_FILE:${test_name}>
+	WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+)
 
-add_test_file(test_Vendor)
+set_tests_properties(${test_name} PROPERTIES TIMEOUT 30)
