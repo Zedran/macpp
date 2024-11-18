@@ -7,8 +7,8 @@
 #include "utils.hpp"
 
 Vendor::Vendor(const std::string line) {
-    // :0C,"Cisco Systems, Inc.",f
-    const std::regex quotes{R"(:[0123456789ABCDEF]{2},".*",[ft])"};
+    // :0C,"Cisco Systems, Inc.",f    or    :D,"BrightSky, LLC",f
+    const std::regex quotes{R"(:[0123456789ABCDEF]{1,2},".*",[ft])"};
 
     std::string        priv_str;
     std::smatch        submatch;
@@ -19,7 +19,7 @@ Vendor::Vendor(const std::string line) {
     if (std::regex_search(line, submatch, quotes)) {
         vendor_name = submatch.str();
         line_stream.seekg(vendor_name.length(), std::ios::cur);
-        vendor_name.erase(0, 5);
+        vendor_name.erase(0, vendor_name.find('"') + 1);
         vendor_name.erase(vendor_name.length() - 3, 3);
     } else {
         std::getline(line_stream, vendor_name, ',');
