@@ -2,6 +2,7 @@
 #include <nlohmann/json.hpp>
 
 #include "AppError.hpp"
+#include "utils.hpp"
 
 // WRITEFUNCTION function for cURL.
 size_t write_data(char* buffer, size_t size, size_t nmemb, std::vector<char>* userp) {
@@ -19,7 +20,6 @@ size_t write_data(char* buffer, size_t size, size_t nmemb, std::vector<char>* us
 nlohmann::json download_json() {
     const char* URL = "https://maclookup.app/downloads/json-database/get-db";
 
-    CURL*             curl;
     CURLcode          code;
     std::vector<char> stream;
 
@@ -28,32 +28,25 @@ nlohmann::json download_json() {
         throw(AppError("curl_global_init failed"));
     }
 
-    curl = curl_easy_init();
-    if (curl == nullptr) {
-        curl_global_cleanup();
+    auto global_cleanup = finally([&] { curl_global_cleanup(); });
+
+    auto curl = std::unique_ptr<CURL, decltype(&curl_easy_cleanup)>(curl_easy_init(), &curl_easy_cleanup);
+    if (!curl) {
         throw(AppError("curl_easy_init failed"));
     }
 
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+    curl_easy_setopt(curl.get(), CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl.get(), CURLOPT_SSL_VERIFYHOST, 2L);
 
-    curl_easy_setopt(curl, CURLOPT_URL, URL);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &stream);
+    curl_easy_setopt(curl.get(), CURLOPT_URL, URL);
+    curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &stream);
 
-    code = curl_easy_perform(curl);
+    code = curl_easy_perform(curl.get());
 
     if (code != CURLE_OK) {
-        AppError err = AppError(curl_easy_strerror(code));
-
-        curl_easy_cleanup(curl);
-        curl_global_cleanup();
-
-        throw(err);
+        throw(AppError(curl_easy_strerror(code)));
     }
-
-    curl_easy_cleanup(curl);
-    curl_global_cleanup();
 
     return nlohmann::json::parse(stream);
 }
