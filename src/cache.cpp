@@ -17,7 +17,11 @@ void create_cache(std::string path) {
         throw AppError("failed to open the database");
     }
 
-    auto close = finally([&] { sqlite3_close(conn); });
+    auto close = finally([&] {
+        if (sqlite3_close(conn) != SQLITE_OK) {
+            throw AppError("failed to close connection: " + std::string(sqlite3_errmsg(conn)));
+        }
+    });
 
     const char* create_table_stmt =
         R"(CREATE TABLE vendors (
