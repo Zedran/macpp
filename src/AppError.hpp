@@ -10,7 +10,6 @@ class AppError : public std::exception {
 public:
     AppError();
     AppError(const std::string message);
-    AppError(const CURLcode code);
 
     const char* what() const noexcept;
 };
