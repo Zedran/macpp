@@ -1,27 +1,18 @@
+#include <fstream>
 #include <sqlite3.h>
 #include <string>
 
 #include "AppError.hpp"
+#include "cache.hpp"
 #include "download.hpp"
 #include "utils.hpp"
 
-void create_cache(std::string path) {
+void create_cache(sqlite3* conn) {
     std::vector<Vendor> vendors = download_data();
 
-    sqlite3* conn;
-    char*    err;
+    char* err;
 
     auto free_err = finally([&] { sqlite3_free(err); });
-
-    if (sqlite3_open(path.c_str(), &conn) != SQLITE_OK) {
-        throw AppError("failed to open the database");
-    }
-
-    auto close = finally([&] {
-        if (sqlite3_close(conn) != SQLITE_OK) {
-            throw AppError("failed to close connection", conn);
-        }
-    });
 
     const char* create_table_stmt =
         R"(CREATE TABLE vendors (
@@ -67,5 +58,22 @@ void create_cache(std::string path) {
 
     if (sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, &err) != SQLITE_OK) {
         throw AppError(err);
+    }
+}
+
+// Returns sqlite3 connection to cached database. If it does not exist,
+// a new cache file is created.
+void get_conn(sqlite3* conn) {
+    const std::string  path{"mac.db"};
+    const std::fstream cache_file(path);
+
+    bool file_ok = cache_file.good();
+
+    if (sqlite3_open(path.c_str(), &conn) != SQLITE_OK) {
+        throw AppError("failed to open the database");
+    }
+
+    if (!file_ok) {
+        create_cache(conn);
     }
 }
