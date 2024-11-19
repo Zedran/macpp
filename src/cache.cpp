@@ -10,7 +10,6 @@ void create_cache(std::string path) {
 
     sqlite3* conn;
     char*    err;
-    int      fin_code{};
 
     auto free_err = finally([&] { sqlite3_free(err); });
 
@@ -18,7 +17,7 @@ void create_cache(std::string path) {
         throw AppError("failed to open the database");
     }
 
-    auto close = finally([&] { fin_code = sqlite3_close(conn); });
+    auto close = finally([&] { sqlite3_close(conn); });
 
     const char* create_table_stmt =
         R"(CREATE TABLE vendors (
@@ -53,7 +52,7 @@ void create_cache(std::string path) {
             throw AppError("value bind failed: " + std::string(sqlite3_errmsg(conn)));
         }
 
-        if ((fin_code = sqlite3_step(stmt)) != SQLITE_DONE) {
+        if ((sqlite3_step(stmt)) != SQLITE_DONE) {
             throw AppError("step failed: " + std::string(sqlite3_errmsg(conn)));
         }
 
