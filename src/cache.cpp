@@ -19,7 +19,7 @@ void create_cache(std::string path) {
 
     auto close = finally([&] {
         if (sqlite3_close(conn) != SQLITE_OK) {
-            throw AppError("failed to close connection: " + std::string(sqlite3_errmsg(conn)));
+            throw AppError("failed to close connection", conn);
         }
     });
 
@@ -48,20 +48,20 @@ void create_cache(std::string path) {
     auto          finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, insert_stmt, -1, &stmt, nullptr) != SQLITE_OK) {
-        throw AppError("prepare statement failed: " + std::string(sqlite3_errmsg(conn)));
+        throw AppError("prepare statement failed", conn);
     }
 
     for (auto& v : vendors) {
         if (v.bind(stmt) != SQLITE_OK) {
-            throw AppError("value bind failed: " + std::string(sqlite3_errmsg(conn)));
+            throw AppError("value bind failed", conn);
         }
 
         if ((sqlite3_step(stmt)) != SQLITE_DONE) {
-            throw AppError("step failed: " + std::string(sqlite3_errmsg(conn)));
+            throw AppError("step failed", conn);
         }
 
         if (sqlite3_reset(stmt) != SQLITE_OK) {
-            throw AppError("reset failed: " + std::string(sqlite3_errmsg(conn)));
+            throw AppError("reset failed", conn);
         }
     }
 
