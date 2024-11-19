@@ -12,7 +12,7 @@ void create_cache(std::string path) {
     char*    err;
     int      fin_code{};
 
-    auto free_err = finally([&] { free(err); });
+    auto free_err = finally([&] { sqlite3_free(err); });
 
     if (sqlite3_open(path.c_str(), &conn) != SQLITE_OK) {
         throw AppError("failed to open the database");
