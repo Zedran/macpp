@@ -52,8 +52,14 @@ void create_cache(std::string path) {
         if (v.bind(stmt) != SQLITE_OK) {
             throw AppError("value bind failed: " + std::string(sqlite3_errmsg(conn)));
         }
-        sqlite3_step(stmt);
-        sqlite3_reset(stmt);
+
+        if ((fin_code = sqlite3_step(stmt)) != SQLITE_DONE) {
+            throw AppError("step failed: " + std::string(sqlite3_errmsg(conn)));
+        }
+
+        if (sqlite3_reset(stmt) != SQLITE_OK) {
+            throw AppError("reset failed: " + std::string(sqlite3_errmsg(conn)));
+        }
     }
 
     if (sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, &err) != SQLITE_OK) {
