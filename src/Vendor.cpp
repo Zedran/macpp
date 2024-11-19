@@ -43,6 +43,14 @@ Vendor::Vendor(std::string mac_prefix, std::string vendor_name, bool is_private,
       block_type(block_type),
       last_update(last_update) {}
 
+Vendor::Vendor(sqlite3_stmt* stmt) {
+    mac_prefix  = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+    vendor_name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+    is_private  = sqlite3_column_int(stmt, 3) != 0;
+    block_type  = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+    last_update = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+}
+
 int Vendor::bind(sqlite3_stmt* stmt) {
     return sqlite3_bind_int64(stmt, 1, prefix_to_id(mac_prefix)) +
            sqlite3_bind_text(stmt, 2, mac_prefix.c_str(), -1, SQLITE_TRANSIENT) +
