@@ -1,8 +1,6 @@
 #pragma once
 
-#include <vector>
-
-#include "Vendor.hpp"
+#include <string>
 
 // Downloads the CSV file and returns the result of parse_csv.
-std::vector<Vendor> download_data();
+std::string download_data();

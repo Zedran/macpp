@@ -1,14 +1,19 @@
 #include <fstream>
 #include <sqlite3.h>
+#include <sstream>
 #include <string>
 
 #include "AppError.hpp"
+#include "Vendor.hpp"
 #include "cache.hpp"
 #include "download.hpp"
 #include "utils.hpp"
 
 void create_cache(sqlite3* conn) {
-    std::vector<Vendor> vendors = download_data();
+    const std::string data = download_data();
+
+    std::istringstream stream(data);
+    std::string        line;
 
     char* err;
 
@@ -42,7 +47,14 @@ void create_cache(sqlite3* conn) {
         throw AppError("prepare statement failed", conn);
     }
 
-    for (auto& v : vendors) {
+    // Discard the header line
+    std::getline(stream, line);
+
+    while (std::getline(stream, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        Vendor v(line);
         if (v.bind(stmt) != SQLITE_OK) {
             throw AppError("value bind failed", conn);
         }

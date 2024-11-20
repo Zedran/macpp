@@ -1,10 +1,7 @@
 #include <curl/curl.h>
 #include <memory>
-#include <sstream>
-#include <vector>
 
 #include "AppError.hpp"
-#include "Vendor.hpp"
 #include "utils.hpp"
 
 // WRITEFUNCTION function for cURL.
@@ -15,26 +12,7 @@ size_t write_data(void* buffer, size_t size, size_t nmemb, void* userp) {
     return size * nmemb;
 }
 
-// Parses raw CSV data into a vector of Vendor structs.
-std::vector<Vendor> parse_csv(const std::string& data) {
-    std::vector<Vendor> vendors;
-
-    std::istringstream stream(data);
-    std::string        line;
-
-    // Discard the header line
-    std::getline(stream, line);
-
-    while (std::getline(stream, line)) {
-        if (!line.empty()) {
-            vendors.push_back(Vendor(line));
-        }
-    }
-
-    return vendors;
-}
-
-std::vector<Vendor> download_data() {
+std::string download_data() {
     const char* URL = "https://maclookup.app/downloads/csv-database/get-db";
 
     CURLcode    code;
@@ -65,5 +43,5 @@ std::vector<Vendor> download_data() {
         throw(AppError(curl_easy_strerror(code)));
     }
 
-    return parse_csv(readBuffer);
+    return readBuffer;
 }
