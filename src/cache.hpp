@@ -7,3 +7,5 @@
 void get_conn(sqlite3*& conn);
 
 std::vector<Vendor> query_addr(sqlite3* conn, const std::string& address);
+
+std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name);

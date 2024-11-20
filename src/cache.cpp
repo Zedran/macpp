@@ -103,3 +103,26 @@ std::vector<Vendor> query_addr(sqlite3* conn, const std::string& address) {
 
     return results;
 }
+
+std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name) {
+    const std::string stmt_string = "SELECT * FROM vendors WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY";
+
+    std::vector<Vendor> results;
+
+    sqlite3_stmt* stmt;
+    auto          finalize = finally([&] { sqlite3_finalize(stmt); });
+
+    if (sqlite3_prepare_v2(conn, stmt_string.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        throw(AppError("query_name: prepare statement failed", conn));
+    }
+
+    if (sqlite3_bind_text(stmt, 1, vendor_name.c_str(), -1, SQLITE_STATIC) != SQLITE_OK) {
+        throw(AppError("query_name: value bind failed", conn));
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        results.push_back(Vendor(stmt));
+    }
+
+    return results;
+}

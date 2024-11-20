@@ -18,7 +18,7 @@ int main() {
 
     try {
         get_conn(conn);
-        results = query_addr(conn, "00:00:00");
+        results = query_name(conn, "xerox");
     } catch (const AppError& e) {
         std::cerr << e.what() << std::endl;
         return 1;
@@ -31,7 +31,7 @@ int main() {
         std::cout << "no matches found\n";
     } else {
         for (auto& v : results)
-            std::cout << v << '\n';
+            std::cout << v << "\n\n";
     }
 
     return 0;
