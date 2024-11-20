@@ -58,11 +58,11 @@ Vendor::Vendor(sqlite3_stmt* stmt) {
 
 int Vendor::bind(sqlite3_stmt* stmt) {
     return sqlite3_bind_int64(stmt, 1, prefix_to_id(mac_prefix)) +
-           sqlite3_bind_text(stmt, 2, mac_prefix.c_str(), -1, SQLITE_TRANSIENT) +
-           sqlite3_bind_text(stmt, 3, vendor_name.c_str(), -1, SQLITE_TRANSIENT) +
+           sqlite3_bind_text(stmt, 2, mac_prefix.c_str(), -1, SQLITE_STATIC) +
+           sqlite3_bind_text(stmt, 3, vendor_name.c_str(), -1, SQLITE_STATIC) +
            sqlite3_bind_int(stmt, 4, is_private ? 1 : 0) +
-           sqlite3_bind_text(stmt, 5, block_type.c_str(), -1, SQLITE_TRANSIENT) +
-           sqlite3_bind_text(stmt, 6, last_update.c_str(), -1, SQLITE_TRANSIENT);
+           sqlite3_bind_text(stmt, 5, block_type.c_str(), -1, SQLITE_STATIC) +
+           sqlite3_bind_text(stmt, 6, last_update.c_str(), -1, SQLITE_STATIC);
 }
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
