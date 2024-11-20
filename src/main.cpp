@@ -11,7 +11,7 @@ int main() {
         return -1;
     }
 
-    sqlite3* conn;
+    sqlite3* conn{};
 
     auto cleanup = finally([&] {
         if (sqlite3_close(conn) != SQLITE_OK) {

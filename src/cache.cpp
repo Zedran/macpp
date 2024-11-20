@@ -15,7 +15,7 @@ void create_cache(sqlite3* conn) {
     std::istringstream stream(data);
     std::string        line;
 
-    char* err;
+    char* err{};
 
     auto free_err = finally([&] { sqlite3_free(err); });
 
@@ -40,7 +40,7 @@ void create_cache(sqlite3* conn) {
     const char* insert_stmt =
         "INSERT INTO vendors (id, addr, name, private, block, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
 
-    sqlite3_stmt* stmt;
+    sqlite3_stmt* stmt{};
     auto          finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, insert_stmt, -1, &stmt, nullptr) != SQLITE_OK) {
@@ -96,7 +96,7 @@ std::vector<Vendor> query_addr(sqlite3* conn, const std::string& address) {
 
     std::vector<Vendor> results;
 
-    sqlite3_stmt* stmt;
+    sqlite3_stmt* stmt{};
     auto          finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, stmt_string.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
@@ -121,7 +121,7 @@ std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name) {
 
     std::vector<Vendor> results;
 
-    sqlite3_stmt* stmt;
+    sqlite3_stmt* stmt{};
     auto          finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, stmt_string.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
