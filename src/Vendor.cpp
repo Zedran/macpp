@@ -6,7 +6,7 @@
 #include "Vendor.hpp"
 #include "utils.hpp"
 
-Vendor::Vendor(const std::string line) {
+Vendor::Vendor(const std::string& line) {
     // :0C,"Cisco Systems, Inc.",f    or    :D,"BrightSky, LLC",f
     const std::regex quotes{R"(:[0123456789ABCDEF]{1,2},".*",[ft])"};
 
@@ -36,12 +36,17 @@ Vendor::Vendor(const std::string line) {
     is_private = (priv_str == "true") ? true : false;
 }
 
-Vendor::Vendor(std::string mac_prefix, std::string vendor_name, bool is_private, std::string block_type, std::string last_update)
-    : mac_prefix(mac_prefix),
-      vendor_name(vendor_name),
-      is_private(is_private),
-      block_type(block_type),
-      last_update(last_update) {}
+Vendor::Vendor(
+    const std::string& mac_prefix,
+    const std::string& vendor_name,
+    const bool         is_private,
+    const std::string& block_type,
+    const std::string& last_update
+) : mac_prefix(mac_prefix),
+    vendor_name(vendor_name),
+    is_private(is_private),
+    block_type(block_type),
+    last_update(last_update) {}
 
 Vendor::Vendor(sqlite3_stmt* stmt) {
     mac_prefix  = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
