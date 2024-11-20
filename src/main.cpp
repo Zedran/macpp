@@ -6,11 +6,19 @@
 #include "utils.hpp"
 
 int main() {
+    if (sqlite3_initialize() != SQLITE_OK) {
+        std::cerr << "failed to initialize sqlite" << std::endl;
+        return -1;
+    }
+
     sqlite3* conn;
 
-    auto close = finally([&] {
+    auto cleanup = finally([&] {
         if (sqlite3_close(conn) != SQLITE_OK) {
             std::cerr << "failed to close connection" << std::endl;
+        }
+        if (sqlite3_shutdown() != SQLITE_OK) {
+            std::cerr << "failed to shutdown sqlite" << std::endl;
         }
     });
 
