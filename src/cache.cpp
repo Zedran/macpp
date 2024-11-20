@@ -63,7 +63,7 @@ void create_cache(sqlite3* conn) {
 
 // Returns sqlite3 connection to cached database. If it does not exist,
 // a new cache file is created.
-void get_conn(sqlite3* conn) {
+void get_conn(sqlite3*& conn) {
     const std::string  path{"mac.db"};
     const std::fstream cache_file(path);
 
@@ -76,4 +76,30 @@ void get_conn(sqlite3* conn) {
     if (!file_ok) {
         create_cache(conn);
     }
+}
+
+std::vector<Vendor> query_addr(sqlite3* conn, const std::string address) {
+    const std::vector<int64_t> queries     = construct_queries(address);
+    const std::string          stmt_string = build_query_by_id_stmt(queries.size());
+
+    std::vector<Vendor> results;
+
+    sqlite3_stmt* stmt;
+    auto          finalize = finally([&] { sqlite3_finalize(stmt); });
+
+    if (sqlite3_prepare_v2(conn, stmt_string.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        throw(AppError("prepare statement failed", conn));
+    }
+
+    for (size_t i = 0; i < queries.size(); i++) {
+        if (sqlite3_bind_int64(stmt, static_cast<int>(i + 1), queries[i]) != SQLITE_OK) {
+            throw(AppError("value bind failed", conn));
+        }
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        results.push_back(Vendor(stmt));
+    }
+
+    return results;
 }

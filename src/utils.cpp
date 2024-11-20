@@ -1,6 +1,56 @@
 #include <algorithm>
-#include <cstdint>
-#include <string>
+#include <sstream>
+
+#include "AppError.hpp"
+#include "utils.hpp"
+
+std::string build_query_by_id_stmt(const size_t length) {
+    std::ostringstream stmt_stream;
+    stmt_stream << "SELECT * FROM vendors WHERE id IN (?";
+
+    // From 1, the first placeholder is appended beforehand.
+    for (size_t i = 1; i < length; i++) {
+        stmt_stream << ",?";
+    }
+    stmt_stream << ");";
+
+    return stmt_stream.str();
+}
+
+std::vector<int64_t> construct_queries(const std::string& addr) {
+    constexpr size_t VENDOR_BLOCK_LENGTHS[3] = {6, 7, 9};
+
+    std::vector<int64_t> queries;
+
+    std::string ieee_block;
+    for (auto& block_len : VENDOR_BLOCK_LENGTHS) {
+        ieee_block = get_ieee_block(addr, block_len);
+
+        if (!ieee_block.empty()) {
+            queries.push_back(prefix_to_id(ieee_block));
+        }
+    }
+
+    if (queries.empty()) {
+        throw AppError("query '" + addr + "' too short");
+    }
+
+    return queries;
+}
+
+std::string get_ieee_block(const std::string& addr, const size_t block_len) {
+    std::string stripped = addr;
+
+    stripped.erase(std::remove(stripped.begin(), stripped.end(), ':'), stripped.end());
+
+    if (stripped.length() < block_len) {
+        return "";
+    }
+
+    stripped = stripped.substr(0, block_len);
+
+    return stripped;
+}
 
 int64_t prefix_to_id(const std::string& prefix) {
     std::string s = prefix;

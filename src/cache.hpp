@@ -1,5 +1,9 @@
 #pragma once
 
-#include <sqlite3.h>
+#include <vector>
 
-void get_conn(sqlite3* conn);
+#include "Vendor.hpp"
+
+void get_conn(sqlite3*& conn);
+
+std::vector<Vendor> query_addr(sqlite3* conn, std::string address);
