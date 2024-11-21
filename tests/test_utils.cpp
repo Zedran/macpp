@@ -6,7 +6,7 @@
 #include "utils.hpp"
 
 // A helper function that directs a space-separated list of vec elements to oss.
-void append_vector(std::ostringstream& oss, const std::vector<int64_t> vec) {
+void append_vector(std::ostringstream& oss, const std::vector<int64_t>& vec) {
     for (size_t i = 0; i < vec.size(); i++)
         oss << vec[i] << (i != vec.size() - 1 ? " " : "");
 }
