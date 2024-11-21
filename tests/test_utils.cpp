@@ -41,11 +41,11 @@ TEST_CASE("construct_queries") {
     };
 
     const test_case cases[] = {
-        test_case{"00:00:00", std::vector<int64_t>{0}},
-        test_case{"000000", std::vector<int64_t>{0}},
-        test_case{"5C:F2:86:D", std::vector<int64_t>{6091398, 97462381}},
-        test_case{"8C:1F:64:F5:A", std::vector<int64_t>{9183076, 146929231, 37613883226}},
-        test_case{"8C:1F:64:F5:A0:00", std::vector<int64_t>{9183076, 146929231, 37613883226}},
+        test_case{"00:00:00", {0}},
+        test_case{"000000", {0}},
+        test_case{"5C:F2:86:D", {6091398, 97462381}},
+        test_case{"8C:1F:64:F5:A", {9183076, 146929231, 37613883226}},
+        test_case{"8C:1F:64:F5:A0:00", {9183076, 146929231, 37613883226}},
     };
 
     for (auto& c : cases) {
