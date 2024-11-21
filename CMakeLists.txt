@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 project(macpp)
 
 option(MAKE_TESTS OFF)
@@ -19,9 +19,18 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CATCH2_VERSION v3.7.1)
+set(ARGPARSE_VERSION v3.1)
 
 find_package(CURL REQUIRED)
 find_package(SQLite3 REQUIRED)
+
+include(FetchContent)
+FetchContent_Declare(
+	argparse
+	DOWNLOAD_EXTRACT_TIMESTAMP OFF
+	URL https://github.com/p-ranav/argparse/archive/refs/tags/${ARGPARSE_VERSION}.tar.gz
+)
+FetchContent_MakeAvailable(argparse)
 
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 list(FILTER SOURCES EXCLUDE REGEX "main.cpp")
@@ -30,7 +39,7 @@ add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl sqlite3)
+target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl sqlite3 argparse)
 
 if (MAKE_TESTS)
 	enable_testing()

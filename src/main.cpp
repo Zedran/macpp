@@ -2,10 +2,23 @@
 #include <iostream>
 
 #include "AppError.hpp"
+#include "argparse/argparse.hpp"
 #include "cache.hpp"
 #include "utils.hpp"
 
-int main() {
+void setup_parser(argparse::ArgumentParser& app);
+
+int main(int argc, char* argv[]) {
+    argparse::ArgumentParser app("macpp");
+    setup_parser(app);
+
+    try {
+        app.parse_args(argc, argv);
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
+        return -2;
+    }
+
     if (sqlite3_initialize() != SQLITE_OK) {
         std::cerr << "failed to initialize sqlite" << std::endl;
         return -1;
@@ -26,7 +39,13 @@ int main() {
 
     try {
         get_conn(conn);
-        results = query_name(conn, "xerox");
+
+        if (app.is_used("--addr"))
+            results = query_addr(conn, app.get("--addr"));
+        else if (app.is_used("--name"))
+            results = query_name(conn, app.get("--name"));
+        else
+            throw(AppError("no action specified"));
     } catch (const AppError& e) {
         std::cerr << e.what() << std::endl;
         return 1;
@@ -43,4 +62,16 @@ int main() {
     }
 
     return 0;
+}
+
+void setup_parser(argparse::ArgumentParser& app) {
+    app.add_description("A simple tool for MAC address lookup.");
+    app.set_usage_max_line_width(80);
+
+    app.add_argument("-a", "--addr")
+        .help("Search by MAC address (e.g. \"000000\", \"01:23:45:67:89:01\").")
+        .metavar("ADDR");
+    app.add_argument("-n", "--name")
+        .help("Search by vendor name (e.g. \"xerox\", \"xerox corporation\").")
+        .metavar("NAME");
 }
