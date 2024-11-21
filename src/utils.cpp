@@ -21,6 +21,7 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     constexpr size_t VENDOR_BLOCK_LENGTHS[3] = {6, 7, 9};
 
     std::vector<int64_t> queries;
+    queries.reserve(3);
 
     std::string ieee_block;
     for (auto& block_len : VENDOR_BLOCK_LENGTHS) {
