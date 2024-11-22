@@ -57,7 +57,14 @@ int64_t prefix_to_id(const std::string& prefix) {
     std::string s = prefix;
     s.erase(std::remove(s.begin(), s.end(), ':'), s.end());
 
-    return std::stoll(s, nullptr, 16);
+    size_t  pos  = 0;
+    int64_t conv = std::stoll(s, &pos, 16);
+
+    // Check if stoll did not stop too early
+    if (pos != s.length())
+        throw(std::invalid_argument("non-hex character encountered"));
+
+    return conv;
 }
 
 void replace_escaped_quotes(std::string& str) {

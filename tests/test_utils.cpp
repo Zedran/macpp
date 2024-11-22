@@ -2,7 +2,6 @@
 #include <map>
 #include <sstream>
 
-#include "AppError.hpp"
 #include "utils.hpp"
 
 // A helper function that directs a space-separated list of vec elements to oss.
@@ -46,6 +45,7 @@ TEST_CASE("construct_queries") {
         test_case{"5C:F2:86:D", {6091398, 97462381}},
         test_case{"8C:1F:64:F5:A", {9183076, 146929231, 37613883226}},
         test_case{"8C:1F:64:F5:A0:00", {9183076, 146929231, 37613883226}},
+        test_case{"00:::0222", {546}},
     };
 
     for (auto& c : cases) {
@@ -70,10 +70,14 @@ TEST_CASE("construct_queries") {
         "00",
         "00:00",
         "0::::::0", // Extra separators allowed, but should not count as digits.
+        "::::::",
+        "0002w22",
+        "xxxxxx",
+        "00000w",
     };
 
     for (auto& c : bad_cases) {
-        REQUIRE_THROWS_AS(construct_queries(c), AppError);
+        REQUIRE_THROWS_AS(construct_queries(c), std::exception);
     }
 }
 
