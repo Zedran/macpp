@@ -24,7 +24,7 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     queries.reserve(3);
 
     std::string ieee_block;
-    for (auto& block_len : VENDOR_BLOCK_LENGTHS) {
+    for (const auto& block_len : VENDOR_BLOCK_LENGTHS) {
         ieee_block = get_ieee_block(addr, block_len);
 
         if (!ieee_block.empty()) {

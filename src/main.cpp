@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     if (results.empty()) {
         std::cout << "no matches found\n";
     } else {
-        for (auto& v : results)
+        for (const auto& v : results)
             std::cout << v << "\n\n";
     }
 
