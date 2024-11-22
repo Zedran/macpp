@@ -36,5 +36,5 @@ std::string get_ieee_block(const std::string& addr, const size_t block_len);
 // Converts MAC prefix (10:10:10) from string to an integer.
 int64_t prefix_to_id(const std::string& prefix);
 
-// Removes "" (CSV escaped quotes) from str.
+// Replaces "" (CSV escaped quotes) in str with ".
 void replace_escaped_quotes(std::string& str);
