@@ -91,6 +91,10 @@ void get_conn(sqlite3*& conn) {
 }
 
 std::vector<Vendor> query_addr(sqlite3* conn, const std::string& address) {
+    if (address.empty()) {
+        throw(AppError("MAC address cannot be empty"));
+    }
+
     const std::vector<int64_t> queries     = construct_queries(address);
     const std::string          stmt_string = build_query_by_id_stmt(queries.size());
 
