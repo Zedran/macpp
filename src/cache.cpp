@@ -117,7 +117,10 @@ std::vector<Vendor> query_addr(sqlite3* conn, const std::string& address) {
 }
 
 std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name) {
-    const std::string stmt_string = "SELECT * FROM vendors WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY";
+    const std::string stmt_string =
+        "SELECT * FROM vendors WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY ESCAPE '\\'";
+
+    std::string query = suppress_like_wildcards(vendor_name);
 
     std::vector<Vendor> results;
 
@@ -128,7 +131,7 @@ std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name) {
         throw(AppError("query_name: prepare statement failed", conn));
     }
 
-    if (sqlite3_bind_text(stmt, 1, vendor_name.c_str(), -1, SQLITE_STATIC) != SQLITE_OK) {
+    if (sqlite3_bind_text(stmt, 1, query.c_str(), -1, SQLITE_STATIC) != SQLITE_OK) {
         throw(AppError("query_name: value bind failed", conn));
     }
 

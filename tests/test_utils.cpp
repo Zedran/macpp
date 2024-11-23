@@ -81,6 +81,23 @@ TEST_CASE("construct_queries") {
     }
 }
 
+TEST_CASE("suppress_like_wildcards") {
+    const std::map<std::string, std::string> cases = {
+        {"DIG_LINK", R"(DIG\_LINK)"},
+        {"Ad%ced Micro Devices", R"(Ad\%ced Micro Devices)"},
+        {"Cisco Systems, Inc", "Cisco Systems, Inc"},
+        {"_", R"(\_)"},
+    };
+
+    for (const auto& [input, expected] : cases) {
+        std::string out = suppress_like_wildcards(input);
+
+        if (out != expected) {
+            FAIL_CHECK(std::format("failed for '{}': got '{}'", input, out));
+        }
+    }
+}
+
 TEST_CASE("get_ieee_block") {
     struct test_case {
         size_t      block_length;

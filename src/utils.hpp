@@ -38,3 +38,6 @@ int64_t prefix_to_id(const std::string& prefix);
 
 // Replaces "" (CSV escaped quotes) in str with ".
 void replace_escaped_quotes(std::string& str);
+
+// Inserts an escape character before every occurence of '%' and '_' in str.
+std::string suppress_like_wildcards(const std::string& str);
