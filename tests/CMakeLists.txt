@@ -36,3 +36,19 @@ add_test(
 )
 
 set_tests_properties(${test_name} PROPERTIES TIMEOUT 30)
+
+if (COVER)
+	target_compile_options(${test_name} PRIVATE -g --coverage)
+	target_link_options(${test_name} PRIVATE --coverage)
+
+	find_program(LCOV lcov REQUIRED)
+	find_program(GENHTML genhtml REQUIRED)
+
+	add_custom_target(cover
+		COMMAND ${LCOV} --quiet --capture --directory . --output-file coverage.info 2> lcov.log
+		COMMAND ${LCOV} --quiet --extract coverage.info '*/src/*' --output-file coverage.info
+		COMMAND ${LCOV} --quiet --remove coverage.info 'catch2*'  --output-file coverage.info
+		COMMAND ${GENHTML} coverage.info --quiet --demangle-cpp --dark --output-directory cover
+		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+	)
+endif()

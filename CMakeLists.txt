@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(macpp)
 
 option(MAKE_TESTS OFF)
+option(COVER OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
