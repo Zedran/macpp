@@ -1,5 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include <format>
+#include <sstream>
+
 #include "Vendor.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
@@ -54,5 +57,45 @@ TEST_CASE("Vendor") {
         REQUIRE(out.is_private == c.expected.is_private);
         REQUIRE(out.block_type == c.expected.block_type);
         REQUIRE(out.last_update == c.expected.last_update);
+    }
+}
+
+TEST_CASE("Vendor::operator<<") {
+    struct test_case {
+        Vendor      input;
+        std::string expected;
+    };
+
+    const test_case cases[] = {
+        {Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
+         "MAC prefix   00:00:0C\n"
+         "Vendor name  Cisco Systems, Inc\n"
+         "Private      no\n"
+         "Block type   MA-L\n"
+         "Last update  2015/11/17"},
+        {Vendor{"00:48:54", "", true, "", "0001/01/01"},
+         "MAC prefix   00:48:54\n"
+         "Vendor name  -\n"
+         "Private      yes\n"
+         "Block type   -\n"
+         "Last update  -"},
+    };
+
+    std::ostringstream oss;
+    for (const auto& c : cases) {
+        oss << c.input;
+
+        std::string out = oss.str();
+        if (out != c.expected) {
+            FAIL(std::format(
+                "failed for '{}'\n\nexpected:\n{}\n\ngot:\n{}",
+                c.input.mac_prefix,
+                c.expected,
+                out
+            ));
+        }
+
+        oss.str("");
+        oss.clear();
     }
 }
