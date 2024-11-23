@@ -128,7 +128,7 @@ std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name) {
         throw(AppError("vendor name cannot be empty"));
     }
 
-    std::string query = suppress_like_wildcards(vendor_name);
+    const std::string query = suppress_like_wildcards(vendor_name);
 
     std::vector<Vendor> results;
 
