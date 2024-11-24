@@ -66,4 +66,12 @@ TEST_CASE("injections") {
         if (c != out.at(0).vendor_name)
             FAIL(std::format("failed for case '{}': got '{}', expected '{}'", c, out.at(0).vendor_name, c));
     }
+
+    const std::string throw_cases[] = {
+        "",
+    };
+
+    for (const auto& c : throw_cases) {
+        REQUIRE_THROWS(query_name(conn, c));
+    }
 }
