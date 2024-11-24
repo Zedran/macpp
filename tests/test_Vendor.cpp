@@ -10,7 +10,7 @@
 // vendor_name can contain a comma, therefore the CSV string needs to be
 // wrapped in quotes. Vendor constructor must account for that when gathering
 // values from line.
-TEST_CASE("Vendor") {
+TEST_CASE("Vendor::Vendor(const std::string& line)") {
     struct test_case {
         std::string input;
         Vendor      expected;
