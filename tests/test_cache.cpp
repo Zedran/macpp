@@ -2,8 +2,8 @@
 #include <format>
 #include <sqlite3.h>
 
+#include "FinalAction.hpp"
 #include "cache.hpp"
-#include "utils.hpp"
 
 // Creates an in-memory database for testing cache. Returns sqlite3 code.
 int create_test_cache(sqlite3*& conn) {

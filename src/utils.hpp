@@ -4,19 +4,6 @@
 #include <string>
 #include <vector>
 
-template <class F>
-struct FinalAction {
-    F act;
-
-    explicit FinalAction(F f) : act(f) {}
-    ~FinalAction() { act(); };
-};
-
-template <class F>
-[[nodiscard]] auto finally(F f) {
-    return FinalAction{f};
-}
-
 // A helper function that appends the correct number of placeholders
 // to the sqlite statement in construction.
 std::string build_query_by_id_stmt(const size_t length);

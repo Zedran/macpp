@@ -4,6 +4,7 @@
 #include <string>
 
 #include "AppError.hpp"
+#include "FinalAction.hpp"
 #include "Vendor.hpp"
 #include "cache.hpp"
 #include "download.hpp"
