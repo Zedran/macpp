@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (sqlite3_initialize() != SQLITE_OK) {
-        std::cerr << "failed to initialize sqlite" << '\n';
+        std::cerr << "failed to initialize sqlite\n";
         return -1;
     }
 
@@ -28,10 +28,10 @@ int main(int argc, char* argv[]) {
 
     auto cleanup = finally([&] {
         if (sqlite3_close(conn) != SQLITE_OK) {
-            std::cerr << "failed to close connection" << '\n';
+            std::cerr << "failed to close connection\n";
         }
         if (sqlite3_shutdown() != SQLITE_OK) {
-            std::cerr << "failed to shutdown sqlite" << '\n';
+            std::cerr << "failed to shutdown sqlite\n";
         }
     });
 
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
         std::cerr << e.what() << '\n';
         return 1;
     } catch (const std::invalid_argument& e) {
-        std::cerr << "invalid address" << '\n';
+        std::cerr << "invalid address\n";
         return 1;
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
