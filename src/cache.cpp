@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <sqlite3.h>
 #include <sstream>
 #include <string>
@@ -158,4 +159,40 @@ std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name) {
     }
 
     return results;
+}
+
+void update_cache(sqlite3*& conn, const std::string& cache_path) {
+    using std::filesystem::exists;
+    using std::filesystem::file_size;
+
+    if (!exists(cache_path) || file_size(cache_path) == 0) {
+        // If a previous database creation run encountered problems,
+        // an empty file may remain at cache_path. It is safe to write
+        // into such file.
+        get_conn(conn, cache_path);
+        return;
+    }
+
+    const std::string old_cache_path = cache_path + ".old";
+
+    if (exists(old_cache_path)) {
+        std::remove(old_cache_path.c_str());
+    }
+
+    std::rename(cache_path.c_str(), old_cache_path.c_str());
+
+    try {
+        // Nested try-catch to be able to revert in case of problems
+        get_conn(conn, cache_path);
+    } catch (std::exception& e) {
+        // Restore old cache file if something goes wrong
+        if (exists(cache_path)) {
+            std::remove(cache_path.c_str());
+        }
+
+        if (exists(old_cache_path)) {
+            std::rename(old_cache_path.c_str(), cache_path.c_str());
+        }
+        throw(AppError("update failed: " + static_cast<std::string>(e.what())));
+    }
 }

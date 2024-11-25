@@ -14,3 +14,7 @@ void get_conn(sqlite3*& conn, const std::string& cache_path);
 std::vector<Vendor> query_addr(sqlite3* conn, const std::string& address);
 
 std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name);
+
+// Updates the database file at cache_path. Preserves the most recently
+// created database. If an update fails, the most recent database is restored.
+void update_cache(sqlite3*& conn, const std::string& cache_path);

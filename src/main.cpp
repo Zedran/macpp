@@ -19,6 +19,8 @@ int main(int argc, char* argv[]) {
         return -2;
     }
 
+    const std::string cache_path = "mac.db";
+
     if (sqlite3_initialize() != SQLITE_OK) {
         std::cerr << "failed to initialize sqlite\n";
         return -1;
@@ -38,7 +40,12 @@ int main(int argc, char* argv[]) {
     std::vector<Vendor> results;
 
     try {
-        get_conn(conn, "mac.db");
+        if (app.is_used("--update")) {
+            update_cache(conn, cache_path);
+            return 0;
+        }
+
+        get_conn(conn, cache_path);
 
         if (app.is_used("--addr"))
             results = query_addr(conn, app.get("--addr"));
@@ -77,4 +84,7 @@ void setup_parser(argparse::ArgumentParser& app) {
     app.add_argument("-n", "--name")
         .help("Search by vendor name (e.g. \"xerox\", \"xerox corporation\").")
         .metavar("NAME");
+    app.add_argument("-u", "--update")
+        .help("Update vendor database and exit.")
+        .flag();
 }
