@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
     std::vector<Vendor> results;
 
     try {
-        get_conn(conn);
+        get_conn(conn, "mac.db");
 
         if (app.is_used("--addr"))
             results = query_addr(conn, app.get("--addr"));

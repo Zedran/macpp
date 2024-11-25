@@ -33,6 +33,23 @@ int create_test_cache(sqlite3*& conn) {
     return code;
 }
 
+TEST_CASE("get_conn") {
+    sqlite3_initialize();
+
+    sqlite3* conn{};
+
+    auto cleanup = finally([&] {
+        sqlite3_close(conn);
+        sqlite3_shutdown();
+    });
+
+    // A good cache file
+    REQUIRE_NOTHROW(get_conn(conn, "testdata/sample.db"));
+
+    // Non-empty file that is not a SQLite database
+    REQUIRE_THROWS(get_conn(conn, "testdata/not_cache.txt"));
+}
+
 TEST_CASE("injections") {
     sqlite3_initialize();
 

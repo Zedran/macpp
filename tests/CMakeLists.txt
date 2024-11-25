@@ -37,6 +37,23 @@ add_test(
 
 set_tests_properties(${test_name} PROPERTIES TIMEOUT 30)
 
+set(TESTDATA_SRC  ${PROJECT_SOURCE_DIR}/tests/testdata)
+set(TESTDATA_DEST ${PROJECT_BINARY_DIR}/testdata)
+set(TESTDATA_SQL  ${TESTDATA_DEST}/sample.sql)
+set(TESTDATA_DB   ${TESTDATA_DEST}/sample.db)
+
+add_custom_target(copy_testdata ALL
+	COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${TESTDATA_SRC} ${TESTDATA_DEST}
+)
+
+add_custom_command(
+	OUTPUT ${TESTDATA_DB}
+	COMMAND sqlite3 ${TESTDATA_DB} -batch ".read ${TESTDATA_SQL}"
+	DEPENDS ${TESTDATA_SQL} copy_testdata
+)
+
+add_custom_target(build_db ALL DEPENDS ${TESTDATA_DB})
+
 if (COVER)
 	target_compile_options(${test_name} PRIVATE -g --coverage)
 	target_link_options(${test_name} PRIVATE --coverage)
@@ -51,7 +68,7 @@ if (COVER)
 		COMMAND ${LCOV} --quiet --extract coverage.info '*/src/*' --output-file coverage.info
 		COMMAND ${LCOV} --quiet --remove coverage.info 'catch2*'  --output-file coverage.info
 		COMMAND ${GENHTML} coverage.info --quiet --demangle-cpp --dark --output-directory cover
-		DEPENDS ${test_name}
+		DEPENDS ${test_name} build_db
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
 	)
 endif()
