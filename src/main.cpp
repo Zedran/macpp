@@ -5,6 +5,7 @@
 #include "FinalAction.hpp"
 #include "argparse/argparse.hpp"
 #include "cache.hpp"
+#include "dir.hpp"
 
 void setup_parser(argparse::ArgumentParser& app);
 
@@ -18,8 +19,6 @@ int main(int argc, char* argv[]) {
         std::cerr << e.what() << '\n';
         return -2;
     }
-
-    const std::string cache_path = "mac.db";
 
     if (sqlite3_initialize() != SQLITE_OK) {
         std::cerr << "failed to initialize sqlite\n";
@@ -40,6 +39,8 @@ int main(int argc, char* argv[]) {
     std::vector<Vendor> results;
 
     try {
+        const std::string cache_path = prepare_cache_dir();
+
         if (app.is_used("--update")) {
             update_cache(conn, cache_path);
             return 0;
