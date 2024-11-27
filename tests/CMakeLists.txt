@@ -42,6 +42,9 @@ set(TESTDATA_DEST ${PROJECT_BINARY_DIR}/testdata)
 set(TESTDATA_SQL  ${TESTDATA_DEST}/sample.sql)
 set(TESTDATA_DB   ${TESTDATA_DEST}/sample.db)
 
+set(TESTDATA_POISONED_SQL ${TESTDATA_DEST}/poisoned.sql)
+set(TESTDATA_POISONED_DB  ${TESTDATA_DEST}/poisoned.db)
+
 add_custom_target(copy_testdata ALL
 	COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${TESTDATA_SRC} ${TESTDATA_DEST}
 )
@@ -52,7 +55,13 @@ add_custom_command(
 	DEPENDS ${TESTDATA_SQL} copy_testdata
 )
 
-add_custom_target(build_db ALL DEPENDS ${TESTDATA_DB})
+add_custom_command(
+	OUTPUT ${TESTDATA_POISONED_DB}
+	COMMAND sqlite3 ${TESTDATA_POISONED_DB} -batch ".read ${TESTDATA_POISONED_SQL}"
+	DEPENDS ${TESTDATA_POISONED_SQL} copy_testdata
+)
+
+add_custom_target(build_db ALL DEPENDS ${TESTDATA_DB} ${TESTDATA_POISONED_DB})
 
 if (COVER)
 	target_compile_options(${test_name} PRIVATE -g --coverage)

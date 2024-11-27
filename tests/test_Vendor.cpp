@@ -3,7 +3,9 @@
 #include <format>
 #include <sstream>
 
+#include "FinalAction.hpp"
 #include "Vendor.hpp"
+#include "cache.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
 // The main challenge is that the file is comma-separated and sometimes
@@ -58,6 +60,28 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
         REQUIRE(out.block_type == c.expected.block_type);
         REQUIRE(out.last_update == c.expected.last_update);
     }
+}
+
+// Ensures that a NULL text value returned from the database
+// is correctly handled. Although the vendors table does not
+// allow NULL text values, the check was implemented
+// for protection against a compromised cache.
+TEST_CASE("Vendor::Vendor(sqlite3_stmt* stmt)") {
+    sqlite3_initialize();
+
+    sqlite3* conn{};
+
+    auto cleanup = finally([&] {
+        sqlite3_close(conn);
+        sqlite3_shutdown();
+    });
+
+    get_conn(conn, "testdata/poisoned.db");
+
+    std::vector<Vendor> results = query_addr(conn, "00:00:0C");
+
+    REQUIRE(!results.empty());
+    REQUIRE(results.at(0).vendor_name == "");
 }
 
 TEST_CASE("Vendor::operator<<") {

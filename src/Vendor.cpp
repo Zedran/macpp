@@ -6,6 +6,8 @@
 #include "Vendor.hpp"
 #include "utils.hpp"
 
+static inline std::string get_column_text(sqlite3_stmt* stmt, int coln);
+
 Vendor::Vendor(const std::string& line) {
     // :0C,"Cisco Systems, Inc.",f    or    :D,"BrightSky, LLC",f
     const std::regex quotes{R"(:[0123456789ABCDEF]{1,2},".*",[ft])"};
@@ -49,11 +51,11 @@ Vendor::Vendor(
     last_update(last_update) {}
 
 Vendor::Vendor(sqlite3_stmt* stmt)
-    : mac_prefix(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1))),
-      vendor_name(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2))),
+    : mac_prefix(get_column_text(stmt, 1)),
+      vendor_name(get_column_text(stmt, 2)),
       is_private(sqlite3_column_int(stmt, 3) != 0),
-      block_type(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4))),
-      last_update(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5))) {}
+      block_type(get_column_text(stmt, 4)),
+      last_update(get_column_text(stmt, 5)) {}
 
 int Vendor::bind(sqlite3_stmt* stmt) {
     return sqlite3_bind_int64(stmt, 1, prefix_to_id(mac_prefix)) +
@@ -71,4 +73,15 @@ std::ostream& operator<<(std::ostream& os, const Vendor& v) {
        << "Block type   " << (v.is_private ? "-" : v.block_type) << '\n'
        << "Last update  " << (v.is_private ? "-" : v.last_update);
     return os;
+}
+
+// Returns a string value stored in column 'coln' of sqlite row. If the value
+// is NULL, an empty string is returned.
+static inline std::string get_column_text(sqlite3_stmt* stmt, int coln) {
+    const unsigned char* text = sqlite3_column_text(stmt, coln);
+
+    if (text) {
+        return reinterpret_cast<const char*>(text);
+    }
+    return "";
 }
