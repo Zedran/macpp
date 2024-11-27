@@ -176,10 +176,10 @@ void update_cache(sqlite3*& conn, const std::string& cache_path) {
     const std::string old_cache_path = cache_path + ".old";
 
     if (exists(old_cache_path)) {
-        std::remove(old_cache_path.c_str());
+        std::filesystem::remove(old_cache_path.c_str());
     }
 
-    std::rename(cache_path.c_str(), old_cache_path.c_str());
+    std::filesystem::rename(cache_path.c_str(), old_cache_path.c_str());
 
     try {
         // Nested try-catch to be able to revert in case of problems
@@ -187,11 +187,11 @@ void update_cache(sqlite3*& conn, const std::string& cache_path) {
     } catch (std::exception& e) {
         // Restore old cache file if something goes wrong
         if (exists(cache_path)) {
-            std::remove(cache_path.c_str());
+            std::filesystem::remove(cache_path.c_str());
         }
 
         if (exists(old_cache_path)) {
-            std::rename(old_cache_path.c_str(), cache_path.c_str());
+            std::filesystem::rename(old_cache_path.c_str(), cache_path.c_str());
         }
         throw(AppError("update failed: " + static_cast<std::string>(e.what())));
     }
