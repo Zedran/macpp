@@ -5,12 +5,13 @@
 #include "FinalAction.hpp"
 #include "argparse/argparse.hpp"
 #include "cache.hpp"
+#include "config.hpp"
 #include "dir.hpp"
 
 void setup_parser(argparse::ArgumentParser& app);
 
 int main(int argc, char* argv[]) {
-    argparse::ArgumentParser app("macpp");
+    argparse::ArgumentParser app("macpp", std::string(VERSION_INFO));
     setup_parser(app);
 
     try {

@@ -19,6 +19,11 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
+set(CONFIG_HPP_TARGET   config_hpp)
+set(CONFIG_HPP_SCRIPT   ${PROJECT_SOURCE_DIR}/cmake/config_hpp.cmake)
+set(CONFIG_HPP_TEMPLATE ${PROJECT_SOURCE_DIR}/src/config.hpp.in)
+set(CONFIG_HPP_OUT      ${PROJECT_SOURCE_DIR}/src/config.hpp)
+
 set(CATCH2_VERSION v3.7.1)
 set(ARGPARSE_VERSION v3.1)
 
@@ -36,11 +41,22 @@ FetchContent_MakeAvailable(argparse)
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 list(FILTER SOURCES EXCLUDE REGEX "main.cpp")
 
+add_custom_target(${CONFIG_HPP_TARGET}
+	COMMAND ${CMAKE_COMMAND}
+		-DPROJECT_NAME=${PROJECT_NAME}
+		-DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+		-DCONFIG_HPP_TEMPLATE=${CONFIG_HPP_TEMPLATE}
+		-DCONFIG_HPP_OUT=${CONFIG_HPP_OUT}
+		-P ${CONFIG_HPP_SCRIPT}
+)
+
 add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl sqlite3 argparse)
+
+add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 
 if (MAKE_TESTS)
 	enable_testing()
