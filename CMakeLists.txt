@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD           20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS        OFF)
 
-set(CMAKE_CXX_FLAGS_DEBUG          "-O3 -ggdb3 -Wall -Wextra -Wpedantic"     )
+set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -ggdb3 -Wall -Wextra -Wpedantic"     )
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG -Wall -Wextra -Wpedantic"   )
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG -Wall -Wextra -Wpedantic")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG -Wall -Wextra -Wpedantic"   )
