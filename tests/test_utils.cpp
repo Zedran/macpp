@@ -40,12 +40,12 @@ TEST_CASE("construct_queries") {
     };
 
     const test_case cases[] = {
-        test_case{"00:00:00", {0}},
         test_case{"000000", {0}},
-        test_case{"5C:F2:86:D", {6091398, 97462381}},
-        test_case{"8C:1F:64:F5:A", {9183076, 146929231, 37613883226}},
-        test_case{"8C:1F:64:F5:A0:00", {9183076, 146929231, 37613883226}},
-        test_case{"00:::0222", {546}},
+        test_case{"000000", {0}},
+        test_case{"5CF286D", {6091398, 97462381}},
+        test_case{"8C1F64F5A", {9183076, 146929231, 37613883226}},
+        test_case{"8C1F64F5A000", {9183076, 146929231, 37613883226}},
+        test_case{"000222", {546}},
     };
 
     for (auto& c : cases) {
@@ -69,8 +69,6 @@ TEST_CASE("construct_queries") {
         "",
         "00",
         "00:00",
-        "0::::::0", // Extra separators allowed, but should not count as digits.
-        "::::::",
         "0002w22",
         "xxxxxx",
         "00000w",
@@ -106,13 +104,12 @@ TEST_CASE("get_ieee_block") {
     };
 
     const test_case cases[] = {
-        test_case{6, "00:00:00", "000000"},
         test_case{6, "000000", "000000"},
-        test_case{6, "5C:F2:86:D", "5CF286"},
-        test_case{7, "5C:F2:86:D", "5CF286D"},
-        test_case{6, "8C:1F:64:F5:A", "8C1F64"},
-        test_case{9, "8C:1F:64:F5:A", "8C1F64F5A"},
-        test_case{9, "8C:1F:64:F5:A0:00", "8C1F64F5A"},
+        test_case{6, "5CF286D", "5CF286"},
+        test_case{7, "5CF286D", "5CF286D"},
+        test_case{6, "8C1F64F5A", "8C1F64"},
+        test_case{9, "8C1F64F5A", "8C1F64F5A"},
+        test_case{9, "8C1F64F5A000", "8C1F64F5A"},
     };
 
     for (auto& c : cases) {
@@ -120,14 +117,13 @@ TEST_CASE("get_ieee_block") {
     }
 }
 
-// Ensures that prefix_to_id returns a correct numerical value,
-// whether the specified string contains delimiters or not.
+// Ensures that prefix_to_id returns a correct numerical value.
 TEST_CASE("prefix_to_id") {
     const std::map<std::string, int64_t> cases = {
-        {"00:00:00", 0},
-        {"10:10:10", 1052688},
+        {"000000", 0},
         {"101010", 1052688},
-        {"FF:FF:FF:FF:F", 68719476735},
+        {"101010", 1052688},
+        {"FFFFFFFFF", 68719476735},
     };
 
     for (auto& [input, expected] : cases) {

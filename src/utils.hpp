@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -18,10 +19,18 @@ std::vector<int64_t> construct_queries(const std::string& addr);
 
 // Returns a vendor identifier block of length block_len extracted from addr.
 // If length of addr is lower than block_len, empty string is returned.
+// Accepts addr without separators (101010).
 std::string get_ieee_block(const std::string& addr, const size_t block_len);
 
-// Converts MAC prefix (10:10:10) from string to an integer.
+// Converts MAC prefix without separators (101010) from string to an integer.
 int64_t prefix_to_id(const std::string& prefix);
+
+// Removes ':' characters from addr.
+inline std::string remove_addr_separators(const std::string& addr) {
+    std::string stripped = addr;
+    stripped.erase(std::remove(stripped.begin(), stripped.end(), ':'), stripped.end());
+    return stripped;
+}
 
 // Replaces "" (CSV escaped quotes) in str with ".
 void replace_escaped_quotes(std::string& str);

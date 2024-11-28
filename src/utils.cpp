@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <sstream>
 
 #include "AppError.hpp"
@@ -40,30 +39,20 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
 }
 
 std::string get_ieee_block(const std::string& addr, const size_t block_len) {
-    std::string stripped = addr;
-
-    stripped.erase(std::remove(stripped.begin(), stripped.end(), ':'), stripped.end());
-
-    if (stripped.length() < block_len) {
+    if (addr.length() < block_len) {
         return "";
     }
-
-    stripped = stripped.substr(0, block_len);
-
-    return stripped;
+    return addr.substr(0, block_len);
 }
 
 int64_t prefix_to_id(const std::string& prefix) {
-    std::string s = prefix;
-    s.erase(std::remove(s.begin(), s.end(), ':'), s.end());
-
     size_t  pos  = 0;
-    int64_t conv = std::stoll(s, &pos, 16);
+    int64_t conv = std::stoll(prefix, &pos, 16);
 
     // Check if stoll did not stop too early
-    if (pos != s.length())
+    if (pos != prefix.length()) {
         throw(std::invalid_argument("non-hex character encountered"));
-
+    }
     return conv;
 }
 
