@@ -2,13 +2,8 @@
 #include <map>
 #include <sstream>
 
+#include "internal/internal.hpp"
 #include "utils.hpp"
-
-// A helper function that directs a space-separated list of vec elements to oss.
-void append_vector(std::ostringstream& oss, const std::vector<int64_t>& vec) {
-    for (size_t i = 0; i < vec.size(); i++)
-        oss << vec[i] << (i != vec.size() - 1 ? " " : "");
-}
 
 // Ensures that the query statement returned from build_query_by_id_stmt
 // contains the correct number of placeholders.
@@ -57,10 +52,10 @@ TEST_CASE("construct_queries") {
             std::ostringstream oss;
             oss << "failed for case '" << c.input << "': got '";
 
-            append_vector(oss, out);
+            internal::append_vector(oss, out);
             oss << "', expected '";
 
-            append_vector(oss, c.expected);
+            internal::append_vector(oss, c.expected);
             oss << "'";
 
             FAIL(oss.str());

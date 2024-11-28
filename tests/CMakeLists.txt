@@ -15,12 +15,13 @@ endif()
 
 set(test_name t)
 file(GLOB TEST_SOURCES ${PROJECT_SOURCE_DIR}/tests/test_*.cpp)
+set(INTERNAL_TEST_SOURCES ${PROJECT_SOURCE_DIR}/tests/internal/internal.cpp)
 
-add_executable(${test_name} ${TEST_SOURCES} ${SOURCES})
+add_executable(${test_name} ${TEST_SOURCES} ${INTERNAL_TEST_SOURCES} ${SOURCES})
 set_target_properties(${test_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
 target_include_directories(${test_name}
-	PRIVATE ${PROJECT_SOURCE_DIR}/src
+	PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/internal
 )
 
 target_link_libraries(${test_name}
