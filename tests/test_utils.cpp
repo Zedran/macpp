@@ -52,10 +52,10 @@ TEST_CASE("construct_queries") {
             std::ostringstream oss;
             oss << "failed for case '" << c.input << "': got '";
 
-            internal::append_vector(oss, out);
+            internal::print_vector(oss, out);
             oss << "', expected '";
 
-            internal::append_vector(oss, c.expected);
+            internal::print_vector(oss, c.expected);
             oss << "'";
 
             FAIL(oss.str());
