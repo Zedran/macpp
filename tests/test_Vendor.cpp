@@ -52,6 +52,7 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
     };
 
     for (auto& c : cases) {
+        CAPTURE(c.input);
         Vendor out = Vendor(c.input);
 
         REQUIRE(out.mac_prefix == c.expected.mac_prefix);
@@ -107,6 +108,8 @@ TEST_CASE("Vendor::operator<<") {
 
     std::ostringstream oss;
     for (const auto& c : cases) {
+        CAPTURE(c.input);
+
         oss << c.input;
 
         std::string out = oss.str();

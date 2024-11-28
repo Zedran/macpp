@@ -25,6 +25,8 @@ TEST_CASE("build_query_by_id_stmt") {
     };
 
     for (auto& c : cases) {
+        CAPTURE(c.length);
+
         std::string out = build_query_by_id_stmt(c.length);
         REQUIRE(out == c.expected);
     }
@@ -113,6 +115,7 @@ TEST_CASE("get_ieee_block") {
     };
 
     for (auto& c : cases) {
+        CAPTURE(c.input, c.block_length);
         REQUIRE(get_ieee_block(c.input, c.block_length) == c.expected);
     }
 }
