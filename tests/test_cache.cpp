@@ -17,6 +17,7 @@ TEST_CASE("get_conn") {
 
     // A good cache file
     REQUIRE_NOTHROW(get_conn(conn, "testdata/sample.db"));
+    REQUIRE(sqlite3_close(conn) == SQLITE_OK);
 
     // Non-empty file that is not a SQLite database
     REQUIRE_THROWS(get_conn(conn, "testdata/not_cache.txt"));
