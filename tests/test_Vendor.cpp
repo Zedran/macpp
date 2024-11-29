@@ -1,11 +1,11 @@
 #include <catch2/catch_test_macros.hpp>
-
 #include <format>
 #include <sstream>
 
 #include "FinalAction.hpp"
 #include "Vendor.hpp"
 #include "cache.hpp"
+#include "internal/internal.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
 // The main challenge is that the file is comma-separated and sometimes
@@ -83,6 +83,69 @@ TEST_CASE("Vendor::Vendor(sqlite3_stmt* stmt)") {
 
     REQUIRE(!results.empty());
     REQUIRE(results.at(0).vendor_name == "");
+}
+
+// Ensures that binding and insertion into the table produces
+// desired entries.
+TEST_CASE("Vendor::bind") {
+    sqlite3* conn{};
+
+    auto cleanup = finally([&] {
+        sqlite3_close(conn);
+        sqlite3_shutdown();
+    });
+
+    REQUIRE(internal::open_mem_db(conn) == SQLITE_OK);
+    REQUIRE(sqlite3_exec(conn, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr) == SQLITE_OK);
+
+    const char* insert_stmt =
+        "INSERT INTO vendors (id, addr, name, private, block, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
+
+    sqlite3_stmt* stmt{};
+    auto          finalize = finally([&] { sqlite3_finalize(stmt); });
+
+    REQUIRE(sqlite3_prepare_v2(conn, insert_stmt, -1, &stmt, nullptr) == SQLITE_OK);
+
+    Vendor cases[] = {
+        Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
+        Vendor{"00:48:54", "", true, "", "0001/01/01"},
+    };
+
+    for (auto& c : cases) {
+        CAPTURE(c.mac_prefix);
+
+        REQUIRE(c.bind(stmt) == SQLITE_OK);
+
+        REQUIRE(sqlite3_step(stmt) == SQLITE_DONE);
+        REQUIRE(sqlite3_reset(stmt) == SQLITE_OK);
+    }
+
+    // Empty MAC prefix not allowed
+    Vendor malformed{"", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
+    REQUIRE_THROWS(malformed.bind(stmt));
+    REQUIRE(sqlite3_reset(stmt) == SQLITE_OK);
+
+    REQUIRE(sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr) == SQLITE_OK);
+
+    std::vector<Vendor> results;
+
+    for (auto& c : cases) {
+        CAPTURE(c.mac_prefix);
+
+        results = query_addr(conn, c.mac_prefix);
+
+        REQUIRE(results.size() == 1);
+
+        Vendor& out = results.at(0);
+
+        REQUIRE(out.mac_prefix == c.mac_prefix);
+        REQUIRE(out.vendor_name == c.vendor_name);
+        REQUIRE(out.is_private == c.is_private);
+        REQUIRE(out.block_type == c.block_type);
+        REQUIRE(out.last_update == c.last_update);
+
+        results.clear();
+    }
 }
 
 TEST_CASE("Vendor::operator<<") {
