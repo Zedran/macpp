@@ -88,6 +88,8 @@ TEST_CASE("Vendor::Vendor(sqlite3_stmt* stmt)") {
 // Ensures that binding and insertion into the table produces
 // desired entries.
 TEST_CASE("Vendor::bind") {
+    sqlite3_initialize();
+
     sqlite3* conn{};
 
     auto cleanup = finally([&] {
