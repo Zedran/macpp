@@ -60,7 +60,7 @@ void create_cache(sqlite3* conn) {
             throw AppError("value bind failed", conn);
         }
 
-        if ((sqlite3_step(stmt)) != SQLITE_DONE) {
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
             throw AppError("step failed", conn);
         }
 
