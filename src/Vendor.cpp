@@ -1,4 +1,3 @@
-#include <regex>
 #include <sqlite3.h>
 #include <sstream>
 #include <string>
@@ -9,24 +8,22 @@
 static inline std::string get_column_text(sqlite3_stmt* stmt, int coln);
 
 Vendor::Vendor(const std::string& line) {
-    // :0C,"Cisco Systems, Inc.",f    or    :D,"BrightSky, LLC",f
-    const std::regex quotes{R"(:[0123456789ABCDEF]{1,2},".*",[ft])"};
-
     std::string        priv_str;
-    std::smatch        submatch;
     std::istringstream line_stream(line);
 
     std::getline(line_stream, mac_prefix, ',');
 
-    if (std::regex_search(line, submatch, quotes)) {
-        vendor_name = submatch.str();
-        line_stream.seekg(vendor_name.length(), std::ios::cur);
+    size_t pos;
+    if ((pos = line.find("\",")) != std::string::npos) {
+        const size_t length = pos - mac_prefix.length() - 2;
 
-        // Erase extra characters captured by regex, leaving only vendor name
-        vendor_name.erase(0, vendor_name.find('"') + 1);
-        vendor_name.erase(vendor_name.length() - 3, 3);
+        line_stream.seekg(1, std::ios::cur);
 
+        vendor_name.resize(length);
+        line_stream.read(&vendor_name[0], length);
         replace_escaped_quotes(vendor_name);
+
+        line_stream.seekg(2, std::ios::cur);
     } else {
         std::getline(line_stream, vendor_name, ',');
     }
