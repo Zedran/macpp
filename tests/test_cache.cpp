@@ -24,6 +24,7 @@ TEST_CASE("create_cache") {
     REQUIRE_NOTHROW(get_conn(conn, ":memory:", "testdata/update.csv"));
 
     sqlite3_stmt* stmt{};
+    auto          finalize = finally([&] { sqlite3_finalize(stmt); });
 
     REQUIRE(sqlite3_prepare_v2(conn, "SELECT * FROM vendors", -1, &stmt, nullptr) == SQLITE_OK);
 
