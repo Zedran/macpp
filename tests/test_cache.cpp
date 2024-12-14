@@ -5,6 +5,55 @@
 #include "FinalAction.hpp"
 #include "cache.hpp"
 
+// Tests the create_cache function using a local file.
+TEST_CASE("create_cache") {
+    const std::vector<Vendor> cases = {
+        Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
+        Vendor{"00:48:54", "", true, "", "0001/01/01"},
+    };
+
+    sqlite3_initialize();
+
+    sqlite3* conn{};
+
+    auto cleanup = finally([&] {
+        sqlite3_close(conn);
+        sqlite3_shutdown();
+    });
+
+    REQUIRE_NOTHROW(get_conn(conn, ":memory:", "testdata/update.csv"));
+
+    sqlite3_stmt* stmt{};
+
+    REQUIRE(sqlite3_prepare_v2(conn, "SELECT * FROM vendors", -1, &stmt, nullptr) == SQLITE_OK);
+
+    std::vector<Vendor> out;
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        out.push_back(Vendor(stmt));
+    }
+
+    REQUIRE(cases.size() == out.size());
+
+    for (auto& o : out) {
+        bool found = false;
+
+        for (auto& c : cases) {
+            if (o.mac_prefix == c.mac_prefix) {
+                found = true;
+
+                REQUIRE(o.vendor_name == c.vendor_name);
+                REQUIRE(o.is_private == c.is_private);
+                REQUIRE(o.block_type == c.block_type);
+                REQUIRE(o.last_update == c.last_update);
+
+                break;
+            }
+        }
+        REQUIRE(found == true);
+    }
+}
+
 TEST_CASE("get_conn") {
     sqlite3_initialize();
 

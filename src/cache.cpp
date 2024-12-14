@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <fstream>
 #include <sqlite3.h>
 #include <sstream>
 #include <string>
@@ -10,11 +11,16 @@
 #include "download.hpp"
 #include "utils.hpp"
 
-void create_cache(sqlite3* conn) {
-    const std::string data = download_data();
+void create_cache(sqlite3* conn, const std::string& update_fpath) {
+    std::unique_ptr<std::istream> stream;
 
-    std::istringstream stream(data);
-    std::string        line;
+    if (!update_fpath.empty()) {
+        stream = std::make_unique<std::ifstream>(get_local_file(update_fpath));
+    } else {
+        stream = std::make_unique<std::istringstream>(download_data());
+    }
+
+    std::string line;
 
     char* err{};
 
@@ -49,9 +55,9 @@ void create_cache(sqlite3* conn) {
     }
 
     // Discard the header line
-    std::getline(stream, line);
+    std::getline(*stream, line);
 
-    while (std::getline(stream, line)) {
+    while (std::getline(*stream, line)) {
         if (line.empty()) {
             continue;
         }
@@ -74,7 +80,7 @@ void create_cache(sqlite3* conn) {
     }
 }
 
-void get_conn(sqlite3*& conn, const std::string& cache_path) {
+void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& update_fpath) {
     if (sqlite3_open(cache_path.c_str(), &conn) != SQLITE_OK) {
         throw AppError("failed to open the database", conn);
     }
@@ -97,7 +103,7 @@ void get_conn(sqlite3*& conn, const std::string& cache_path) {
 
     if (version == 0) {
         // File is empty
-        create_cache(conn);
+        create_cache(conn, update_fpath);
     }
 }
 
@@ -163,7 +169,7 @@ std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name) {
     return results;
 }
 
-void update_cache(sqlite3*& conn, const std::string& cache_path) {
+void update_cache(sqlite3*& conn, const std::string& cache_path, const std::string& update_fpath) {
     using std::filesystem::exists;
     using std::filesystem::file_size;
 
@@ -171,7 +177,7 @@ void update_cache(sqlite3*& conn, const std::string& cache_path) {
         // If a previous database creation run encountered problems,
         // an empty file may remain at cache_path. It is safe to write
         // into such file.
-        get_conn(conn, cache_path);
+        get_conn(conn, cache_path, update_fpath);
         return;
     }
 
@@ -185,7 +191,7 @@ void update_cache(sqlite3*& conn, const std::string& cache_path) {
 
     try {
         // Nested try-catch to be able to revert in case of problems
-        get_conn(conn, cache_path);
+        get_conn(conn, cache_path, update_fpath);
     } catch (std::exception& e) {
         // Restore old cache file if something goes wrong
         if (exists(cache_path)) {

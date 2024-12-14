@@ -43,7 +43,12 @@ int main(int argc, char* argv[]) {
         const std::string cache_path = prepare_cache_dir();
 
         if (app.is_used("--update")) {
-            update_cache(conn, cache_path);
+            std::string update_fpath{};
+
+            if (app.is_used("--file")) {
+                update_fpath = app.get("--file");
+            }
+            update_cache(conn, cache_path, update_fpath);
             return 0;
         }
 
@@ -89,4 +94,6 @@ void setup_parser(argparse::ArgumentParser& app) {
     app.add_argument("-u", "--update")
         .help("Update vendor database and exit.")
         .flag();
+    app.add_argument("-f", "--file")
+        .help("Use a local file instead of downloading one during update.");
 }

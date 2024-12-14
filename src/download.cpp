@@ -1,4 +1,5 @@
 #include <curl/curl.h>
+#include <fstream>
 #include <memory>
 
 #include "AppError.hpp"
@@ -44,4 +45,14 @@ std::string download_data() {
     }
 
     return readBuffer;
+}
+
+std::ifstream get_local_file(const std::string& path) {
+    std::ifstream file(path);
+
+    if (!file.good()) {
+        throw(AppError("cannot open file at '" + path + "'"));
+    }
+
+    return file;
 }
