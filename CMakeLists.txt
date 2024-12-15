@@ -21,6 +21,8 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
+set(SCRIPTS ${PROJECT_SOURCE_DIR}/cmake)
+
 set(CONFIG_HPP_TARGET   config_hpp)
 set(CONFIG_HPP_SCRIPT   ${PROJECT_SOURCE_DIR}/cmake/config_hpp.cmake)
 set(CONFIG_HPP_TEMPLATE ${PROJECT_SOURCE_DIR}/src/config.hpp.in)
@@ -32,13 +34,7 @@ set(ARGPARSE_VERSION v3.1)
 find_package(CURL REQUIRED)
 find_package(SQLite3 REQUIRED)
 
-include(FetchContent)
-FetchContent_Declare(
-	argparse
-	DOWNLOAD_EXTRACT_TIMESTAMP OFF
-	URL https://github.com/p-ranav/argparse/archive/refs/tags/${ARGPARSE_VERSION}.tar.gz
-)
-FetchContent_MakeAvailable(argparse)
+include(${SCRIPTS}/argparse.cmake)
 
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 list(FILTER SOURCES EXCLUDE REGEX "main.cpp")
@@ -61,6 +57,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl sqlite3 argparse)
 add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 
 if (MAKE_TESTS)
+	include(${SCRIPTS}/catch2.cmake)
+
 	enable_testing()
 	add_subdirectory(tests)
 	add_subdirectory(bench)
