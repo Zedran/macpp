@@ -95,5 +95,6 @@ void setup_parser(argparse::ArgumentParser& app) {
         .help("Update vendor database and exit.")
         .flag();
     app.add_argument("-f", "--file")
-        .help("Use a local file instead of downloading one during update.");
+        .help("Use a local file instead of downloading one during update.")
+        .metavar("PATH");
 }
