@@ -10,6 +10,7 @@ if (BUNDLE)
 	)
 
 	set(BUILD_CURL_EXE              OFF)
+	set(BUILD_EXAMPLES              OFF)
 	set(BUILD_LIBCURL_DOCS          OFF)
 	set(BUILD_SHARED_LIBS           OFF)
 	set(BUILD_STATIC_LIBS            ON)
