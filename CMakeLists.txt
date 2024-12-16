@@ -25,7 +25,7 @@ endif()
 set(SCRIPTS ${PROJECT_SOURCE_DIR}/cmake)
 
 set(CONFIG_HPP_TARGET   config_hpp)
-set(CONFIG_HPP_SCRIPT   ${PROJECT_SOURCE_DIR}/cmake/config_hpp.cmake)
+set(CONFIG_HPP_SCRIPT   ${SCRIPTS}/config_hpp.cmake)
 set(CONFIG_HPP_TEMPLATE ${PROJECT_SOURCE_DIR}/src/config.hpp.in)
 set(CONFIG_HPP_OUT      ${PROJECT_SOURCE_DIR}/src/config.hpp)
 
