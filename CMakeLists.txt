@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(macpp)
 
+option(BUNDLE OFF)
 option(MAKE_TESTS OFF)
 option(COVER OFF)
 
@@ -29,10 +30,11 @@ set(CONFIG_HPP_TEMPLATE ${PROJECT_SOURCE_DIR}/src/config.hpp.in)
 set(CONFIG_HPP_OUT      ${PROJECT_SOURCE_DIR}/src/config.hpp)
 
 set(CATCH2_VERSION v3.7.1)
+set(CURL_VERSION curl-8_11_1)
 set(ARGPARSE_VERSION v3.1)
 
-find_package(CURL REQUIRED)
-find_package(SQLite3 REQUIRED)
+include(${SCRIPTS}/curl.cmake)
+include(${SCRIPTS}/sqlite3.cmake)
 
 include(${SCRIPTS}/argparse.cmake)
 
