@@ -9,6 +9,8 @@ if (BUNDLE)
 	FetchContent_MakeAvailable(sqlite3)
 
 	add_library(sqlite3 STATIC ${sqlite3_SOURCE_DIR}/sqlite3.c)
+	target_include_directories(sqlite3 PUBLIC ${sqlite3_SOURCE_DIR})
+
 	target_compile_definitions(sqlite3 PRIVATE
 		SQLITE_DQS=0
 		SQLITE_THREADSAFE=0
