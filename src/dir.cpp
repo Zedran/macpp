@@ -47,5 +47,5 @@ std::string prepare_cache_dir() {
 
     std::filesystem::create_directories(cache_dir);
 
-    return (cache_dir / cache_fname).native();
+    return (cache_dir / cache_fname).string();
 }
