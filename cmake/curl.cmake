@@ -20,6 +20,7 @@ if (BUNDLE)
 	set(CURL_USE_LIBPSL             OFF)
 	set(CURL_USE_LIBSSH             OFF)
 	set(CURL_USE_LIBSSH2            OFF)
+	set(CURL_ZLIB                   OFF)
 	set(USE_LIBIDN2                 OFF)
 
 	set(CURL_DISABLE_AWS             ON)
