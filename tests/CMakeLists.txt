@@ -58,11 +58,10 @@ if (COVER)
 	find_program(GENHTML genhtml REQUIRED)
 
 	add_custom_target(cover
-		COMMAND ${LCOV} --quiet --zerocounters --directory .
+		COMMAND ${LCOV} --quiet --zerocounters --directory ${PROJECT_SOURCE_DIR}
 		COMMAND ${test_name}
-		COMMAND ${LCOV} --quiet --capture --directory . --output-file coverage.info 2> lcov.log
-		COMMAND ${LCOV} --quiet --extract coverage.info '*/src/*' --output-file coverage.info
-		COMMAND ${LCOV} --quiet --remove coverage.info 'catch2*'  --output-file coverage.info
+		COMMAND ${LCOV} --quiet --capture --directory ${PROJECT_SOURCE_DIR} --output-file coverage.info 2> lcov.log
+		COMMAND ${LCOV} --quiet --extract coverage.info '${INC_DIR}/*' '${SRC_DIR}/*' --output-file coverage.info
 		COMMAND ${GENHTML} coverage.info --quiet --demangle-cpp --dark --output-directory cover
 		DEPENDS ${test_name} build_db
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
