@@ -1,4 +1,4 @@
 .cache/
 build/
 
-src/config.hpp
+include/config.hpp

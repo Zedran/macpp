@@ -23,11 +23,13 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(SCRIPTS ${PROJECT_SOURCE_DIR}/cmake)
+set(INC_DIR ${PROJECT_SOURCE_DIR}/include)
+set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 
 set(CONFIG_HPP_TARGET   config_hpp)
 set(CONFIG_HPP_SCRIPT   ${SCRIPTS}/config_hpp.cmake)
-set(CONFIG_HPP_TEMPLATE ${PROJECT_SOURCE_DIR}/src/config.hpp.in)
-set(CONFIG_HPP_OUT      ${PROJECT_SOURCE_DIR}/src/config.hpp)
+set(CONFIG_HPP_TEMPLATE ${INC_DIR}/config.hpp.in)
+set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
 
 set(CATCH2_VERSION v3.7.1)
 set(CURL_VERSION curl-8_11_1)
@@ -38,7 +40,7 @@ include(${SCRIPTS}/sqlite3.cmake)
 
 include(${SCRIPTS}/argparse.cmake)
 
-file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 list(FILTER SOURCES EXCLUDE REGEX "main.cpp")
 
 add_custom_target(${CONFIG_HPP_TARGET}
@@ -50,9 +52,9 @@ add_custom_target(${CONFIG_HPP_TARGET}
 		-P ${CONFIG_HPP_SCRIPT}
 )
 
-add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES})
+add_executable(${PROJECT_NAME} ${SRC_DIR}/main.cpp ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE src)
+target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIR})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl sqlite3 argparse)
 

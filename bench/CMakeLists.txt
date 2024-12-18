@@ -5,7 +5,7 @@ add_executable(${bench_name} ${BENCH_SOURCES} ${SOURCES})
 set_target_properties(${bench_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
 target_include_directories(${bench_name}
-	PRIVATE ${PROJECT_SOURCE_DIR}/src
+	PRIVATE ${INC_DIR}
 )
 
 target_link_libraries(${bench_name}

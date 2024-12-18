@@ -7,7 +7,7 @@ add_executable(${test_name} ${TEST_SOURCES} ${INTERNAL_TEST_SOURCES} ${SOURCES})
 set_target_properties(${test_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
 target_include_directories(${test_name}
-	PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/internal
+	PRIVATE ${INC_DIR} ${PROJECT_SOURCE_DIR}/internal
 )
 
 target_link_libraries(${test_name}
