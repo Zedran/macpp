@@ -17,3 +17,7 @@ When search is requested for the first time, the application's cache is created.
 |:-----------|:---------------------------------------|
 | `--file`   | Use a local CSV file during operation  |
 | `--update` | Update cache                           |
+
+## License
+
+This software is available under MIT License.
