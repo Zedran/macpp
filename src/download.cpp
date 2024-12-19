@@ -1,23 +1,23 @@
 #include <curl/curl.h>
-#include <fstream>
 
 #include "AppError.hpp"
 #include "FinalAction.hpp"
+#include "download.hpp"
 
 // WRITEFUNCTION function for cURL.
 size_t write_data(void* buffer, size_t size, size_t nmemb, void* userp) {
-    std::string* data = static_cast<std::string*>(userp);
+    std::stringstream* data = static_cast<std::stringstream*>(userp);
 
-    data->append(static_cast<char*>(buffer), size * nmemb);
+    data->write(static_cast<char*>(buffer), size * nmemb);
     return size * nmemb;
 }
 
-std::string download_data() {
+std::stringstream download_data() {
     const char* URL = "https://maclookup.app/downloads/csv-database/get-db";
 
-    CURLcode    code;
-    CURL*       curl{};
-    std::string readBuffer;
+    CURLcode          code;
+    CURL*             curl{};
+    std::stringstream readBuffer;
 
     code = curl_global_init(CURL_GLOBAL_DEFAULT);
     if (code != CURLE_OK) {
@@ -48,8 +48,8 @@ std::string download_data() {
     return readBuffer;
 }
 
-std::ifstream get_local_file(const std::string& path) {
-    std::ifstream file(path);
+std::fstream get_local_file(const std::string& path) {
+    std::fstream file(path);
 
     if (!file.good()) {
         throw(AppError("cannot open file at '" + path + "'"));

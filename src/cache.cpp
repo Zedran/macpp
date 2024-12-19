@@ -12,12 +12,12 @@
 #include "utils.hpp"
 
 void create_cache(sqlite3* conn, const std::string& update_fpath) {
-    std::unique_ptr<std::istream> stream;
+    std::unique_ptr<std::iostream> stream;
 
     if (!update_fpath.empty()) {
-        stream = std::make_unique<std::ifstream>(get_local_file(update_fpath));
+        stream = std::make_unique<std::fstream>(get_local_file(update_fpath));
     } else {
-        stream = std::make_unique<std::istringstream>(download_data());
+        stream = std::make_unique<std::stringstream>(download_data());
     }
 
     std::string line;
