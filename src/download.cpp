@@ -1,6 +1,5 @@
 #include <curl/curl.h>
 #include <fstream>
-#include <memory>
 
 #include "AppError.hpp"
 #include "FinalAction.hpp"
@@ -17,6 +16,7 @@ std::string download_data() {
     const char* URL = "https://maclookup.app/downloads/csv-database/get-db";
 
     CURLcode    code;
+    CURL*       curl{};
     std::string readBuffer;
 
     code = curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -26,19 +26,20 @@ std::string download_data() {
 
     auto global_cleanup = finally([&] { curl_global_cleanup(); });
 
-    auto curl = std::unique_ptr<CURL, decltype(&curl_easy_cleanup)>(curl_easy_init(), &curl_easy_cleanup);
-    if (!curl) {
+    if (!(curl = curl_easy_init())) {
         throw(AppError("curl_easy_init failed"));
     }
 
-    curl_easy_setopt(curl.get(), CURLOPT_SSL_VERIFYPEER, 1L);
-    curl_easy_setopt(curl.get(), CURLOPT_SSL_VERIFYHOST, 2L);
+    auto easy_cleanup = finally([&] { curl_easy_cleanup(curl); });
 
-    curl_easy_setopt(curl.get(), CURLOPT_URL, URL);
-    curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &readBuffer);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
 
-    code = curl_easy_perform(curl.get());
+    curl_easy_setopt(curl, CURLOPT_URL, URL);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+    code = curl_easy_perform(curl);
 
     if (code != CURLE_OK) {
         throw(AppError(curl_easy_strerror(code)));
