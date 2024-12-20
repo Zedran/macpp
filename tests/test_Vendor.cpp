@@ -48,7 +48,12 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
             // Private block
             R"(00:48:54,,true,,0001/01/01)",
             Vendor{"00:48:54", "", true, "", ""},
-        }
+        },
+        test_case{
+            // The last update field is empty, but valid (comma present)
+            R"(00:00:0D,FIBRONICS LTD.,false,MA-L,)",
+            Vendor{"00:00:0D", "FIBRONICS LTD.", false, "MA-L", ""},
+        },
     };
 
     for (auto& c : cases) {
@@ -60,6 +65,27 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
         REQUIRE(out.is_private == c.expected.is_private);
         REQUIRE(out.block_type == c.expected.block_type);
         REQUIRE(out.last_update == c.expected.last_update);
+    }
+
+    const std::string throw_cases[] = {
+        "",                                                       // Empty line
+        "00:00:00Vendor name",                                    // No commas
+        "00:00:00,Vendor name,",                                  // Line too short
+        R"(5C:F2:86:D,"BrightSky, LLC,false,MA-M,2019/07/02)",    // No closing quote after vendor name
+        R"(2C:7A:FE,"IEE&E ""Black" ops",false,MA-L,2010/07/26)", // No closing escaped quote
+        R"(00:00:00,"IEE&E ""Black ops",false,MA-L,2010/07/26)",  // Escaped quote not closed
+        R"(00:00:00,"IEE&E ""Black"" ops,false,MA-L,2010/07/26)", // No closing quote with escaped quote present
+        R"(00:00:0C,"Cisco Systems, Inc",no,MA-L,2015/11/17)",    // Invalid private field
+        R"(00:00:0D,FIBRONICS LTD.)",                             // No comma after vendor name
+        R"(00:00:0D,FIBRONICS LTD.,)",                            // Comma after vendor name ends the line
+        R"(00:00:0D,FIBRONICS LTD.,false,)",                      // Comma after private field ends the line
+        R"(00:00:0D,FIBRONICS LTD.,false)",                       // No comma after private field
+        R"(00:00:0D,FIBRONICS LTD.,false,MA-L)",                  // No comma after block type field
+    };
+
+    for (const auto& tc : throw_cases) {
+        CAPTURE(tc);
+        REQUIRE_THROWS(Vendor(tc));
     }
 }
 
