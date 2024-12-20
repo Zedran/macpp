@@ -4,16 +4,15 @@
 #include "utils.hpp"
 
 std::string build_query_by_id_stmt(const size_t length) {
-    std::ostringstream stmt_stream;
-    stmt_stream << "SELECT * FROM vendors WHERE id IN (?";
+    std::string stmt = "SELECT * FROM vendors WHERE id IN (?";
 
-    // From 1, the first placeholder is appended beforehand.
+    // Start from 1, since the first placeholder is appended beforehand.
     for (size_t i = 1; i < length; i++) {
-        stmt_stream << ",?";
+        stmt += ",?";
     }
-    stmt_stream << ");";
+    stmt += ");";
 
-    return stmt_stream.str();
+    return stmt;
 }
 
 std::vector<int64_t> construct_queries(const std::string& addr) {
