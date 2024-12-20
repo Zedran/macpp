@@ -8,7 +8,6 @@
 static inline std::string get_column_text(sqlite3_stmt* stmt, int coln);
 
 Vendor::Vendor(const std::string& line) {
-    std::string        priv_str;
     std::istringstream line_stream(line);
 
     std::getline(line_stream, mac_prefix, ',');
@@ -28,11 +27,21 @@ Vendor::Vendor(const std::string& line) {
         std::getline(line_stream, vendor_name, ',');
     }
 
-    std::getline(line_stream, priv_str, ',');
+    char priv_first_letter;
+    line_stream.get(priv_first_letter);
+
+    if (priv_first_letter == 't') {
+        is_private  = true;
+        block_type  = "";
+        last_update = "";
+        return;
+    }
+
+    is_private = false;
+    line_stream.seekg(5, std::ios::cur);
+
     std::getline(line_stream, block_type, ',');
     std::getline(line_stream, last_update);
-
-    is_private = (priv_str == "true") ? true : false;
 }
 
 Vendor::Vendor(

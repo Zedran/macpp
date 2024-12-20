@@ -47,7 +47,7 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
         test_case{
             // Private block
             R"(00:48:54,,true,,0001/01/01)",
-            Vendor{"00:48:54", "", true, "", "0001/01/01"},
+            Vendor{"00:48:54", "", true, "", ""},
         }
     };
 

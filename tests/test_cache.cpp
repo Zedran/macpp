@@ -9,7 +9,7 @@
 TEST_CASE("create_cache") {
     const std::vector<Vendor> cases = {
         Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
-        Vendor{"00:48:54", "", true, "", "0001/01/01"},
+        Vendor{"00:48:54", "", true, "", ""},
     };
 
     sqlite3_initialize();
