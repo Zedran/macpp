@@ -1,4 +1,4 @@
-#include <sstream>
+#include <stdexcept>
 
 #include "AppError.hpp"
 #include "utils.hpp"
@@ -75,13 +75,13 @@ std::string suppress_like_wildcards(const std::string& str) {
         return str;
     }
 
-    std::ostringstream buffer;
+    std::string suppressed{};
 
     for (const auto& c : str) {
         if (c == PERCENT || c == USCORE)
-            buffer << '\\';
-        buffer << c;
+            suppressed += '\\';
+        suppressed += c;
     }
 
-    return buffer.str();
+    return suppressed;
 }
