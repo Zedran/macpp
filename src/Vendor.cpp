@@ -106,7 +106,7 @@ Vendor::Vendor(sqlite3_stmt* stmt)
       block_type(get_column_text(stmt, 4)),
       last_update(get_column_text(stmt, 5)) {}
 
-int Vendor::bind(sqlite3_stmt* stmt) {
+int Vendor::bind(sqlite3_stmt* stmt) const {
     const std::string stripped_prefix = remove_addr_separators(mac_prefix);
 
     return sqlite3_bind_int64(stmt, 1, prefix_to_id(stripped_prefix)) +

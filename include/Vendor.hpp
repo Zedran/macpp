@@ -30,7 +30,7 @@ struct Vendor {
     // Binds struct members to the insert statement. Returns an aggregation
     // of the SQLite3 status codes. If the return value is higher than 0,
     // at least one of the bind calls failed.
-    int bind(sqlite3_stmt* stmt);
+    int bind(sqlite3_stmt* stmt) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Vendor& v);
 };
