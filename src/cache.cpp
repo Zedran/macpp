@@ -20,8 +20,6 @@ void create_cache(sqlite3* conn, const std::string& update_fpath) {
         stream = std::make_unique<std::stringstream>(download_data());
     }
 
-    std::string line;
-
     char* err{};
 
     auto free_err = finally([&] { sqlite3_free(err); });
@@ -53,6 +51,8 @@ void create_cache(sqlite3* conn, const std::string& update_fpath) {
     if (sqlite3_prepare_v2(conn, insert_stmt, -1, &stmt, nullptr) != SQLITE_OK) {
         throw AppError("prepare statement failed", conn);
     }
+
+    std::string line;
 
     // Discard the header line
     std::getline(*stream, line);
