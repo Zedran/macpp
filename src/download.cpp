@@ -24,13 +24,13 @@ std::stringstream download_data() {
         throw(AppError("curl_global_init failed"));
     }
 
-    auto global_cleanup = finally([&] { curl_global_cleanup(); });
+    const auto global_cleanup = finally([&] { curl_global_cleanup(); });
 
     if (!(curl = curl_easy_init())) {
         throw(AppError("curl_easy_init failed"));
     }
 
-    auto easy_cleanup = finally([&] { curl_easy_cleanup(curl); });
+    const auto easy_cleanup = finally([&] { curl_easy_cleanup(curl); });
 
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);

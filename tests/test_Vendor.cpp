@@ -98,7 +98,7 @@ TEST_CASE("Vendor::Vendor(sqlite3_stmt* stmt)") {
 
     sqlite3* conn{};
 
-    auto cleanup = finally([&] {
+    const auto cleanup = finally([&] {
         sqlite3_close(conn);
         sqlite3_shutdown();
     });
@@ -118,7 +118,7 @@ TEST_CASE("Vendor::bind") {
 
     sqlite3* conn{};
 
-    auto cleanup = finally([&] {
+    const auto cleanup = finally([&] {
         sqlite3_close(conn);
         sqlite3_shutdown();
     });
@@ -130,7 +130,7 @@ TEST_CASE("Vendor::bind") {
         "INSERT INTO vendors (id, addr, name, private, block, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
 
     sqlite3_stmt* stmt{};
-    auto          finalize = finally([&] { sqlite3_finalize(stmt); });
+    const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     REQUIRE(sqlite3_prepare_v2(conn, insert_stmt, -1, &stmt, nullptr) == SQLITE_OK);
 

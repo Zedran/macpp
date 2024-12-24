@@ -16,7 +16,7 @@ TEST_CASE("create_cache") {
 
     sqlite3* conn{};
 
-    auto cleanup = finally([&] {
+    const auto cleanup = finally([&] {
         sqlite3_close(conn);
         sqlite3_shutdown();
     });
@@ -24,7 +24,7 @@ TEST_CASE("create_cache") {
     REQUIRE_NOTHROW(get_conn(conn, ":memory:", "testdata/update.csv"));
 
     sqlite3_stmt* stmt{};
-    auto          finalize = finally([&] { sqlite3_finalize(stmt); });
+    const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     REQUIRE(sqlite3_prepare_v2(conn, "SELECT * FROM vendors", -1, &stmt, nullptr) == SQLITE_OK);
 
@@ -60,7 +60,7 @@ TEST_CASE("get_conn") {
 
     sqlite3* conn{};
 
-    auto cleanup = finally([&] {
+    const auto cleanup = finally([&] {
         sqlite3_close(conn);
         sqlite3_shutdown();
     });
@@ -78,7 +78,7 @@ TEST_CASE("injections") {
 
     sqlite3* conn{};
 
-    auto cleanup = finally([&] {
+    const auto cleanup = finally([&] {
         sqlite3_close(conn);
         sqlite3_shutdown();
     });
@@ -113,7 +113,7 @@ TEST_CASE("query_addr") {
 
     sqlite3* conn{};
 
-    auto cleanup = finally([&] {
+    const auto cleanup = finally([&] {
         sqlite3_close(conn);
         sqlite3_shutdown();
     });
@@ -178,7 +178,7 @@ TEST_CASE("query_name") {
 
     sqlite3* conn{};
 
-    auto cleanup = finally([&] {
+    const auto cleanup = finally([&] {
         sqlite3_close(conn);
         sqlite3_shutdown();
     });

@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 
     sqlite3* conn{};
 
-    auto cleanup = finally([&] {
+    const auto cleanup = finally([&] {
         if (sqlite3_close(conn) != SQLITE_OK) {
             std::cerr << "failed to close connection\n";
         }
