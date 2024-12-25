@@ -109,9 +109,28 @@ TEST_CASE("get_ieee_block") {
         test_case{9, "8C1F64F5A000", "8C1F64F5A"},
     };
 
-    for (auto& c : cases) {
+    std::optional<std::string> out;
+
+    for (const auto& c : cases) {
         CAPTURE(c.input, c.block_length);
-        REQUIRE(get_ieee_block(c.input, c.block_length) == c.expected);
+
+        out = get_ieee_block(c.input, c.block_length);
+
+        REQUIRE(out.has_value());
+        REQUIRE(out.value() == c.expected);
+    }
+
+    const test_case nullopt_cases[] = {
+        {6, "00", ""},
+        {7, "00", ""},
+        {9, "00", ""},
+    };
+
+    for (const auto& nc : nullopt_cases) {
+        CAPTURE(nc.input, nc.block_length);
+
+        out = get_ieee_block(nc.input, nc.block_length);
+        REQUIRE(!out.has_value());
     }
 }
 

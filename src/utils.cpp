@@ -21,12 +21,13 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     std::vector<int64_t> queries;
     queries.reserve(3);
 
-    std::string ieee_block;
+    std::optional<std::string> ieee_block;
+
     for (const auto& block_len : VENDOR_BLOCK_LENGTHS) {
         ieee_block = get_ieee_block(addr, block_len);
 
-        if (!ieee_block.empty()) {
-            queries.push_back(prefix_to_id(ieee_block));
+        if (ieee_block) {
+            queries.push_back(prefix_to_id(*ieee_block));
         }
     }
 
@@ -37,11 +38,11 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     return queries;
 }
 
-std::string get_ieee_block(const std::string& addr, const size_t block_len) {
-    if (addr.length() < block_len) {
-        return "";
+std::optional<std::string> get_ieee_block(const std::string& addr, const size_t block_len) {
+    if (addr.length() >= block_len) {
+        return addr.substr(0, block_len);
     }
-    return addr.substr(0, block_len);
+    return std::nullopt;
 }
 
 int64_t prefix_to_id(const std::string& prefix) {

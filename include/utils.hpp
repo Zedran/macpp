@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -18,9 +19,9 @@ std::string build_query_by_id_stmt(const size_t length);
 std::vector<int64_t> construct_queries(const std::string& addr);
 
 // Returns a vendor identifier block of length block_len extracted from addr.
-// If length of addr is lower than block_len, empty string is returned.
+// If length of addr is lower than block_len, nullopt is returned instead.
 // Accepts addr without separators (101010).
-std::string get_ieee_block(const std::string& addr, const size_t block_len);
+std::optional<std::string> get_ieee_block(const std::string& addr, const size_t block_len);
 
 // Converts MAC prefix without separators (101010) from string to an integer.
 int64_t prefix_to_id(const std::string& prefix);
