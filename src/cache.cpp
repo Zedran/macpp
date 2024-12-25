@@ -54,11 +54,14 @@ void create_cache(sqlite3* conn, const std::string& update_fpath) {
 
     std::string line;
 
+    // More than twice the length of the longest CSV line.
+    constexpr size_t MAX_LINE_LENGTH = 300;
+
     // Discard the header line
     std::getline(*stream, line);
 
     while (std::getline(*stream, line)) {
-        if (line.empty()) {
+        if (line.empty() || line.length() > MAX_LINE_LENGTH) {
             continue;
         }
         Vendor v(line);

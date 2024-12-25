@@ -53,6 +53,20 @@ TEST_CASE("create_cache") {
         }
         REQUIRE(found == true);
     }
+
+    // Line length limits
+
+    REQUIRE_NOTHROW(update_cache(conn, ":memory:", "testdata/poisoned.csv"));
+    REQUIRE(sqlite3_prepare_v2(conn, "SELECT * FROM vendors", -1, &stmt, nullptr) == SQLITE_OK);
+
+    out.clear();
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        out.push_back(Vendor(stmt));
+    }
+
+    REQUIRE(out.size() == 1);
+    CAPTURE(out[0]);
+    REQUIRE(out[0].vendor_name == "Cisco Systems, Inc");
 }
 
 TEST_CASE("get_conn") {
