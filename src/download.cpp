@@ -15,6 +15,8 @@ size_t write_data(void* buffer, size_t size, size_t nmemb, void* userp) {
 std::stringstream download_data() {
     const char* URL = "https://maclookup.app/downloads/csv-database/get-db";
 
+    constexpr int64_t MAX_FSIZE = 1 << 23; // 8 MiB
+
     CURLcode          code;
     CURL*             curl{};
     std::stringstream readBuffer;
@@ -34,6 +36,7 @@ std::stringstream download_data() {
 
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+    curl_easy_setopt(curl, CURLOPT_MAXFILESIZE, MAX_FSIZE);
 
     curl_easy_setopt(curl, CURLOPT_URL, URL);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
@@ -41,7 +44,9 @@ std::stringstream download_data() {
 
     code = curl_easy_perform(curl);
 
-    if (code != CURLE_OK) {
+    if (code == CURLE_FILESIZE_EXCEEDED) {
+        throw(AppError("file size limit exceeded during download"));
+    } else if (code != CURLE_OK) {
         throw(AppError(curl_easy_strerror(code)));
     }
 
