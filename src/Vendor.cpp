@@ -41,7 +41,7 @@ Vendor::Vendor(const std::string& line) {
             vendor_name.replace(eqp1 - p1 - 1, 2, "\"");
             vendor_name.replace(eqp2 - 2 - p1, 2, "\"");
         } else {
-            // Quoted vendor name with no escaped quotes (,FIBRONICS LTD.,)
+            // Quoted vendor name with no escaped quotes ("Cisco Systems, Inc")
             if ((p2 = line.find("\",", p1 + 1)) == std::string::npos) {
                 throw(AppError("closing quote for vendor name not found"));
             }
