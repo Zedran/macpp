@@ -76,7 +76,11 @@ Vendor::Vendor(const std::string& line) {
     is_private = false;
 
     // Skip past 'alse,' to the next field
-    p1 += 6;
+    p1 += 5;
+    if (p1 >= line.length() || line[p1] != ',') {
+        throw(AppError("no comma between private and block type fields"));
+    }
+    p1++;
 
     // Find the last comma
     if ((p2 = line.find(',', p1)) == std::string::npos) {
