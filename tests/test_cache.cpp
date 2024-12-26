@@ -55,6 +55,8 @@ TEST_CASE("create_cache") {
     }
 
     // Line length limits
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
 
     REQUIRE_NOTHROW(update_cache(conn, ":memory:", "testdata/poisoned.csv"));
     REQUIRE(sqlite3_prepare_v2(conn, "SELECT * FROM vendors", -1, &stmt, nullptr) == SQLITE_OK);
