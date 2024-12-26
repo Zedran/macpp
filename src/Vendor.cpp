@@ -63,7 +63,7 @@ Vendor::Vendor(const std::string& line) {
     }
 
     if (line.at(p1) == 't') {
-        // Private field contains no more meaningful information
+        // Private entry contains no more meaningful information
         is_private  = true;
         block_type  = "";
         last_update = "";
