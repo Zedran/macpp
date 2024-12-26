@@ -72,6 +72,7 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
         "00:00:00Vendor name",                                    // No commas
         "00:00:00,Vendor name,",                                  // Line too short
         R"(5C:F2:86:D,"BrightSky, LLC,false,MA-M,2019/07/02)",    // No closing quote after vendor name
+        R"(5C:F2:86:D,"BrightSky, LLC"false,MA-M,2019/07/02)",    // Closing quote after vendor name present, but no comma
         R"(2C:7A:FE,"IEE&E ""Black" ops",false,MA-L,2010/07/26)", // No closing escaped quote
         R"(00:00:00,"IEE&E ""Black ops",false,MA-L,2010/07/26)",  // Escaped quote not closed
         R"(00:00:00,"IEE&E ""Black"" ops,false,MA-L,2010/07/26)", // No closing quote with escaped quote present
