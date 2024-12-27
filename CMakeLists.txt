@@ -11,16 +11,17 @@ set(CMAKE_CXX_STANDARD           20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS        OFF)
 
-set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -ggdb3 -Wall -Wextra -Wpedantic"     )
-set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG -Wall -Wextra -Wpedantic"   )
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG -Wall -Wextra -Wpedantic")
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG -Wall -Wextra -Wpedantic"   )
-
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fstack-protector-strong -fcf-protection=full -fstack-clash-protection -D_FORTIFY_SOURCE=2")
+set(WARN   "-Wall -Wextra -Wpedantic")
+set(HARDEN "-fstack-protector-strong -fcf-protection=full -fstack-clash-protection -D_FORTIFY_SOURCE=2")
 
 if (NOT BUNDLE)
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIE -pie")
+	set(HARDEN "${HARDEN} -fPIE -pie")
 endif()
+
+set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -ggdb3 ${WARN}"               )
+set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${WARN} ${HARDEN}"   )
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG ${WARN} ${HARDEN}")
+set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${WARN} ${HARDEN}"   )
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
