@@ -7,6 +7,7 @@
 #include "cache.hpp"
 #include "config.hpp"
 #include "dir.hpp"
+#include "exception.hpp"
 
 void setup_parser(argparse::ArgumentParser& app);
 
@@ -59,7 +60,10 @@ int main(int argc, char* argv[]) {
         else if (app.is_used("--name"))
             results = query_name(conn, app.get("--name"));
         else
-            throw(AppError("no action specified"));
+            throw errors::NoActionError;
+    } catch(const errors::Error& e) {
+        std::cerr << e << '\n';
+        return 1;
     } catch (const AppError& e) {
         std::cerr << e.what() << '\n';
         return 1;
