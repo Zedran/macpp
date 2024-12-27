@@ -11,7 +11,7 @@
 #include "download.hpp"
 #include "utils.hpp"
 
-void create_cache(sqlite3* conn, const std::string& update_fpath) {
+void create_cache(sqlite3* const conn, const std::string& update_fpath) {
     std::unique_ptr<std::iostream> stream;
 
     if (!update_fpath.empty()) {
@@ -110,7 +110,7 @@ void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& 
     }
 }
 
-std::vector<Vendor> query_addr(sqlite3* conn, const std::string& address) {
+std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) {
     const std::string stripped_address = remove_addr_separators(address);
 
     if (stripped_address.empty()) {
@@ -142,7 +142,7 @@ std::vector<Vendor> query_addr(sqlite3* conn, const std::string& address) {
     return results;
 }
 
-std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name) {
+std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_name) {
     const std::string stmt_string =
         "SELECT * FROM vendors WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY ESCAPE '\\'";
 

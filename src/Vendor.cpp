@@ -5,7 +5,7 @@
 #include "Vendor.hpp"
 #include "utils.hpp"
 
-static inline std::string get_column_text(sqlite3_stmt* stmt, int coln);
+static inline std::string get_column_text(sqlite3_stmt* const stmt, const int coln);
 
 Vendor::Vendor(const std::string& line) {
     // In this constructor, size_t values that are marked with '1' typically
@@ -103,14 +103,14 @@ Vendor::Vendor(
     block_type(block_type),
     last_update(last_update) {}
 
-Vendor::Vendor(sqlite3_stmt* stmt)
+Vendor::Vendor(sqlite3_stmt* const stmt)
     : mac_prefix(get_column_text(stmt, 1)),
       vendor_name(get_column_text(stmt, 2)),
       is_private(sqlite3_column_int(stmt, 3) != 0),
       block_type(get_column_text(stmt, 4)),
       last_update(get_column_text(stmt, 5)) {}
 
-int Vendor::bind(sqlite3_stmt* stmt) const {
+int Vendor::bind(sqlite3_stmt* const stmt) const {
     const std::string stripped_prefix = remove_addr_separators(mac_prefix);
 
     return sqlite3_bind_int64(stmt, 1, prefix_to_id(stripped_prefix)) +
@@ -132,7 +132,7 @@ std::ostream& operator<<(std::ostream& os, const Vendor& v) {
 
 // Returns a string value stored in column 'coln' of sqlite row. If the value
 // is NULL, an empty string is returned.
-static inline std::string get_column_text(sqlite3_stmt* stmt, int coln) {
+static inline std::string get_column_text(sqlite3_stmt* const stmt, const int coln) {
     const unsigned char* text = sqlite3_column_text(stmt, coln);
 
     if (text) {

@@ -12,9 +12,9 @@
 // For the update task, non-empty update_fpath is used as a local CSV file path.
 void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& update_fpath = "");
 
-std::vector<Vendor> query_addr(sqlite3* conn, const std::string& address);
+std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address);
 
-std::vector<Vendor> query_name(sqlite3* conn, const std::string& vendor_name);
+std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_name);
 
 // Updates the database file at cache_path. Preserves the most recently
 // created database. If an update fails, the most recent database is restored.
