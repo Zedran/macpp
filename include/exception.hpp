@@ -1,5 +1,6 @@
 #pragma once
 
+#include <curl/curl.h>
 #include <format>
 #include <iostream>
 #include <sqlite3.h>
@@ -50,6 +51,21 @@ public:
     }
 };
 
+class NetworkError : public Error {
+    using Error::Error;
+
+public:
+    // Returns a new NetworkError that wraps an error message retrieved
+    // from CURL.
+    NetworkError wrap(const CURLcode code) const {
+        return NetworkError(std::format(
+            "{}: {}",
+            this->what(),
+            curl_easy_strerror(code)
+        ));
+    }
+};
+
 // Thrown if --addr option is given with no value
 const Error EmptyAddrError("empty MAC address");
 
@@ -70,5 +86,10 @@ const CacheError PrepareError("sqlite3_prepare_v2 error");
 const CacheError ResetError("sqlite3_reset error");
 const CacheError StepError("sqlite3_step error");
 const CacheError UpdateError("update failed");
+
+const NetworkError EasyInitError("curl_easy_init failed");
+const NetworkError FileSizeError("file size limit exceeded during download");
+const NetworkError GlobalInitError("curl_global_init failed");
+const NetworkError PerformError("curl_easy_perform failed");
 
 } // namespace errors

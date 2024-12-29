@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <curl/curl.h>
 #include <sqlite3.h>
 
 #include "FinalAction.hpp"
@@ -38,4 +39,11 @@ TEST_CASE("CacheError") {
     out      = BASE.wrap(static_cast<const char*>(nullptr));
     expected = BASE;
     REQUIRE(out == expected);
+}
+
+TEST_CASE("NetworkError") {
+    errors::NetworkError out = errors::NetworkError("download error").wrap(static_cast<CURLcode>(1));
+    errors::NetworkError exp = errors::NetworkError("download error: Unsupported protocol");
+    CAPTURE(out);
+    REQUIRE(out == exp);
 }
