@@ -50,7 +50,25 @@ public:
     }
 };
 
+// Thrown if --addr option is given with no value
+const Error EmptyAddrError("empty MAC address");
+
+// Thrown if --name option is given with no value
+const Error EmptyNameError("empty vendor name");
+
 // Thrown if no command is given (--addr, --name, --update).
 const Error NoActionError("no action specified");
+
+const CacheError BindError("sqlite3_bind error");
+const CacheError CacheOpenError("failed to open the database");
+const CacheError ExecError("sqlite3_exec error");
+
+// Thrown if a file found at cache path has an invalid format.
+const CacheError NotCacheError("not a cache file");
+
+const CacheError PrepareError("sqlite3_prepare_v2 error");
+const CacheError ResetError("sqlite3_reset error");
+const CacheError StepError("sqlite3_step error");
+const CacheError UpdateError("update failed");
 
 } // namespace errors

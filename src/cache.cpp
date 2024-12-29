@@ -4,11 +4,11 @@
 #include <sstream>
 #include <string>
 
-#include "AppError.hpp"
 #include "FinalAction.hpp"
 #include "Vendor.hpp"
 #include "cache.hpp"
 #include "download.hpp"
+#include "exception.hpp"
 #include "utils.hpp"
 
 void create_cache(sqlite3* const conn, const std::string& update_fpath) {
@@ -20,10 +20,6 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
         stream = std::make_unique<std::stringstream>(download_data());
     }
 
-    char* err{};
-
-    const auto free_err = finally([&] { sqlite3_free(err); });
-
     const char* create_table_stmt =
         R"(CREATE TABLE vendors (
             id      INTEGER PRIMARY KEY,
@@ -34,12 +30,12 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
             updated TEXT NOT NULL
         );)";
 
-    if (sqlite3_exec(conn, "BEGIN TRANSACTION;", nullptr, nullptr, &err) != SQLITE_OK) {
-        throw(AppError(err));
+    if (sqlite3_exec(conn, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr) != SQLITE_OK) {
+        throw errors::ExecError.wrap(conn);
     }
 
-    if (sqlite3_exec(conn, create_table_stmt, nullptr, nullptr, &err) != SQLITE_OK) {
-        throw AppError(err);
+    if (sqlite3_exec(conn, create_table_stmt, nullptr, nullptr, nullptr) != SQLITE_OK) {
+        throw errors::ExecError.wrap(conn);
     }
 
     const char* insert_stmt =
@@ -49,7 +45,7 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
     const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, insert_stmt, -1, &stmt, nullptr) != SQLITE_OK) {
-        throw AppError("prepare statement failed", conn);
+        throw errors::PrepareError.wrap(conn);
     }
 
     std::string line;
@@ -66,38 +62,38 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
         }
         Vendor v(line);
         if (v.bind(stmt) != SQLITE_OK) {
-            throw AppError("value bind failed", conn);
+            throw errors::BindError.wrap(conn);
         }
 
         if (sqlite3_step(stmt) != SQLITE_DONE) {
-            throw AppError("step failed", conn);
+            throw errors::StepError.wrap(conn);
         }
 
         if (sqlite3_reset(stmt) != SQLITE_OK) {
-            throw AppError("reset failed", conn);
+            throw errors::ResetError.wrap(conn);
         }
     }
 
-    if (sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, &err) != SQLITE_OK) {
-        throw AppError(err);
+    if (sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr) != SQLITE_OK) {
+        throw errors::ExecError.wrap(conn);
     }
 }
 
 void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& update_fpath) {
-    if (sqlite3_open(cache_path.c_str(), &conn) != SQLITE_OK) {
-        throw AppError("failed to open the database", conn);
+    if (int code = sqlite3_open(cache_path.c_str(), &conn); code != SQLITE_OK) {
+        throw errors::CacheOpenError.wrap(conn);
     }
 
     sqlite3_stmt* stmt{};
     const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, "PRAGMA schema_version", -1, &stmt, nullptr) != SQLITE_OK) {
-        throw(AppError("cache validation: prepare statement failed", conn));
+        throw errors::PrepareError.wrap(conn);
     }
 
     if (sqlite3_step(stmt) != SQLITE_ROW) {
         // File is not a database and is not empty
-        throw(AppError("cache validation failed: '" + cache_path + "' is not a cache file"));
+        throw errors::NotCacheError;
     }
 
     int version{-1};
@@ -114,7 +110,7 @@ std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) 
     const std::string stripped_address = remove_addr_separators(address);
 
     if (stripped_address.empty()) {
-        throw(AppError("MAC address cannot be empty"));
+        throw errors::EmptyAddrError;
     }
 
     const std::vector<int64_t> queries     = construct_queries(stripped_address);
@@ -126,12 +122,12 @@ std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) 
     const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, stmt_string.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-        throw(AppError("prepare statement failed", conn));
+        throw errors::PrepareError.wrap(conn);
     }
 
     for (size_t i = 0; i < queries.size(); i++) {
         if (sqlite3_bind_int64(stmt, static_cast<int>(i + 1), queries[i]) != SQLITE_OK) {
-            throw(AppError("value bind failed", conn));
+            throw errors::BindError.wrap(conn);
         }
     }
 
@@ -147,7 +143,7 @@ std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_na
         "SELECT * FROM vendors WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY ESCAPE '\\'";
 
     if (vendor_name.empty()) {
-        throw(AppError("vendor name cannot be empty"));
+        throw errors::EmptyNameError;
     }
 
     const std::string query = suppress_like_wildcards(vendor_name);
@@ -158,11 +154,11 @@ std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_na
     const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, stmt_string.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-        throw(AppError("query_name: prepare statement failed", conn));
+        throw errors::PrepareError.wrap(conn);
     }
 
     if (sqlite3_bind_text(stmt, 1, query.c_str(), -1, SQLITE_STATIC) != SQLITE_OK) {
-        throw(AppError("query_name: value bind failed", conn));
+        throw errors::BindError.wrap(conn);
     }
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -204,6 +200,6 @@ void update_cache(sqlite3*& conn, const std::string& cache_path, const std::stri
         if (exists(old_cache_path)) {
             std::filesystem::rename(old_cache_path.c_str(), cache_path.c_str());
         }
-        throw(AppError("update failed: " + static_cast<std::string>(e.what())));
+        throw errors::UpdateError.wrap(e.what());
     }
 }
