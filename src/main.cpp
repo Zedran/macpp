@@ -64,7 +64,8 @@ int main(int argc, char* argv[]) {
         std::cerr << e << '\n';
         return 1;
     } catch (const std::invalid_argument& e) {
-        std::cerr << "invalid address\n";
+        // Thrown by std::stoll in prefix_to_id
+        std::cerr << errors::AddrInvalidError << '\n';
         return 1;
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
