@@ -1,6 +1,4 @@
-#include <stdexcept>
-
-#include "AppError.hpp"
+#include "exception.hpp"
 #include "utils.hpp"
 
 std::string build_query_by_id_stmt(const size_t length) {
@@ -32,7 +30,7 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     }
 
     if (queries.empty()) {
-        throw AppError("query '" + addr + "' too short");
+        throw errors::AddrTooShortError;
     }
 
     return queries;
@@ -51,7 +49,7 @@ int64_t prefix_to_id(const std::string& prefix) {
 
     // Check if stoll did not stop too early
     if (pos != prefix.length()) {
-        throw(std::invalid_argument("non-hex character encountered"));
+        throw errors::AddrInvalidError;
     }
     return conv;
 }

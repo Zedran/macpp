@@ -119,6 +119,10 @@ public:
     }
 };
 
+const Error AddrInvalidError("specified MAC address contains invalid characters");
+
+const Error AddrTooShortError("specified MAC address is too short");
+
 // Thrown if --addr option is given with no value
 const Error EmptyAddrError("empty MAC address");
 
