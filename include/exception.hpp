@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sqlite3.h>
 #include <stdexcept>
+#include <string>
 
 namespace errors {
 
@@ -66,6 +67,16 @@ public:
     }
 };
 
+class ParsingError : public Error {
+    using Error::Error;
+
+public:
+    // Returns a new ParsingError that wraps a problematic CSV line.
+    ParsingError wrap(const std::string& line) const {
+        return ParsingError(std::format("{}: in line '{}'", this->what(), line));
+    }
+};
+
 // Thrown if --addr option is given with no value
 const Error EmptyAddrError("empty MAC address");
 
@@ -91,5 +102,22 @@ const NetworkError EasyInitError("curl_easy_init failed");
 const NetworkError FileSizeError("file size limit exceeded during download");
 const NetworkError GlobalInitError("curl_global_init failed");
 const NetworkError PerformError("curl_easy_perform failed");
+
+const ParsingError NoCommaError("no comma found in CSV line");
+
+// Thrown if escaped quote in vendor name field is not terminated,
+// e.g. ',"IEE&E ""Black ops",'
+const ParsingError EscapedTermError("closing escaped quote not found");
+
+// Thrown if quoted vendor name field is not terminated with '",' sequence,
+// e.g. ',"Cisco Systems, Inc,false'
+const ParsingError QuotedTermSeqError("closing quote + comma sequence for vendor name not found");
+
+// Thrown if unquoted vendor name field does not end with a comma
+const ParsingError UnquotedTermError("no comma after unquoted vendor name");
+
+const ParsingError PrivateInvalidError("invalid value of private field");
+const ParsingError PrivateTermError("no comma between private and block type fields");
+const ParsingError BlockTypeTermError("no comma between block type and last update fields");
 
 } // namespace errors

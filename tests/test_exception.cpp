@@ -47,3 +47,10 @@ TEST_CASE("NetworkError") {
     CAPTURE(out);
     REQUIRE(out == exp);
 }
+
+TEST_CASE("ParsingError") {
+    errors::ParsingError out = errors::ParsingError("parsing error").wrap("boom");
+    errors::ParsingError exp = errors::ParsingError("parsing error: in line 'boom'");
+    CAPTURE(out);
+    REQUIRE(out == exp);
+}
