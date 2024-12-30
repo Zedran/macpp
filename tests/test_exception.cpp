@@ -72,6 +72,11 @@ TEST_CASE("CacheError") {
     expected = errors::CacheError("sqlite3 error: boom");
     REQUIRE(out == expected);
 
+    CAPTURE("sqlite3_errstr");
+    out = BASE.wrap(0);
+    expected = errors::CacheError("sqlite3 error: (0) not an error");
+    REQUIRE(out == expected);
+
     CAPTURE("nullptr message");
     out      = BASE.wrap(static_cast<const char*>(nullptr));
     expected = BASE;

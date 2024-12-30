@@ -60,7 +60,8 @@ class CacheError : public Error {
     using Error::Error;
 
 public:
-    // Returns a new CacheError that wraps sqlite3 error information.
+    // Returns a new CacheError that wraps sqlite3 error information retrieved
+    // from sqlite3 object.
     CacheError wrap(sqlite3* const conn) const {
         if (conn) {
             return CacheError(std::format(
@@ -71,6 +72,17 @@ public:
             ));
         }
         return *this;
+    }
+
+    // Returns a new CacheError that wraps sqlite3 error information retrieved
+    // from SQLite response code.
+    CacheError wrap(const int code) const {
+        return CacheError(std::format(
+            "{}: ({}) {}",
+            this->what(),
+            code,
+            sqlite3_errstr(code)
+        ));
     }
 
     // Returns a new CacheError that wraps a custom message.
