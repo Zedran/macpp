@@ -140,6 +140,7 @@ const CacheError PrepareError("sqlite3_prepare_v2 error");
 const CacheError ResetError("sqlite3_reset error");
 const CacheError StepError("sqlite3_step error");
 const CacheError UpdateError("update failed");
+const CacheError UpdatePathError("could not open file at the specified path");
 
 const NetworkError EasyInitError("curl_easy_init failed");
 const NetworkError FileSizeError("file size limit exceeded during download");

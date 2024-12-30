@@ -1,6 +1,5 @@
 #include <curl/curl.h>
 
-#include "AppError.hpp"
 #include "FinalAction.hpp"
 #include "download.hpp"
 #include "exception.hpp"
@@ -58,7 +57,7 @@ std::fstream get_local_file(const std::string& path) {
     std::fstream file(path);
 
     if (!file.good()) {
-        throw(AppError("cannot open file at '" + path + "'"));
+        throw errors::UpdatePathError;
     }
 
     return file;
