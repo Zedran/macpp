@@ -6,6 +6,43 @@
 #include "exception.hpp"
 #include "internal/internal.hpp"
 
+TEST_CASE("Error") {
+    errors::CacheError BASE("sqlite3 error");
+    errors::CacheError out = BASE.wrap("boom");
+
+    // other must be of different length than BASE and out
+    errors::CacheError other("incredibly mysterious error");
+    REQUIRE(strlen(other.what()) != strlen(out.what()));
+    REQUIRE(strlen(other.what()) != strlen(BASE.what()));
+
+    REQUIRE(BASE == BASE);
+    REQUIRE(out == out);
+    REQUIRE(other == other);
+    REQUIRE(BASE == out);
+    REQUIRE(out == BASE);
+    REQUIRE(!(BASE == other));
+    REQUIRE(!(other == BASE));
+    REQUIRE(!(out == other));
+    REQUIRE(!(other == out));
+
+    REQUIRE(BASE != other);
+    REQUIRE(other != BASE);
+    REQUIRE(out != other);
+    REQUIRE(other != out);
+    REQUIRE(!(BASE != BASE));
+    REQUIRE(!(out != out));
+    REQUIRE(!(BASE != out));
+    REQUIRE(!(out != BASE));
+
+    REQUIRE(BASE.is_exactly(BASE));
+    REQUIRE(out.is_exactly(out));
+    REQUIRE(other.is_exactly(other));
+    REQUIRE(!BASE.is_exactly(out));
+    REQUIRE(!out.is_exactly(BASE));
+    REQUIRE(!BASE.is_exactly(other));
+    REQUIRE(!out.is_exactly(other));
+}
+
 TEST_CASE("CacheError") {
     sqlite3_initialize();
 

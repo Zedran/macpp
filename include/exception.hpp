@@ -13,12 +13,42 @@ class Error : public std::runtime_error {
     using std::runtime_error::runtime_error;
 
 public:
-    bool operator==(const Error& other) const noexcept {
+    // Returns true if the object's message equals exactly other's message
+    // (includes wrapped info in comparison).
+    bool is_exactly(const Error& other) const noexcept {
         return std::string(this->what()) == std::string(other.what());
     }
 
+    // Returns true if at least base message of the object and other
+    // are equal (disregards wrapped info during comparison).
+    bool operator==(const Error& other) const noexcept {
+        std::string first  = this->what();
+        std::string second = other.what();
+
+        if (first == second) {
+            return true;
+        }
+
+        if (first.length() > second.length()) {
+            return first.starts_with(second);
+        }
+        return second.starts_with(first);
+    }
+
+    // Returns true if the object and other do not share even the base message
+    // (disregards wrapped info during comparison).
     bool operator!=(const Error& other) const noexcept {
-        return std::string(this->what()) != std::string(other.what());
+        std::string first  = this->what();
+        std::string second = other.what();
+
+        if (first == second) {
+            return false;
+        }
+
+        if (first.length() > second.length()) {
+            return !(first.starts_with(second));
+        }
+        return !(second.starts_with(first));
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Error& e) {
