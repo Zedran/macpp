@@ -42,8 +42,8 @@ TEST_CASE("CacheError") {
 }
 
 TEST_CASE("NetworkError") {
-    errors::NetworkError out = errors::NetworkError("download error").wrap(static_cast<CURLcode>(1));
-    errors::NetworkError exp = errors::NetworkError("download error: Unsupported protocol");
+    errors::NetworkError out = errors::NetworkError("network error").wrap(static_cast<CURLcode>(1));
+    errors::NetworkError exp = errors::NetworkError("network error: Unsupported protocol");
     CAPTURE(out);
     REQUIRE(out == exp);
 }
