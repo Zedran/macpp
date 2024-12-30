@@ -61,9 +61,7 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
             continue;
         }
         Vendor v(line);
-        if (v.bind(stmt) != SQLITE_OK) {
-            throw errors::BindError.wrap(conn);
-        }
+        v.bind(stmt);
 
         if (sqlite3_step(stmt) != SQLITE_DONE) {
             throw errors::StepError.wrap(conn);

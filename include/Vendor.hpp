@@ -27,10 +27,8 @@ struct Vendor {
     // Reconstructs Vendor from SQLite row.
     Vendor(sqlite3_stmt* const stmt);
 
-    // Binds struct members to the insert statement. Returns an aggregation
-    // of the SQLite3 status codes. If the return value is higher than 0,
-    // at least one of the bind calls failed.
-    int bind(sqlite3_stmt* const stmt) const;
+    // Binds struct members to the insert statement.
+    void bind(sqlite3_stmt* const stmt) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Vendor& v);
 };

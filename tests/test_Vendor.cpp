@@ -158,7 +158,7 @@ TEST_CASE("Vendor::bind") {
     for (auto& c : cases) {
         CAPTURE(c.mac_prefix);
 
-        REQUIRE(c.bind(stmt) == SQLITE_OK);
+        REQUIRE_NOTHROW(c.bind(stmt));
 
         REQUIRE(sqlite3_step(stmt) == SQLITE_DONE);
         REQUIRE(sqlite3_reset(stmt) == SQLITE_OK);
