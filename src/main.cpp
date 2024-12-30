@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
         std::cerr << errors::AddrInvalidError << '\n';
         return 1;
     } catch (const std::exception& e) {
-        std::cerr << e.what() << '\n';
+        std::cerr << "unexpected error: " << e.what() << '\n';
         return 2;
     }
 
