@@ -62,6 +62,11 @@ Vendor::Vendor(const std::string& line) {
         p1          = p2 + 1;
     }
 
+    if (p1 == line.length()) {
+        // Private field is empty (comma after vendor name ends the line).
+        throw errors::PrivateInvalidError.wrap(line);
+    }
+
     if (line.at(p1) == 't') {
         // Private entry contains no more meaningful information
         is_private  = true;
