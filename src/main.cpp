@@ -1,7 +1,6 @@
 #include <curl/curl.h>
 #include <iostream>
 
-#include "AppError.hpp"
 #include "FinalAction.hpp"
 #include "argparse/argparse.hpp"
 #include "cache.hpp"
@@ -63,9 +62,6 @@ int main(int argc, char* argv[]) {
             throw errors::NoActionError;
     } catch(const errors::Error& e) {
         std::cerr << e << '\n';
-        return 1;
-    } catch (const AppError& e) {
-        std::cerr << e.what() << '\n';
         return 1;
     } catch (const std::invalid_argument& e) {
         std::cerr << "invalid address\n";
