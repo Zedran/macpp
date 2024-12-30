@@ -56,6 +56,8 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
     // Discard the header line
     std::getline(*stream, line);
 
+    int code;
+
     while (std::getline(*stream, line)) {
         if (line.empty() || line.length() > MAX_LINE_LENGTH) {
             continue;
@@ -63,12 +65,12 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
         Vendor v(line);
         v.bind(stmt);
 
-        if (sqlite3_step(stmt) != SQLITE_DONE) {
-            throw errors::StepError.wrap(conn);
+        if (code = sqlite3_step(stmt); code != SQLITE_DONE) {
+            throw errors::StepError.wrap(code);
         }
 
-        if (sqlite3_reset(stmt) != SQLITE_OK) {
-            throw errors::ResetError.wrap(conn);
+        if (code = sqlite3_reset(stmt); code != SQLITE_OK) {
+            throw errors::ResetError.wrap(code);
         }
     }
 
@@ -123,9 +125,10 @@ std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) 
         throw errors::PrepareError.wrap(conn);
     }
 
+    int code;
     for (size_t i = 0; i < queries.size(); i++) {
-        if (sqlite3_bind_int64(stmt, static_cast<int>(i + 1), queries[i]) != SQLITE_OK) {
-            throw errors::BindError.wrap(conn);
+        if (code = sqlite3_bind_int64(stmt, static_cast<int>(i + 1), queries[i]); code != SQLITE_OK) {
+            throw errors::BindError.wrap(code);
         }
     }
 
@@ -155,8 +158,8 @@ std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_na
         throw errors::PrepareError.wrap(conn);
     }
 
-    if (sqlite3_bind_text(stmt, 1, query.c_str(), -1, SQLITE_STATIC) != SQLITE_OK) {
-        throw errors::BindError.wrap(conn);
+    if (int code = sqlite3_bind_text(stmt, 1, query.c_str(), -1, SQLITE_STATIC); code != SQLITE_OK) {
+        throw errors::BindError.wrap(code);
     }
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
