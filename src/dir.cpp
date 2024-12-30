@@ -1,7 +1,7 @@
 #include <filesystem>
 
-#include "AppError.hpp"
 #include "dir.hpp"
+#include "exception.hpp"
 
 // Returns a system-dependent directory path for the application's cache file.
 std::filesystem::path set_cache_dir_path() {
@@ -24,7 +24,7 @@ std::filesystem::path set_cache_dir_path() {
 #endif
 
     if (!env_var) {
-        throw(AppError("could not resolve cache path"));
+        throw errors::CachePathError;
     }
 
     cache_dir = env_var;

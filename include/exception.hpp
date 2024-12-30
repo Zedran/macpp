@@ -130,6 +130,7 @@ const Error NoActionError("no action specified");
 
 const CacheError BindError("sqlite3_bind error");
 const CacheError CacheOpenError("failed to open the database");
+const CacheError CachePathError("could not resolve cache path");
 const CacheError ExecError("sqlite3_exec error");
 
 // Thrown if a file found at cache path has an invalid format.
