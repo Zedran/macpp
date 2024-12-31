@@ -35,7 +35,7 @@ Vendor::Vendor(const std::string& line) {
             }
 
             // Find the vendor name field closure past the second escaped quote
-            if ((p2 = line.find('"', eqp2 + 2)) == std::string::npos) {
+            if ((p2 = line.find("\",", eqp2 + 2)) == std::string::npos) {
                 throw errors::QuotedTermSeqError.wrap(line);
             }
 
