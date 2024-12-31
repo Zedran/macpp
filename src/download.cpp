@@ -54,7 +54,7 @@ std::stringstream download_data() {
 }
 
 std::fstream get_local_file(const std::string& path) {
-    std::fstream file(path);
+    std::fstream file(path, std::ios::in);
 
     if (file.good()) {
         return file;
