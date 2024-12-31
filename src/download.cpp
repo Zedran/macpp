@@ -56,9 +56,8 @@ std::stringstream download_data() {
 std::fstream get_local_file(const std::string& path) {
     std::fstream file(path);
 
-    if (!file.good()) {
-        throw errors::UpdatePathError;
+    if (file.good()) {
+        return file;
     }
-
-    return file;
+    throw errors::UpdatePathError;
 }
