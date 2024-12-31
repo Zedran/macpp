@@ -1,9 +1,7 @@
-#include <stdexcept>
-
-#include "AppError.hpp"
+#include "exception.hpp"
 #include "utils.hpp"
 
-std::string build_query_by_id_stmt(const size_t length) {
+std::string build_query_by_id_stmt(const size_t length) noexcept {
     std::string stmt = "SELECT * FROM vendors WHERE id IN (?";
 
     // Start from 1, since the first placeholder is appended beforehand.
@@ -32,7 +30,7 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     }
 
     if (queries.empty()) {
-        throw AppError("query '" + addr + "' too short");
+        throw errors::AddrTooShortError;
     }
 
     return queries;
@@ -51,7 +49,7 @@ int64_t prefix_to_id(const std::string& prefix) {
 
     // Check if stoll did not stop too early
     if (pos != prefix.length()) {
-        throw(std::invalid_argument("non-hex character encountered"));
+        throw errors::AddrInvalidError;
     }
     return conv;
 }
@@ -68,7 +66,7 @@ void replace_escaped_quotes(std::string& str) {
     }
 }
 
-std::string suppress_like_wildcards(const std::string& str) {
+std::string suppress_like_wildcards(const std::string& str) noexcept {
     constexpr char PERCENT = '%';
     constexpr char USCORE  = '_';
 

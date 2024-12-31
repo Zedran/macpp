@@ -1,9 +1,11 @@
 #include <catch2/catch_test_macros.hpp>
 #include <format>
+#include <map>
 #include <sqlite3.h>
 
 #include "FinalAction.hpp"
 #include "cache.hpp"
+#include "exception.hpp"
 
 // Tests the create_cache function using a local file.
 TEST_CASE("create_cache") {
@@ -115,12 +117,23 @@ TEST_CASE("injections") {
             FAIL(std::format("failed for case '{}': got '{}', expected '{}'", c, out.at(0).vendor_name, c));
     }
 
-    const std::string throw_cases[] = {
-        "",
+    const std::map<const std::string, const errors::Error&> throw_cases = {
+        {"", errors::EmptyNameError},
     };
 
-    for (const auto& c : throw_cases) {
-        REQUIRE_THROWS(query_name(conn, c));
+    for (const auto& [input, expected_error] : throw_cases) {
+        CAPTURE(input);
+
+        try {
+            query_name(conn, input);
+        } catch (const errors::Error& e) {
+            REQUIRE(e == expected_error);
+            continue;
+        } catch (const std::exception& e) {
+            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+        }
+
+        FAIL("no exception was thrown");
     }
 }
 
@@ -174,18 +187,28 @@ TEST_CASE("query_addr") {
     results = query_addr(conn, "012345");
     REQUIRE(results.empty());
 
-    const std::string throw_cases[] = {
-        "",             // empty
-        "0000c",        // too short
-        "0c",           // too short
-        "c",            // too short
-        "::::::::::::", // separators do not count
-        "01234x",       // non-number
+    const std::map<const std::string, const errors::Error&> throw_cases = {
+        {"", errors::EmptyAddrError},             // empty
+        {"0000c", errors::AddrTooShortError},     // too short
+        {"0c", errors::AddrTooShortError},        // too short
+        {"c", errors::AddrTooShortError},         // too short
+        {"::::::::::::", errors::EmptyAddrError}, // separators do not count
+        {"01234x", errors::AddrInvalidError},     // non-number
     };
 
-    for (auto c : throw_cases) {
-        CAPTURE(c);
-        REQUIRE_THROWS(query_addr(conn, c));
+    for (const auto& [input, expected_error] : throw_cases) {
+        CAPTURE(input);
+
+        try {
+            query_addr(conn, input);
+        } catch (const errors::Error& e) {
+            REQUIRE(e == expected_error);
+            continue;
+        } catch (const std::exception& e) {
+            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+        }
+
+        FAIL("no exception was thrown");
     }
 }
 
@@ -238,12 +261,22 @@ TEST_CASE("query_name") {
     results = query_name(conn, "non-existent");
     REQUIRE(results.empty());
 
-    const std::string throw_cases[] = {
-        "", // empty
+    const std::map<const std::string, const errors::Error&> throw_cases = {
+        {"", errors::EmptyAddrError},
     };
 
-    for (auto c : throw_cases) {
-        CAPTURE(c);
-        REQUIRE_THROWS(query_addr(conn, c));
+    for (const auto& [input, expected_error] : throw_cases) {
+        CAPTURE(input);
+
+        try {
+            query_addr(conn, input);
+        } catch (const errors::Error& e) {
+            REQUIRE(e == expected_error);
+            continue;
+        } catch (const std::exception& e) {
+            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+        }
+
+        FAIL("no exception was thrown");
     }
 }

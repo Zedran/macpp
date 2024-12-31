@@ -1,8 +1,8 @@
 #include <curl/curl.h>
 
-#include "AppError.hpp"
 #include "FinalAction.hpp"
 #include "download.hpp"
+#include "exception.hpp"
 
 // WRITEFUNCTION function for cURL.
 size_t write_data(void* buffer, size_t size, size_t nmemb, void* userp) {
@@ -23,13 +23,13 @@ std::stringstream download_data() {
 
     code = curl_global_init(CURL_GLOBAL_DEFAULT);
     if (code != CURLE_OK) {
-        throw(AppError("curl_global_init failed"));
+        throw errors::GlobalInitError.wrap(code);
     }
 
     const auto global_cleanup = finally([&] { curl_global_cleanup(); });
 
     if (!(curl = curl_easy_init())) {
-        throw(AppError("curl_easy_init failed"));
+        throw errors::EasyInitError;
     }
 
     const auto easy_cleanup = finally([&] { curl_easy_cleanup(curl); });
@@ -45,9 +45,9 @@ std::stringstream download_data() {
     code = curl_easy_perform(curl);
 
     if (code == CURLE_FILESIZE_EXCEEDED) {
-        throw(AppError("file size limit exceeded during download"));
+        throw errors::FileSizeError;
     } else if (code != CURLE_OK) {
-        throw(AppError(curl_easy_strerror(code)));
+        throw errors::PerformError.wrap(code);
     }
 
     return readBuffer;
@@ -57,7 +57,7 @@ std::fstream get_local_file(const std::string& path) {
     std::fstream file(path);
 
     if (!file.good()) {
-        throw(AppError("cannot open file at '" + path + "'"));
+        throw errors::UpdatePathError;
     }
 
     return file;

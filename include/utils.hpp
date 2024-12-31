@@ -8,7 +8,7 @@
 
 // A helper function that appends the correct number of placeholders
 // to the sqlite statement in construction.
-std::string build_query_by_id_stmt(const size_t length);
+std::string build_query_by_id_stmt(const size_t length) noexcept;
 
 // Constructs a vector of all possible vendor identifiers that can be extracted
 // from addr. This is important in situations where user specifies
@@ -37,4 +37,4 @@ inline std::string remove_addr_separators(const std::string& addr) {
 void replace_escaped_quotes(std::string& str);
 
 // Inserts an escape character before every occurence of '%' and '_' in str.
-std::string suppress_like_wildcards(const std::string& str);
+std::string suppress_like_wildcards(const std::string& str) noexcept;

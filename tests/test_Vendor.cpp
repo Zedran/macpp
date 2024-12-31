@@ -1,10 +1,12 @@
 #include <catch2/catch_test_macros.hpp>
 #include <format>
+#include <map>
 #include <sstream>
 
 #include "FinalAction.hpp"
 #include "Vendor.hpp"
 #include "cache.hpp"
+#include "exception.hpp"
 #include "internal/internal.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
@@ -67,27 +69,39 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
         REQUIRE(out.last_update == c.expected.last_update);
     }
 
-    const std::string throw_cases[] = {
-        "",                                                       // Empty line
-        "00:00:00Vendor name",                                    // No commas
-        "00:00:00,Vendor name,",                                  // Line too short
-        R"(5C:F2:86:D,"BrightSky, LLC,false,MA-M,2019/07/02)",    // No closing quote after vendor name
-        R"(5C:F2:86:D,"BrightSky, LLC"false,MA-M,2019/07/02)",    // Closing quote after vendor name present, but no comma
-        R"(2C:7A:FE,"IEE&E ""Black" ops",false,MA-L,2010/07/26)", // No closing escaped quote
-        R"(00:00:00,"IEE&E ""Black ops",false,MA-L,2010/07/26)",  // Escaped quote not closed
-        R"(00:00:00,"IEE&E ""Black"" ops,false,MA-L,2010/07/26)", // No closing quote with escaped quote present
-        R"(00:00:0C,"Cisco Systems, Inc",no,MA-L,2015/11/17)",    // Invalid private field
-        R"(00:00:0C,"Cisco Systems, Inc",falseMA-L,2015/11/17)",  // No comma between private and block type fields
-        R"(00:00:0D,FIBRONICS LTD.)",                             // No comma after vendor name
-        R"(00:00:0D,FIBRONICS LTD.,)",                            // Comma after vendor name ends the line
-        R"(00:00:0D,FIBRONICS LTD.,false,)",                      // Comma after private field ends the line
-        R"(00:00:0D,FIBRONICS LTD.,false)",                       // No comma after private field
-        R"(00:00:0D,FIBRONICS LTD.,false,MA-L)",                  // No comma after block type field
+    using namespace errors;
+
+    const std::map<const std::string, const Error&> throw_cases = {
+        {"", NoCommaError},                                                             // Empty line
+        {"00:00:00Vendor name", NoCommaError},                                          // No commas
+        {R"(5C:F2:86:D,"BrightSky, LLC,false,MA-M,2019/07/02)", QuotedTermSeqError},    // No closing quote after vendor name
+        {R"(5C:F2:86:D,"BrightSky, LLC"false,MA-M,2019/07/02)", QuotedTermSeqError},    // Closing quote after vendor name present, but no comma
+        {R"(2C:7A:FE,"IEE&E ""Black" ops",false,MA-L,2010/07/26)", EscapedTermError},   // No closing escaped quote
+        {R"(00:00:00,"IEE&E ""Black ops",false,MA-L,2010/07/26)", EscapedTermError},    // Escaped quote not closed
+        {R"(00:00:00,"IEE&E ""Black"" ops,false,MA-L,2010/07/26)", QuotedTermSeqError}, // No closing quote with escaped quote present
+        {R"(00:00:0C,"Cisco Systems, Inc",no,MA-L,2015/11/17)", PrivateInvalidError},   // Invalid private field
+        {R"(00:00:0C,"Cisco Systems, Inc",falseMA-L,2015/11/17)", PrivateTermError},    // No comma between private and block type fields
+        {R"(00:00:0D,FIBRONICS LTD.)", UnquotedTermError},                              // No comma after vendor name
+        {R"(00:00:0D,FIBRONICS LTD.,)", PrivateInvalidError},                           // Comma after vendor name ends the line
+        {R"(00:00:0D,FIBRONICS LTD.,false,)", BlockTypeTermError},                      // Comma after private field ends the line
+        {R"(00:00:0D,FIBRONICS LTD.,false)", PrivateTermError},                         // No comma after private field
+        {R"(00:00:0D,FIBRONICS LTD.,false,MA-L)", BlockTypeTermError},                  // No comma after block type field
+        {R"(5C:F2:86:D,"BrightSky, LLC",,MA-M,2019/07/02)", PrivateInvalidError},       // Private field empty
     };
 
-    for (const auto& tc : throw_cases) {
-        CAPTURE(tc);
-        REQUIRE_THROWS(Vendor(tc));
+    for (const auto& [input, expected_error] : throw_cases) {
+        CAPTURE(input);
+
+        try {
+            Vendor v(input);
+        } catch (const errors::Error& e) {
+            REQUIRE(e == expected_error);
+            continue;
+        } catch (const std::exception& e) {
+            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+        }
+
+        FAIL("no exception was thrown");
     }
 }
 
@@ -144,7 +158,7 @@ TEST_CASE("Vendor::bind") {
     for (auto& c : cases) {
         CAPTURE(c.mac_prefix);
 
-        REQUIRE(c.bind(stmt) == SQLITE_OK);
+        REQUIRE_NOTHROW(c.bind(stmt));
 
         REQUIRE(sqlite3_step(stmt) == SQLITE_DONE);
         REQUIRE(sqlite3_reset(stmt) == SQLITE_OK);

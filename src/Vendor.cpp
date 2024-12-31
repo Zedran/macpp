@@ -1,9 +1,13 @@
 #include <sqlite3.h>
 #include <string>
 
-#include "AppError.hpp"
 #include "Vendor.hpp"
+#include "exception.hpp"
 #include "utils.hpp"
+
+static inline void bind(sqlite3_stmt* const stmt, const int coln, const std::string& value);
+static inline void bind(sqlite3_stmt* const stmt, const int coln, const int64_t value);
+static inline void bind(sqlite3_stmt* const stmt, const int coln, const bool value);
 
 static inline std::string get_column_text(sqlite3_stmt* const stmt, const int coln);
 
@@ -15,7 +19,7 @@ Vendor::Vendor(const std::string& line) {
     size_t p1{}, p2{};
 
     if ((p1 = line.find(',', 0)) == std::string::npos) {
-        throw(AppError("no comma found in CSV line"));
+        throw errors::NoCommaError.wrap(line);
     }
     mac_prefix = line.substr(0, p1);
     p1++;
@@ -27,12 +31,12 @@ Vendor::Vendor(const std::string& line) {
         if ((eqp1 = line.find("\"\"", p1)) != std::string::npos) {
             // Escaped quotes detection (""Black"" ops) for vendor name
             if ((eqp2 = line.find("\"\"", eqp1 + 1)) == std::string::npos) {
-                throw(AppError("closing escaped quote not found"));
+                throw errors::EscapedTermError.wrap(line);
             }
 
             // Find the vendor name field closure past the second escaped quote
             if ((p2 = line.find('"', eqp2 + 2)) == std::string::npos) {
-                throw(AppError("closing quote for vendor name not found"));
+                throw errors::QuotedTermSeqError.wrap(line);
             }
 
             // Assign substring to vendor name and replace escaped quotes
@@ -43,7 +47,7 @@ Vendor::Vendor(const std::string& line) {
         } else {
             // Quoted vendor name with no escaped quotes ("Cisco Systems, Inc")
             if ((p2 = line.find("\",", p1 + 1)) == std::string::npos) {
-                throw(AppError("closing quote for vendor name not found"));
+                throw errors::QuotedTermSeqError.wrap(line);
             }
             vendor_name = line.substr(p1 + 1, p2 - p1 - 1);
         }
@@ -56,10 +60,15 @@ Vendor::Vendor(const std::string& line) {
     } else {
         // Unquoted vendor name
         if ((p2 = line.find(',', p1 + 1)) == std::string::npos) {
-            throw(AppError("no comma after unquoted vendor name"));
+            throw errors::UnquotedTermError.wrap(line);
         }
         vendor_name = line.substr(p1, p2 - p1);
         p1          = p2 + 1;
+    }
+
+    if (p1 == line.length()) {
+        // Private field is empty (comma after vendor name ends the line).
+        throw errors::PrivateInvalidError.wrap(line);
     }
 
     if (line.at(p1) == 't') {
@@ -70,7 +79,7 @@ Vendor::Vendor(const std::string& line) {
         return;
     } else if (line.at(p1) != 'f') {
         // Private designator field must contain either 'true' or 'false'
-        throw(AppError("invalid value of private field"));
+        throw errors::PrivateInvalidError.wrap(line);
     }
 
     is_private = false;
@@ -78,13 +87,13 @@ Vendor::Vendor(const std::string& line) {
     // Skip past 'alse,' to the next field
     p1 += 5;
     if (p1 >= line.length() || line[p1] != ',') {
-        throw(AppError("no comma between private and block type fields"));
+        throw errors::PrivateTermError.wrap(line);
     }
     p1++;
 
     // Find the last comma
     if ((p2 = line.find(',', p1)) == std::string::npos) {
-        throw(AppError("no comma between block name and last update fields"));
+        throw errors::BlockTypeTermError.wrap(line);
     }
 
     block_type  = line.substr(p1, p2 - p1);
@@ -110,15 +119,15 @@ Vendor::Vendor(sqlite3_stmt* const stmt)
       block_type(get_column_text(stmt, 4)),
       last_update(get_column_text(stmt, 5)) {}
 
-int Vendor::bind(sqlite3_stmt* const stmt) const {
-    const std::string stripped_prefix = remove_addr_separators(mac_prefix);
+void Vendor::bind(sqlite3_stmt* const stmt) const {
+    const int64_t id = prefix_to_id(remove_addr_separators(mac_prefix));
 
-    return sqlite3_bind_int64(stmt, 1, prefix_to_id(stripped_prefix)) +
-           sqlite3_bind_text(stmt, 2, mac_prefix.c_str(), -1, SQLITE_STATIC) +
-           sqlite3_bind_text(stmt, 3, vendor_name.c_str(), -1, SQLITE_STATIC) +
-           sqlite3_bind_int(stmt, 4, is_private ? 1 : 0) +
-           sqlite3_bind_text(stmt, 5, block_type.c_str(), -1, SQLITE_STATIC) +
-           sqlite3_bind_text(stmt, 6, last_update.c_str(), -1, SQLITE_STATIC);
+    ::bind(stmt, 1, id);
+    ::bind(stmt, 2, mac_prefix);
+    ::bind(stmt, 3, vendor_name);
+    ::bind(stmt, 4, is_private);
+    ::bind(stmt, 5, block_type);
+    ::bind(stmt, 6, last_update);
 }
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
@@ -128,6 +137,27 @@ std::ostream& operator<<(std::ostream& os, const Vendor& v) {
        << "Block type   " << (v.is_private ? "-" : v.block_type) << '\n'
        << "Last update  " << (v.is_private ? "-" : v.last_update);
     return os;
+}
+
+// Binds an int64 to coln of sqlite3 statement.
+static inline void bind(sqlite3_stmt* const stmt, const int coln, const int64_t value) {
+    if (int code = sqlite3_bind_int64(stmt, coln, value); code != SQLITE_OK) {
+        throw errors::BindError.wrap(code);
+    }
+}
+
+// Binds a boolean value to coln of sqlite3 statement.
+static inline void bind(sqlite3_stmt* const stmt, const int coln, const bool value) {
+    if (int code = sqlite3_bind_int(stmt, coln, value ? 1 : 0); code != SQLITE_OK) {
+        throw errors::BindError.wrap(code);
+    }
+}
+
+// Binds a string to coln of sqlite3 statement.
+static inline void bind(sqlite3_stmt* const stmt, const int coln, const std::string& value) {
+    if (int code = sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC); code != SQLITE_OK) {
+        throw errors::BindError.wrap(code);
+    }
 }
 
 // Returns a string value stored in column 'coln' of sqlite row. If the value

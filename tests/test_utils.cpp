@@ -1,7 +1,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include <map>
 #include <sstream>
+#include <stdexcept>
 
+#include "exception.hpp"
 #include "internal/internal.hpp"
 #include "utils.hpp"
 
@@ -62,18 +64,30 @@ TEST_CASE("construct_queries") {
         }
     }
 
-    const std::string bad_cases[] = {
-        "",
-        "00",
-        "00:00",
-        "0002w22",
-        "xxxxxx",
-        "00000w",
+    const std::map<const std::string, const errors::Error&> throw_cases = {
+        {"", errors::AddrTooShortError},
+        {"00", errors::AddrTooShortError},
+        {"00:00", errors::AddrTooShortError},
+        {"0002w22", errors::AddrInvalidError},
+        {"00000w", errors::AddrInvalidError},
     };
 
-    for (auto& c : bad_cases) {
-        REQUIRE_THROWS_AS(construct_queries(c), std::exception);
+    for (const auto& [input, expected_error] : throw_cases) {
+        CAPTURE(input);
+
+        try {
+            construct_queries(input);
+        } catch (const errors::Error& e) {
+            REQUIRE(e == expected_error);
+            continue;
+        } catch (const std::exception& e) {
+            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+        }
+
+        FAIL("no exception was thrown");
     }
+
+    REQUIRE_THROWS_AS(construct_queries("xxxxxx"), std::invalid_argument);
 }
 
 TEST_CASE("suppress_like_wildcards") {

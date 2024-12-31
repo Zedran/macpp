@@ -1,12 +1,12 @@
 #include <curl/curl.h>
 #include <iostream>
 
-#include "AppError.hpp"
 #include "FinalAction.hpp"
 #include "argparse/argparse.hpp"
 #include "cache.hpp"
 #include "config.hpp"
 #include "dir.hpp"
+#include "exception.hpp"
 
 void setup_parser(argparse::ArgumentParser& app);
 
@@ -59,15 +59,16 @@ int main(int argc, char* argv[]) {
         else if (app.is_used("--name"))
             results = query_name(conn, app.get("--name"));
         else
-            throw(AppError("no action specified"));
-    } catch (const AppError& e) {
-        std::cerr << e.what() << '\n';
+            throw errors::NoActionError;
+    } catch(const errors::Error& e) {
+        std::cerr << e << '\n';
         return 1;
     } catch (const std::invalid_argument& e) {
-        std::cerr << "invalid address\n";
+        // Thrown by std::stoll in prefix_to_id
+        std::cerr << errors::AddrInvalidError << '\n';
         return 1;
     } catch (const std::exception& e) {
-        std::cerr << e.what() << '\n';
+        std::cerr << "unexpected error: " << e.what() << '\n';
         return 2;
     }
 
