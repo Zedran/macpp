@@ -126,8 +126,8 @@ std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) 
     }
 
     int code;
-    for (size_t i = 0; i < queries.size(); i++) {
-        if (code = sqlite3_bind_int64(stmt, static_cast<int>(i + 1), queries[i]); code != SQLITE_OK) {
+    for (int i = 0; i < static_cast<int>(queries.size()); i++) {
+        if (code = sqlite3_bind_int64(stmt, i + 1, queries[i]); code != SQLITE_OK) {
             throw errors::BindError.wrap(code);
         }
     }
