@@ -37,4 +37,4 @@ inline std::string remove_addr_separators(const std::string& addr) {
 void replace_escaped_quotes(std::string& str);
 
 // Inserts an escape character before every occurence of '%' and '_' in str.
-std::string suppress_like_wildcards(const std::string& str);
+std::string suppress_like_wildcards(const std::string& str) noexcept;

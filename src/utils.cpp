@@ -66,7 +66,7 @@ void replace_escaped_quotes(std::string& str) {
     }
 }
 
-std::string suppress_like_wildcards(const std::string& str) {
+std::string suppress_like_wildcards(const std::string& str) noexcept {
     constexpr char PERCENT = '%';
     constexpr char USCORE  = '_';
 
