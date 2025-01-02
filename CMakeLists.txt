@@ -4,6 +4,7 @@ project(macpp)
 option(BUNDLE     "Bundle custom builds of SQLite3 and CURL with the application" OFF)
 option(MAKE_TESTS "Build test and benchmark targets"                              OFF)
 option(COVER      "Generate test coverage target if MAKE_TESTS=ON"                OFF)
+option(MAKE_MAN   "Generate Linux manual"                                         OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -44,6 +45,8 @@ include(${SCRIPTS}/curl.cmake)
 include(${SCRIPTS}/sqlite3.cmake)
 
 include(${SCRIPTS}/argparse.cmake)
+
+include(${SCRIPTS}/manual.cmake)
 
 file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 list(FILTER SOURCES EXCLUDE REGEX "main.cpp")
