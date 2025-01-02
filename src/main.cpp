@@ -18,12 +18,12 @@ int main(int argc, char* argv[]) {
         app.parse_args(argc, argv);
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
-        return -2;
+        return 1;
     }
 
     if (sqlite3_initialize() != SQLITE_OK) {
         std::cerr << "failed to initialize sqlite\n";
-        return -1;
+        return 1;
     }
 
     sqlite3* conn{};
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
             results = query_name(conn, app.get("--name"));
         else
             throw errors::NoActionError;
-    } catch(const errors::Error& e) {
+    } catch (const errors::Error& e) {
         std::cerr << e << '\n';
         return 1;
     } catch (const std::invalid_argument& e) {
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
         return 1;
     } catch (const std::exception& e) {
         std::cerr << "unexpected error: " << e.what() << '\n';
-        return 2;
+        return 1;
     }
 
     if (results.empty()) {
