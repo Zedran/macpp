@@ -153,10 +153,6 @@ const NetworkError PerformError("curl_easy_perform failed");
 
 const ParsingError NoCommaError("no comma found in CSV line");
 
-// Thrown if escaped quote in vendor name field is not terminated,
-// e.g. ',"IEE&E ""Black ops",'
-const ParsingError EscapedTermError("closing escaped quote not found");
-
 // Thrown if quoted vendor name field is not terminated with '",' sequence,
 // e.g. ',"Cisco Systems, Inc,false'
 const ParsingError QuotedTermSeqError("closing quote + comma sequence for vendor name not found");

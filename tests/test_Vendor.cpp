@@ -76,8 +76,6 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
         {"00:00:00Vendor name", NoCommaError},                                          // No commas
         {R"(5C:F2:86:D,"BrightSky, LLC,false,MA-M,2019/07/02)", QuotedTermSeqError},    // No closing quote after vendor name
         {R"(5C:F2:86:D,"BrightSky, LLC"false,MA-M,2019/07/02)", QuotedTermSeqError},    // Closing quote after vendor name present, but no comma
-        {R"(2C:7A:FE,"IEE&E ""Black" ops",false,MA-L,2010/07/26)", EscapedTermError},   // No closing escaped quote
-        {R"(00:00:00,"IEE&E ""Black ops",false,MA-L,2010/07/26)", EscapedTermError},    // Escaped quote not closed
         {R"(00:00:00,"IEE&E ""Black"" ops,false,MA-L,2010/07/26)", QuotedTermSeqError}, // No closing quote with escaped quote present
         {R"(00:00:0C,"Cisco Systems, Inc",no,MA-L,2015/11/17)", PrivateInvalidError},   // Invalid private field
         {R"(00:00:0C,"Cisco Systems, Inc",falseMA-L,2015/11/17)", PrivateTermError},    // No comma between private and block type fields
