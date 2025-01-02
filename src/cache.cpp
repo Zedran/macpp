@@ -20,7 +20,7 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
         stream = std::make_unique<std::stringstream>(download_data());
     }
 
-    const char* create_table_stmt =
+    constexpr const char* create_table_stmt =
         R"(CREATE TABLE vendors (
             id      INTEGER PRIMARY KEY,
             addr    TEXT NOT NULL,
@@ -38,7 +38,7 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
         throw errors::ExecError.wrap(conn);
     }
 
-    const char* insert_stmt =
+    constexpr const char* insert_stmt =
         "INSERT INTO vendors (id, addr, name, private, block, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
 
     sqlite3_stmt* stmt{};
@@ -140,7 +140,7 @@ std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) 
 }
 
 std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_name) {
-    const std::string stmt_string =
+    constexpr const char* stmt_string =
         "SELECT * FROM vendors WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY ESCAPE '\\'";
 
     if (vendor_name.empty()) {
@@ -154,7 +154,7 @@ std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_na
     sqlite3_stmt* stmt{};
     const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
-    if (sqlite3_prepare_v2(conn, stmt_string.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+    if (sqlite3_prepare_v2(conn, stmt_string, -1, &stmt, nullptr) != SQLITE_OK) {
         throw errors::PrepareError.wrap(conn);
     }
 

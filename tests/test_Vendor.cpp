@@ -140,7 +140,7 @@ TEST_CASE("Vendor::bind") {
     REQUIRE(internal::open_mem_db(conn) == SQLITE_OK);
     REQUIRE(sqlite3_exec(conn, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr) == SQLITE_OK);
 
-    const char* insert_stmt =
+    constexpr const char* insert_stmt =
         "INSERT INTO vendors (id, addr, name, private, block, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
 
     sqlite3_stmt* stmt{};

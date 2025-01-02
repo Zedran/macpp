@@ -3,7 +3,7 @@
 namespace internal {
 
 int open_mem_db(sqlite3*& conn) {
-    const char* create_table_stmt =
+    constexpr const char* create_table_stmt =
         R"(CREATE TABLE vendors (
             id      INTEGER PRIMARY KEY,
             addr    TEXT NOT NULL,
