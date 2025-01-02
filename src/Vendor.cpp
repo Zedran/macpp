@@ -12,54 +12,60 @@ static inline void bind(sqlite3_stmt* const stmt, const int coln, const bool val
 static inline std::string get_column_text(sqlite3_stmt* const stmt, const int coln);
 
 Vendor::Vendor(const std::string& line) {
+    constexpr char        COMMA = ',';
+    constexpr char        QUOTE = '"';
+    constexpr const char* ESCQT = "\"\""; // Escaped double quote
+    constexpr const char* QTCOM = "\",";  // Termination of quoted CSV field
+    constexpr const char* QTSTR = "\"";
+
     // In this constructor, size_t values that are marked with '1' typically
     // point to the first element of interest (opening quote, the opening of
     // a CSV field), while values marked with '2' point to its terminating
     // counterpart (closing quote, comma marking the end of the CSV field).
     size_t p1{}, p2{};
 
-    if ((p1 = line.find(',', 0)) == std::string::npos) {
+    if ((p1 = line.find(COMMA, 0)) == std::string::npos) {
         throw errors::NoCommaError.wrap(line);
     }
     mac_prefix = line.substr(0, p1);
     p1++;
 
-    if (line.at(p1) == '"') {
+    if (line.at(p1) == QUOTE) {
         // Quoted vendor name (,"Cisco Systems, Inc",)
         size_t eqp1{}, eqp2{};
 
-        if ((eqp1 = line.find("\"\"", p1)) != std::string::npos) {
+        if ((eqp1 = line.find(ESCQT, p1)) != std::string::npos) {
             // Escaped quotes detection (""Black"" ops) for vendor name
-            if ((eqp2 = line.find("\"\"", eqp1 + 1)) == std::string::npos) {
+            if ((eqp2 = line.find(ESCQT, eqp1 + 1)) == std::string::npos) {
                 throw errors::EscapedTermError.wrap(line);
             }
 
             // Find the vendor name field closure past the second escaped quote
-            if ((p2 = line.find("\",", eqp2 + 2)) == std::string::npos) {
+            if ((p2 = line.find(QTCOM, eqp2 + 2)) == std::string::npos) {
                 throw errors::QuotedTermSeqError.wrap(line);
             }
 
             // Assign substring to vendor name and replace escaped quotes
             // with single quotes
             vendor_name = line.substr(p1 + 1, p2 - p1 - 1);
-            vendor_name.replace(eqp1 - p1 - 1, 2, "\"");
-            vendor_name.replace(eqp2 - 2 - p1, 2, "\"");
+            vendor_name.replace(eqp1 - p1 - 1, 2, QTSTR);
+            vendor_name.replace(eqp2 - 2 - p1, 2, QTSTR);
         } else {
             // Quoted vendor name with no escaped quotes ("Cisco Systems, Inc")
-            if ((p2 = line.find("\",", p1 + 1)) == std::string::npos) {
+            if ((p2 = line.find(QTCOM, p1 + 1)) == std::string::npos) {
                 throw errors::QuotedTermSeqError.wrap(line);
             }
             vendor_name = line.substr(p1 + 1, p2 - p1 - 1);
         }
         p1 = p2 + 2;
-    } else if (line.at(p1) == ',') {
+    } else if (line.at(p1) == COMMA) {
         // Private block always has an empty vendor name - skip a comma
         // to reach private designator field.
         vendor_name = "";
         p1++;
     } else {
         // Unquoted vendor name
-        if ((p2 = line.find(',', p1 + 1)) == std::string::npos) {
+        if ((p2 = line.find(COMMA, p1 + 1)) == std::string::npos) {
             throw errors::UnquotedTermError.wrap(line);
         }
         vendor_name = line.substr(p1, p2 - p1);
@@ -86,13 +92,13 @@ Vendor::Vendor(const std::string& line) {
 
     // Skip past 'alse,' to the next field
     p1 += 5;
-    if (p1 >= line.length() || line[p1] != ',') {
+    if (p1 >= line.length() || line[p1] != COMMA) {
         throw errors::PrivateTermError.wrap(line);
     }
     p1++;
 
     // Find the last comma
-    if ((p2 = line.find(',', p1)) == std::string::npos) {
+    if ((p2 = line.find(COMMA, p1)) == std::string::npos) {
         throw errors::BlockTypeTermError.wrap(line);
     }
 
