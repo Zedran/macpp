@@ -42,7 +42,6 @@ set(CURL_VERSION curl-8_11_1)
 set(ARGPARSE_VERSION v3.1)
 
 include(${SCRIPTS}/curl.cmake)
-include(${SCRIPTS}/sqlite3.cmake)
 
 include(${SCRIPTS}/argparse.cmake)
 
@@ -64,7 +63,9 @@ add_executable(${PROJECT_NAME} ${SRC_DIR}/main.cpp ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl sqlite3 argparse)
+target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl argparse)
+
+include(${SCRIPTS}/sqlite3.cmake)
 
 add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 

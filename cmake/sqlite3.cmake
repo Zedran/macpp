@@ -8,10 +8,10 @@ if (BUNDLE)
 	)
 	FetchContent_MakeAvailable(sqlite3)
 
-	add_library(sqlite3 STATIC ${sqlite3_SOURCE_DIR}/sqlite3.c)
-	target_include_directories(sqlite3 PUBLIC ${sqlite3_SOURCE_DIR})
+	target_sources(${PROJECT_NAME} PRIVATE ${sqlite3_SOURCE_DIR}/sqlite3.c)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${sqlite3_SOURCE_DIR})
 
-	target_compile_definitions(sqlite3 PRIVATE
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
 		SQLITE_DQS=0
 		SQLITE_THREADSAFE=0
 		SQLITE_DEFAULT_MEMSTATUS=0
@@ -27,4 +27,5 @@ if (BUNDLE)
 	)
 else()
 	find_package(SQLite3 REQUIRED)
+	target_link_libraries(${PROJECT_NAME} PRIVATE sqlite3)
 endif()
