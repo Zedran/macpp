@@ -37,7 +37,7 @@ set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
 
 set(CATCH2_VERSION v3.7.1)
 set(CURL_VERSION curl-8_11_1)
-set(ARGPARSE_VERSION v3.1)
+set(ARGPARSE_VERSION cbd9fd8ed675ed6a2ac1bd7142d318c6ad5d3462)
 
 include(${SCRIPTS}/curl.cmake)
 
