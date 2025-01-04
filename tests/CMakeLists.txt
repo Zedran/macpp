@@ -36,15 +36,17 @@ add_custom_target(copy_testdata ALL
 	COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${TESTDATA_SRC} ${TESTDATA_DEST}
 )
 
+find_program(SQLITE3_EXE sqlite3 REQUIRED)
+
 add_custom_command(
 	OUTPUT ${TESTDATA_DB}
-	COMMAND sqlite3 ${TESTDATA_DB} -batch ".read ${TESTDATA_SQL}"
+	COMMAND ${SQLITE3_EXE} ${TESTDATA_DB} -batch ".read ${TESTDATA_SQL}"
 	DEPENDS ${TESTDATA_SQL} copy_testdata
 )
 
 add_custom_command(
 	OUTPUT ${TESTDATA_POISONED_DB}
-	COMMAND sqlite3 ${TESTDATA_POISONED_DB} -batch ".read ${TESTDATA_POISONED_SQL}"
+	COMMAND ${SQLITE3_EXE} ${TESTDATA_POISONED_DB} -batch ".read ${TESTDATA_POISONED_SQL}"
 	DEPENDS ${TESTDATA_POISONED_SQL} copy_testdata
 )
 
