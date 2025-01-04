@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.14)
-project(macpp)
 
 option(BUNDLE     "Bundle custom builds of SQLite3 and CURL with the application" OFF)
 option(MAKE_TESTS "Build test and benchmark targets"                              OFF)
@@ -12,24 +11,20 @@ set(CMAKE_CXX_STANDARD           20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS        OFF)
 
-set(WARN   "-Wall -Wextra -Wpedantic")
-set(HARDEN "-fstack-protector-strong -fcf-protection=full -fstack-clash-protection -D_FORTIFY_SOURCE=2 -fPIE -pie")
+set(SCRIPTS ${CMAKE_SOURCE_DIR}/cmake)
 
-set(CMAKE_C_FLAGS_DEBUG            "-O0 -ggdb3 ${WARN}"               )
-set(CMAKE_C_FLAGS_RELEASE          "-O3 -DNDEBUG ${WARN} ${HARDEN}"   )
-set(CMAKE_C_FLAGS_RELWITHDEBINFO   "-O2 -g -DNDEBUG ${WARN} ${HARDEN}")
-set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -DNDEBUG ${WARN} ${HARDEN}"   )
-
-set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -ggdb3 ${WARN}"               )
-set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${WARN} ${HARDEN}"   )
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG ${WARN} ${HARDEN}")
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${WARN} ${HARDEN}"   )
+if (LINUX)
+	include(${SCRIPTS}/toolchain/gcc.cmake)
+else()
+	message(FATAL_ERROR "Unsupported platform")
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-set(SCRIPTS ${PROJECT_SOURCE_DIR}/cmake)
+project(macpp)
+
 set(INC_DIR ${PROJECT_SOURCE_DIR}/include)
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 
