@@ -1,6 +1,6 @@
 {
-    "dependencies": [
-        "curl",
-        "sqlite3"
-    ]
+  "dependencies": [
+    "curl",
+    "sqlite3"
+  ]
 }
