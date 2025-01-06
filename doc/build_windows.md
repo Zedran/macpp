@@ -22,13 +22,13 @@ If you are using Visual Studio, you can install all of those components through 
 
 Clone the repository:
 
-```ps1
+```bat
 git clone https://github.com/Zedran/macpp.git
 ```
 
 Open Powershell or Command Prompt inside the project directory and run the following instructions:
 
-```ps1
+```bat
 mkdir build
 cd build
 
