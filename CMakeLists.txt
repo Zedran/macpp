@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.14)
-project(macpp)
 
 option(BUNDLE     "Bundle custom builds of SQLite3 and CURL with the application" OFF)
 option(MAKE_TESTS "Build test and benchmark targets"                              OFF)
@@ -12,24 +11,22 @@ set(CMAKE_CXX_STANDARD           20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS        OFF)
 
-set(WARN   "-Wall -Wextra -Wpedantic")
-set(HARDEN "-fstack-protector-strong -fcf-protection=full -fstack-clash-protection -D_FORTIFY_SOURCE=2 -fPIE -pie")
+set(SCRIPTS ${CMAKE_SOURCE_DIR}/cmake)
 
-set(CMAKE_C_FLAGS_DEBUG            "-O0 -ggdb3 ${WARN}"               )
-set(CMAKE_C_FLAGS_RELEASE          "-O3 -DNDEBUG ${WARN} ${HARDEN}"   )
-set(CMAKE_C_FLAGS_RELWITHDEBINFO   "-O2 -g -DNDEBUG ${WARN} ${HARDEN}")
-set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -DNDEBUG ${WARN} ${HARDEN}"   )
-
-set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -ggdb3 ${WARN}"               )
-set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${WARN} ${HARDEN}"   )
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -DNDEBUG ${WARN} ${HARDEN}")
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${WARN} ${HARDEN}"   )
+if (LINUX)
+	include(${SCRIPTS}/toolchain/gcc.cmake)
+elseif (WIN32)
+	include(${SCRIPTS}/toolchain/msvc.cmake)
+else()
+	message(FATAL_ERROR "Unsupported platform")
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-set(SCRIPTS ${PROJECT_SOURCE_DIR}/cmake)
+project(macpp)
+
 set(INC_DIR ${PROJECT_SOURCE_DIR}/include)
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 
@@ -40,7 +37,7 @@ set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
 
 set(CATCH2_VERSION v3.7.1)
 set(CURL_VERSION curl-8_11_1)
-set(ARGPARSE_VERSION v3.1)
+set(ARGPARSE_VERSION cbd9fd8ed675ed6a2ac1bd7142d318c6ad5d3462)
 
 include(${SCRIPTS}/curl.cmake)
 
