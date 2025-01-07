@@ -6,8 +6,8 @@ Tested on Windows 10 with MSVC 14.42 (cl 19.42), provided by Visual Studio 2022.
 
 * CMake
 * Git
-* MSVC with support for C++20.
-* VCPKG for managing dependencies - you can find instructions on how to set it up [here](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg).
+* MSVC with support for C++20
+* VCPKG for managing dependencies - you can find instructions on how to set it up [here](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell#1---set-up-vcpkg)
 
 If you are using Visual Studio, you can install all of those components through Visual Studio Installer.
 
