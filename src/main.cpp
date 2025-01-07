@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     } catch (const errors::Error& e) {
         std::cerr << e << '\n';
         return 1;
-    } catch (const std::invalid_argument& e) {
+    } catch (const std::invalid_argument&) {
         // Thrown by std::stoll in prefix_to_id
         std::cerr << errors::AddrInvalidError << '\n';
         return 1;
