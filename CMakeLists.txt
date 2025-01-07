@@ -41,6 +41,7 @@ set(ARGPARSE_VERSION cbd9fd8ed675ed6a2ac1bd7142d318c6ad5d3462)
 
 include(${SCRIPTS}/curl.cmake)
 
+include(${SCRIPTS}/sqlite3.cmake)
 include(${SCRIPTS}/argparse.cmake)
 
 include(${SCRIPTS}/manual.cmake)
@@ -63,7 +64,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIR})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl argparse)
 
-include(${SCRIPTS}/sqlite3.cmake)
+add_sqlite3(${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 

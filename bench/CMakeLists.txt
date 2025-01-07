@@ -11,5 +11,6 @@ target_include_directories(${bench_name}
 target_link_libraries(${bench_name}
 	PRIVATE Catch2::Catch2WithMain
 	CURL::libcurl
-	SQLite::SQLite3
 )
+
+add_sqlite3(${bench_name})
