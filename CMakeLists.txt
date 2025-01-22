@@ -68,6 +68,8 @@ add_sqlite3(${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 
+include(${SCRIPTS}/install.cmake)
+
 if (MAKE_TESTS)
 	include(${SCRIPTS}/catch2.cmake)
 
