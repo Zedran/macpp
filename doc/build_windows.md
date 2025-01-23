@@ -35,3 +35,16 @@ cd build
 cmake ..
 cmake --build . --config Release
 ```
+
+The following commands can then be used to install and uninstall the application:
+
+```bash
+# Individual install command
+cmake --install .
+
+# Combined with build
+cmake --build . --target install --config Release
+
+# Uninstall
+cmake --build . --target uninstall
+```

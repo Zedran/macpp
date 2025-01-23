@@ -38,6 +38,13 @@ cmake ..
 make
 ```
 
+The following commands can be used to install and uninstall the application:
+
+```bash
+make install
+make uninstall
+```
+
 ### Testing
 
 ```bash
