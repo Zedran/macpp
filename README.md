@@ -18,6 +18,13 @@ When search is requested for the first time, the application's cache is created.
 | `--file`   | Use a local CSV file during operation  |
 | `--update` | Update cache                           |
 
+## Installation
+
+**Building from source:**
+
+* [Linux](doc/build_linux.md)
+* [Windows](doc/build_windows.md)
+
 ## License
 
 This software is available under MIT License.
