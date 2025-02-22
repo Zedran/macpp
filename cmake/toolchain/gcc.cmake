@@ -1,4 +1,4 @@
-set(WARN   "-Wall -Wextra -Wpedantic")
+set(WARN   "-Wall -Wconversion -Wextra -Wpedantic")
 set(HARDEN "-fstack-protector-strong -fcf-protection=full -fstack-clash-protection -D_FORTIFY_SOURCE=2 -fPIE -pie")
 
 set(CMAKE_C_FLAGS_DEBUG            "-O0 -ggdb3 ${WARN}"               )
