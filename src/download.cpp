@@ -8,7 +8,7 @@
 size_t write_data(void* buffer, size_t size, size_t nmemb, void* userp) {
     std::stringstream* data = static_cast<std::stringstream*>(userp);
 
-    data->write(static_cast<char*>(buffer), size * nmemb);
+    data->write(static_cast<char*>(buffer), static_cast<std::streamsize>(size * nmemb));
     return size * nmemb;
 }
 
