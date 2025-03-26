@@ -1,4 +1,4 @@
-Include(FetchContent)
+include(FetchContent)
 
 FetchContent_Declare(
 	Catch2
