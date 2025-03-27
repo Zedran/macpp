@@ -14,15 +14,15 @@ set(CMAKE_CXX_EXTENSIONS        OFF)
 set(SCRIPTS ${CMAKE_SOURCE_DIR}/cmake)
 
 if (LINUX)
-	include(${SCRIPTS}/toolchain/gcc.cmake)
+    include(${SCRIPTS}/toolchain/gcc.cmake)
 elseif (WIN32)
-	include(${SCRIPTS}/toolchain/msvc.cmake)
+    include(${SCRIPTS}/toolchain/msvc.cmake)
 else()
-	message(FATAL_ERROR "Unsupported platform")
+    message(FATAL_ERROR "Unsupported platform")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
 project(macpp)
@@ -50,12 +50,12 @@ file(GLOB SOURCES ${SRC_DIR}/*.cpp)
 list(FILTER SOURCES EXCLUDE REGEX "main.cpp")
 
 add_custom_target(${CONFIG_HPP_TARGET}
-	COMMAND ${CMAKE_COMMAND}
-		-DPROJECT_NAME=${PROJECT_NAME}
-		-DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
-		-DCONFIG_HPP_TEMPLATE=${CONFIG_HPP_TEMPLATE}
-		-DCONFIG_HPP_OUT=${CONFIG_HPP_OUT}
-		-P ${CONFIG_HPP_SCRIPT}
+    COMMAND ${CMAKE_COMMAND}
+        -DPROJECT_NAME=${PROJECT_NAME}
+        -DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+        -DCONFIG_HPP_TEMPLATE=${CONFIG_HPP_TEMPLATE}
+        -DCONFIG_HPP_OUT=${CONFIG_HPP_OUT}
+        -P ${CONFIG_HPP_SCRIPT}
 )
 
 add_executable(${PROJECT_NAME} ${SRC_DIR}/main.cpp ${SOURCES})
@@ -72,9 +72,9 @@ include(${SCRIPTS}/install.cmake)
 include(${SCRIPTS}/config_uninstall.cmake)
 
 if (MAKE_TESTS)
-	include(${SCRIPTS}/catch2.cmake)
+    include(${SCRIPTS}/catch2.cmake)
 
-	enable_testing()
-	add_subdirectory(tests)
-	add_subdirectory(bench)
+    enable_testing()
+    add_subdirectory(tests)
+    add_subdirectory(bench)
 endif()
