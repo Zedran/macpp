@@ -92,7 +92,7 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
 
         try {
             Vendor v{input};
-        } catch (const errors::Error& e) {
+        } catch (const errors::ParsingError& e) {
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
