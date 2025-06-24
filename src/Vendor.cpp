@@ -133,21 +133,21 @@ std::ostream& operator<<(std::ostream& os, const Vendor& v) {
 // Binds an int64 to coln of sqlite3 statement.
 static inline void bind(sqlite3_stmt* const stmt, const int coln, const int64_t value) {
     if (int code = sqlite3_bind_int64(stmt, coln, value); code != SQLITE_OK) {
-        throw errors::BindError.wrap(code);
+        throw errors::CacheError{"bind", code};
     }
 }
 
 // Binds a boolean value to coln of sqlite3 statement.
 static inline void bind(sqlite3_stmt* const stmt, const int coln, const bool value) {
     if (int code = sqlite3_bind_int(stmt, coln, value ? 1 : 0); code != SQLITE_OK) {
-        throw errors::BindError.wrap(code);
+        throw errors::CacheError{"bind", code};
     }
 }
 
 // Binds a string to coln of sqlite3 statement.
 static inline void bind(sqlite3_stmt* const stmt, const int coln, const std::string& value) {
     if (int code = sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC); code != SQLITE_OK) {
-        throw errors::BindError.wrap(code);
+        throw errors::CacheError{"bind", code};
     }
 }
 
