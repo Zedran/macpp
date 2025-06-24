@@ -110,13 +110,48 @@ public:
 };
 
 class ParsingError : public Error {
-    using Error::Error;
+    std::string line;
+
+protected:
+    explicit ParsingError(const std::string& msg, const std::string& line) : Error{msg}, line{line} {}
 
 public:
-    // Returns a new ParsingError that wraps a problematic CSV line.
-    ParsingError wrap(const std::string& line) const {
-        return ParsingError(std::format("{}: in line '{}'", this->what(), line));
+    friend std::ostream& operator<<(std::ostream& os, const ParsingError& e) {
+        return os << e.what() << ": '" << e.line << '\'';
     }
+};
+
+class NoCommaError : public ParsingError {
+public:
+    explicit NoCommaError(const std::string& line = "") : ParsingError{"no comma found in CSV line", line} {}
+};
+
+// Thrown if quoted vendor name field is not terminated with '",' sequence,
+// e.g. ',"Cisco Systems, Inc,false'
+class QuotedTermSeqError : public ParsingError {
+public:
+    explicit QuotedTermSeqError(const std::string& line = "") : ParsingError{"closing '\",' sequence for vendor name not found", line} {}
+};
+
+// Thrown if unquoted vendor name field does not end with a comma
+class UnquotedTermError : public ParsingError {
+public:
+    explicit UnquotedTermError(const std::string& line = "") : ParsingError{"no comma after unquoted vendor name", line} {}
+};
+
+class PrivateInvalidError : public ParsingError {
+public:
+    explicit PrivateInvalidError(const std::string& line = "") : ParsingError{"invalid value of private field", line} {}
+};
+
+class PrivateTermError : public ParsingError {
+public:
+    explicit PrivateTermError(const std::string& line = "") : ParsingError{"no comma between private and block type fields", line} {}
+};
+
+class BlockTypeTermError : public ParsingError {
+public:
+    explicit BlockTypeTermError(const std::string& line = "") : ParsingError{"no comma between block type and last update fields", line} {}
 };
 
 const Error AddrInvalidError("specified MAC address contains invalid characters");
@@ -150,18 +185,5 @@ const NetworkError EasyInitError("curl_easy_init failed");
 const NetworkError FileSizeError("file size limit exceeded during download");
 const NetworkError GlobalInitError("curl_global_init failed");
 const NetworkError PerformError("curl_easy_perform failed");
-
-const ParsingError NoCommaError("no comma found in CSV line");
-
-// Thrown if quoted vendor name field is not terminated with '",' sequence,
-// e.g. ',"Cisco Systems, Inc,false'
-const ParsingError QuotedTermSeqError("closing quote + comma sequence for vendor name not found");
-
-// Thrown if unquoted vendor name field does not end with a comma
-const ParsingError UnquotedTermError("no comma after unquoted vendor name");
-
-const ParsingError PrivateInvalidError("invalid value of private field");
-const ParsingError PrivateTermError("no comma between private and block type fields");
-const ParsingError BlockTypeTermError("no comma between block type and last update fields");
 
 } // namespace errors

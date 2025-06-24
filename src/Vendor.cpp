@@ -23,7 +23,7 @@ Vendor::Vendor(const std::string& line) {
     size_t p1{}, p2{};
 
     if ((p1 = line.find(COMMA, 0)) == std::string::npos) {
-        throw errors::NoCommaError.wrap(line);
+        throw errors::NoCommaError{line};
     }
     mac_prefix = line.substr(0, p1);
     p1++;
@@ -33,7 +33,7 @@ Vendor::Vendor(const std::string& line) {
 
         // Find the vendor name field closure past the second escaped quote
         if ((p2 = line.find(QTCOM, p1 + 1)) == std::string::npos) {
-            throw errors::QuotedTermSeqError.wrap(line);
+            throw errors::QuotedTermSeqError{line};
         }
 
         // Assign substring to vendor name and replace escaped quotes
@@ -51,7 +51,7 @@ Vendor::Vendor(const std::string& line) {
     } else {
         // Unquoted vendor name
         if ((p2 = line.find(COMMA, p1 + 1)) == std::string::npos) {
-            throw errors::UnquotedTermError.wrap(line);
+            throw errors::UnquotedTermError{line};
         }
         vendor_name = line.substr(p1, p2 - p1);
         p1          = p2 + 1;
@@ -59,7 +59,7 @@ Vendor::Vendor(const std::string& line) {
 
     if (p1 == line.length()) {
         // Private field is empty (comma after vendor name ends the line).
-        throw errors::PrivateInvalidError.wrap(line);
+        throw errors::PrivateInvalidError{line};
     }
 
     if (line.at(p1) == 't') {
@@ -70,7 +70,7 @@ Vendor::Vendor(const std::string& line) {
         return;
     } else if (line.at(p1) != 'f') {
         // Private designator field must contain either 'true' or 'false'
-        throw errors::PrivateInvalidError.wrap(line);
+        throw errors::PrivateInvalidError{line};
     }
 
     is_private = false;
@@ -78,13 +78,13 @@ Vendor::Vendor(const std::string& line) {
     // Skip past 'alse,' to the next field
     p1 += 5;
     if (p1 >= line.length() || line[p1] != COMMA) {
-        throw errors::PrivateTermError.wrap(line);
+        throw errors::PrivateTermError{line};
     }
     p1++;
 
     // Find the last comma
     if ((p2 = line.find(COMMA, p1)) == std::string::npos) {
-        throw errors::BlockTypeTermError.wrap(line);
+        throw errors::BlockTypeTermError{line};
     }
 
     block_type  = line.substr(p1, p2 - p1);
