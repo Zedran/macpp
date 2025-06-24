@@ -63,10 +63,6 @@ int main(int argc, char* argv[]) {
     } catch (const errors::Error& e) {
         std::cerr << e << '\n';
         return 1;
-    } catch (const std::invalid_argument&) {
-        // Thrown by std::stoll in prefix_to_id
-        std::cerr << "specified MAC address contains invalid characters\n";
-        return 1;
     } catch (const std::exception& e) {
         std::cerr << "unexpected error: " << e.what() << '\n';
         return 1;

@@ -2,7 +2,6 @@
 #include <format>
 #include <map>
 #include <sstream>
-#include <stdexcept>
 
 #include "exception.hpp"
 #include "internal/internal.hpp"
@@ -74,6 +73,7 @@ TEST_CASE("construct_queries") {
         {"00:00", too_short},
         {"0002w22", invalid},
         {"00000w", invalid},
+        {"xxxxxx", invalid}
     };
 
     for (const auto& [input, expected_error] : throw_cases) {
@@ -90,8 +90,6 @@ TEST_CASE("construct_queries") {
 
         FAIL("no exception was thrown");
     }
-
-    REQUIRE_THROWS_AS(construct_queries("xxxxxx"), std::invalid_argument);
 }
 
 TEST_CASE("suppress_like_wildcards") {
