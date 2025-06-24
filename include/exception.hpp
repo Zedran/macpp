@@ -57,35 +57,35 @@ public:
 
 class NoCommaError : public ParsingError {
 public:
-    explicit NoCommaError(const std::string& line = "") : ParsingError{"no comma found in CSV line", line} {}
+    explicit NoCommaError(const std::string& line) : ParsingError{"no comma found in CSV line", line} {}
 };
 
 // Thrown if quoted vendor name field is not terminated with '",' sequence,
 // e.g. ',"Cisco Systems, Inc,false'
 class QuotedTermSeqError : public ParsingError {
 public:
-    explicit QuotedTermSeqError(const std::string& line = "") : ParsingError{"closing '\",' sequence for vendor name not found", line} {}
+    explicit QuotedTermSeqError(const std::string& line) : ParsingError{"closing '\",' sequence for vendor name not found", line} {}
 };
 
 // Thrown if unquoted vendor name field does not end with a comma
 class UnquotedTermError : public ParsingError {
 public:
-    explicit UnquotedTermError(const std::string& line = "") : ParsingError{"no comma after unquoted vendor name", line} {}
+    explicit UnquotedTermError(const std::string& line) : ParsingError{"no comma after unquoted vendor name", line} {}
 };
 
 class PrivateInvalidError : public ParsingError {
 public:
-    explicit PrivateInvalidError(const std::string& line = "") : ParsingError{"invalid value of private field", line} {}
+    explicit PrivateInvalidError(const std::string& line) : ParsingError{"invalid value of private field", line} {}
 };
 
 class PrivateTermError : public ParsingError {
 public:
-    explicit PrivateTermError(const std::string& line = "") : ParsingError{"no comma between private and block type fields", line} {}
+    explicit PrivateTermError(const std::string& line) : ParsingError{"no comma between private and block type fields", line} {}
 };
 
 class BlockTypeTermError : public ParsingError {
 public:
-    explicit BlockTypeTermError(const std::string& line = "") : ParsingError{"no comma between block type and last update fields", line} {}
+    explicit BlockTypeTermError(const std::string& line) : ParsingError{"no comma between block type and last update fields", line} {}
 };
 
 } // namespace errors
