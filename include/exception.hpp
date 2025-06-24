@@ -95,18 +95,13 @@ public:
 };
 
 class NetworkError : public Error {
-    using Error::Error;
-
 public:
-    // Returns a new NetworkError that wraps an error message retrieved
+    explicit NetworkError(const std::string& msg) : Error{msg} {}
+
+    // Constructs a new NetworkError that contains an error message retrieved
     // from CURL.
-    NetworkError wrap(const CURLcode code) const {
-        return NetworkError(std::format(
-            "{}: {}",
-            this->what(),
-            curl_easy_strerror(code)
-        ));
-    }
+    explicit NetworkError(const std::string& msg, const CURLcode code)
+        : Error{std::format("{}: ({}) {}", msg, static_cast<int>(code), curl_easy_strerror(code))} {}
 };
 
 class ParsingError : public Error {
@@ -180,10 +175,5 @@ const CacheError ResetError("sqlite3_reset error");
 const CacheError StepError("sqlite3_step error");
 const CacheError UpdateError("update failed");
 const CacheError UpdatePathError("could not open file at the specified path");
-
-const NetworkError EasyInitError("curl_easy_init failed");
-const NetworkError FileSizeError("file size limit exceeded during download");
-const NetworkError GlobalInitError("curl_global_init failed");
-const NetworkError PerformError("curl_easy_perform failed");
 
 } // namespace errors

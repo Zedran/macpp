@@ -82,10 +82,3 @@ TEST_CASE("CacheError") {
     expected = BASE;
     REQUIRE(out == expected);
 }
-
-TEST_CASE("NetworkError") {
-    errors::NetworkError out = errors::NetworkError("network error").wrap(static_cast<CURLcode>(1));
-    errors::NetworkError exp = errors::NetworkError("network error: Unsupported protocol");
-    CAPTURE(out);
-    REQUIRE(out == exp);
-}
