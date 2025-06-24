@@ -117,8 +117,8 @@ TEST_CASE("injections") {
             FAIL(std::format("failed for case '{}': got '{}', expected '{}'", c, out.at(0).vendor_name, c));
     }
 
-    const std::map<const std::string, const errors::Error&> throw_cases = {
-        {"", errors::EmptyNameError},
+    const std::map<const std::string, const errors::Error> throw_cases = {
+        {"", errors::Error{"empty vendor name"}},
     };
 
     for (const auto& [input, expected_error] : throw_cases) {
@@ -127,7 +127,7 @@ TEST_CASE("injections") {
         try {
             query_name(conn, input);
         } catch (const errors::Error& e) {
-            REQUIRE(e == expected_error);
+            REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
             FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
@@ -187,13 +187,17 @@ TEST_CASE("query_addr") {
     results = query_addr(conn, "012345");
     REQUIRE(results.empty());
 
+    const auto empty     = errors::Error{"empty MAC address"};
+    const auto too_short = errors::Error{"specified MAC address is too short"};
+    const auto invalid   = errors::Error{"specified MAC address contains invalid characters"};
+
     const std::map<const std::string, const errors::Error&> throw_cases = {
-        {"", errors::EmptyAddrError},             // empty
-        {"0000c", errors::AddrTooShortError},     // too short
-        {"0c", errors::AddrTooShortError},        // too short
-        {"c", errors::AddrTooShortError},         // too short
-        {"::::::::::::", errors::EmptyAddrError}, // separators do not count
-        {"01234x", errors::AddrInvalidError},     // non-number
+        {"", empty},             // empty
+        {"0000c", too_short},    // too short
+        {"0c", too_short},       // too short
+        {"c", too_short},        // too short
+        {"::::::::::::", empty}, // separators do not count
+        {"01234x", invalid},     // non-number
     };
 
     for (const auto& [input, expected_error] : throw_cases) {
@@ -202,7 +206,7 @@ TEST_CASE("query_addr") {
         try {
             query_addr(conn, input);
         } catch (const errors::Error& e) {
-            REQUIRE(e == expected_error);
+            REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
             FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
@@ -261,17 +265,17 @@ TEST_CASE("query_name") {
     results = query_name(conn, "non-existent");
     REQUIRE(results.empty());
 
-    const std::map<const std::string, const errors::Error&> throw_cases = {
-        {"", errors::EmptyAddrError},
+    const std::map<const std::string, const errors::Error> throw_cases = {
+        {"", errors::Error{"empty vendor name"}},
     };
 
     for (const auto& [input, expected_error] : throw_cases) {
         CAPTURE(input);
 
         try {
-            query_addr(conn, input);
+            query_name(conn, input);
         } catch (const errors::Error& e) {
-            REQUIRE(e == expected_error);
+            REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
             FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));

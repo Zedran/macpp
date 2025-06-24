@@ -93,7 +93,7 @@ void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& 
 
     if (sqlite3_step(stmt) != SQLITE_ROW) {
         // File is not a database and is not empty
-        throw errors::NotCacheError;
+        throw errors::Error{"not a cache file"};
     }
 
     int version{-1};
@@ -110,7 +110,7 @@ std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) 
     const std::string stripped_address = remove_addr_separators(address);
 
     if (stripped_address.empty()) {
-        throw errors::EmptyAddrError;
+        throw errors::Error{"empty MAC address"};
     }
 
     const std::vector<int64_t> queries     = construct_queries(stripped_address);
@@ -144,7 +144,7 @@ std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_na
         "SELECT * FROM vendors WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY ESCAPE '\\'";
 
     if (vendor_name.empty()) {
-        throw errors::EmptyNameError;
+        throw errors::Error{"empty vendor name"};
     }
 
     const std::string query = suppress_like_wildcards(vendor_name);

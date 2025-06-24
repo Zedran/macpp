@@ -10,46 +10,8 @@
 namespace errors {
 
 class Error : public std::runtime_error {
-    using std::runtime_error::runtime_error;
-
 public:
-    // Returns true if the object's message equals exactly other's message
-    // (includes wrapped info in comparison).
-    bool is_exactly(const Error& other) const noexcept {
-        return std::string(this->what()) == std::string(other.what());
-    }
-
-    // Returns true if at least base message of the object and other
-    // are equal (disregards wrapped info during comparison).
-    bool operator==(const Error& other) const noexcept {
-        std::string first  = this->what();
-        std::string second = other.what();
-
-        if (first == second) {
-            return true;
-        }
-
-        if (first.length() > second.length()) {
-            return first.starts_with(second);
-        }
-        return second.starts_with(first);
-    }
-
-    // Returns true if the object and other do not share even the base message
-    // (disregards wrapped info during comparison).
-    bool operator!=(const Error& other) const noexcept {
-        std::string first  = this->what();
-        std::string second = other.what();
-
-        if (first == second) {
-            return false;
-        }
-
-        if (first.length() > second.length()) {
-            return !(first.starts_with(second));
-        }
-        return !(second.starts_with(first));
-    }
+    explicit Error(const std::string& msg) : std::runtime_error{msg} {}
 
     friend std::ostream& operator<<(std::ostream& os, const Error& e) {
         return os << e.what();
@@ -125,25 +87,5 @@ class BlockTypeTermError : public ParsingError {
 public:
     explicit BlockTypeTermError(const std::string& line = "") : ParsingError{"no comma between block type and last update fields", line} {}
 };
-
-const Error AddrInvalidError("specified MAC address contains invalid characters");
-
-const Error AddrTooShortError("specified MAC address is too short");
-
-// Thrown if --addr option is given with no value
-const Error EmptyAddrError("empty MAC address");
-
-// Thrown if --name option is given with no value
-const Error EmptyNameError("empty vendor name");
-
-// Thrown if no command is given (--addr, --name, --update).
-const Error NoActionError("no action specified");
-
-const CacheError CachePathError("could not resolve cache path");
-
-// Thrown if a file found at cache path has an invalid format.
-const CacheError NotCacheError("not a cache file");
-
-const CacheError UpdatePathError("could not open file at the specified path");
 
 } // namespace errors

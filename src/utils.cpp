@@ -30,7 +30,7 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     }
 
     if (queries.empty()) {
-        throw errors::AddrTooShortError;
+        throw errors::Error{"specified MAC address is too short"};
     }
 
     return queries;
@@ -49,7 +49,7 @@ int64_t prefix_to_id(const std::string& prefix) {
 
     // Check if stoll did not stop too early
     if (pos != prefix.length()) {
-        throw errors::AddrInvalidError;
+        throw errors::Error{"specified MAC address contains invalid characters"};
     }
     return conv;
 }

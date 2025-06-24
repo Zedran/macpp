@@ -59,5 +59,5 @@ std::fstream get_local_file(const std::string& path) {
     if (file.good()) {
         return file;
     }
-    throw errors::UpdatePathError;
+    throw errors::Error{"file '" + path + "' not found"};
 }
