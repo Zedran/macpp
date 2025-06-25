@@ -1,7 +1,6 @@
 #pragma once
 
 #include <curl/curl.h>
-#include <format>
 #include <iostream>
 #include <sqlite3.h>
 #include <stdexcept>
@@ -25,12 +24,12 @@ public:
     // Returns a new CacheError that wraps sqlite3 error information retrieved
     // from sqlite3 object.
     explicit CacheError(const std::string& msg, sqlite3* const conn)
-        : Error{std::format("{}: ({}), {}", msg, sqlite3_errcode(conn), sqlite3_errmsg(conn))} {}
+        : Error{msg + ": (" + std::to_string(sqlite3_errcode(conn)) + ") " + sqlite3_errmsg(conn)} {}
 
     // Returns a new CacheError that wraps sqlite3 error information retrieved
     // from SQLite response code.
     explicit CacheError(const std::string& msg, const int code)
-        : Error{std::format("{}: ({}) {}", msg, code, sqlite3_errstr(code))} {}
+        : Error{msg + ": (" + std::to_string(code) + ") " + sqlite3_errstr(code)} {}
 };
 
 class NetworkError : public Error {
@@ -40,7 +39,7 @@ public:
     // Constructs a new NetworkError that contains an error message retrieved
     // from CURL.
     explicit NetworkError(const std::string& msg, const CURLcode code)
-        : Error{std::format("{}: ({}) {}", msg, static_cast<int>(code), curl_easy_strerror(code))} {}
+        : Error{msg + ": (" + std::to_string(static_cast<int>(code)) + ") " + curl_easy_strerror(code)} {}
 };
 
 class ParsingError : public Error {
