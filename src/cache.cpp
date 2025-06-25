@@ -93,7 +93,7 @@ void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& 
 
     if (sqlite3_step(stmt) != SQLITE_ROW) {
         // File is not a database and is not empty
-        throw errors::Error{"not a cache file"};
+        throw errors::CacheError{"not a cache file"};
     }
 
     int version{-1};
