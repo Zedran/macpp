@@ -201,6 +201,6 @@ void update_cache(sqlite3*& conn, const std::string& cache_path, const std::stri
         if (exists(old_cache_path)) {
             std::filesystem::rename(old_cache_path.c_str(), cache_path.c_str());
         }
-        throw e;
+        throw;
     }
 }
