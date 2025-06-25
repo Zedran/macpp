@@ -31,11 +31,11 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
         );)";
 
     if (sqlite3_exec(conn, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr) != SQLITE_OK) {
-        throw errors::CacheError{"exec", conn};
+        throw errors::CacheError{"exec", __func__, conn};
     }
 
     if (sqlite3_exec(conn, create_table_stmt, nullptr, nullptr, nullptr) != SQLITE_OK) {
-        throw errors::CacheError{"exec", conn};
+        throw errors::CacheError{"exec", __func__, conn};
     }
 
     constexpr const char* insert_stmt =
@@ -45,7 +45,7 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
     const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, insert_stmt, -1, &stmt, nullptr) != SQLITE_OK) {
-        throw errors::CacheError{"prepare", conn};
+        throw errors::CacheError{"prepare", __func__, conn};
     }
 
     std::string line;
@@ -66,29 +66,29 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
         v.bind(stmt);
 
         if (code = sqlite3_step(stmt); code != SQLITE_DONE) {
-            throw errors::CacheError{"step", code};
+            throw errors::CacheError{"step", __func__, code};
         }
 
         if (code = sqlite3_reset(stmt); code != SQLITE_OK) {
-            throw errors::CacheError{"reset", code};
+            throw errors::CacheError{"reset", __func__, code};
         }
     }
 
     if (sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr) != SQLITE_OK) {
-        throw errors::CacheError{"exec", conn};
+        throw errors::CacheError{"exec", __func__, conn};
     }
 }
 
 void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& update_fpath) {
     if (int code = sqlite3_open(cache_path.c_str(), &conn); code != SQLITE_OK) {
-        throw errors::CacheError{"failed to open the database", conn};
+        throw errors::CacheError{"failed to open the database", __func__, conn};
     }
 
     sqlite3_stmt* stmt{};
     const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, "PRAGMA schema_version", -1, &stmt, nullptr) != SQLITE_OK) {
-        throw errors::CacheError{"prepare", conn};
+        throw errors::CacheError{"prepare", __func__, conn};
     }
 
     if (sqlite3_step(stmt) != SQLITE_ROW) {
@@ -122,13 +122,13 @@ std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) 
     const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, stmt_string.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-        throw errors::CacheError{"prepare", conn};
+        throw errors::CacheError{"prepare", __func__, conn};
     }
 
     int code;
     for (size_t i = 0; i < queries.size(); i++) {
         if (code = sqlite3_bind_int64(stmt, static_cast<int>(i + 1), queries[i]); code != SQLITE_OK) {
-            throw errors::CacheError{"bind", code};
+            throw errors::CacheError{"bind", __func__, code};
         }
     }
 
@@ -155,11 +155,11 @@ std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_na
     const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
 
     if (sqlite3_prepare_v2(conn, stmt_string, -1, &stmt, nullptr) != SQLITE_OK) {
-        throw errors::CacheError{"prepare", conn};
+        throw errors::CacheError{"prepare", __func__, conn};
     }
 
     if (int code = sqlite3_bind_text(stmt, 1, query.c_str(), -1, SQLITE_STATIC); code != SQLITE_OK) {
-        throw errors::CacheError{"bind", code};
+        throw errors::CacheError{"bind", __func__, code};
     }
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {

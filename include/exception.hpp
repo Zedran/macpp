@@ -12,6 +12,8 @@ class Error : public std::runtime_error {
 public:
     explicit Error(const std::string& msg) : std::runtime_error{msg} {}
 
+    explicit Error(const std::string& msg, const std::string& func) : std::runtime_error{"[ " + func + " ] " + msg} {}
+
     friend std::ostream& operator<<(std::ostream& os, const Error& e) {
         return os << e.what();
     }
@@ -23,13 +25,13 @@ public:
 
     // Returns a new CacheError that wraps sqlite3 error information retrieved
     // from sqlite3 object.
-    explicit CacheError(const std::string& msg, sqlite3* const conn)
-        : Error{msg + ": (" + std::to_string(sqlite3_errcode(conn)) + ") " + sqlite3_errmsg(conn)} {}
+    explicit CacheError(const std::string& msg, const std::string& func, sqlite3* const conn)
+        : Error{msg + ": (" + std::to_string(sqlite3_errcode(conn)) + ") " + sqlite3_errmsg(conn), func} {}
 
     // Returns a new CacheError that wraps sqlite3 error information retrieved
     // from SQLite response code.
-    explicit CacheError(const std::string& msg, const int code)
-        : Error{msg + ": (" + std::to_string(code) + ") " + sqlite3_errstr(code)} {}
+    explicit CacheError(const std::string& msg, const std::string& func, const int code)
+        : Error{msg + ": (" + std::to_string(code) + ") " + sqlite3_errstr(code), func} {}
 };
 
 class NetworkError : public Error {
