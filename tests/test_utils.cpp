@@ -2,7 +2,6 @@
 #include <format>
 #include <map>
 #include <sstream>
-#include <stdexcept>
 
 #include "exception.hpp"
 #include "internal/internal.hpp"
@@ -65,12 +64,16 @@ TEST_CASE("construct_queries") {
         }
     }
 
+    const auto too_short = errors::Error{"specified MAC address is too short"};
+    const auto invalid   = errors::Error{"specified MAC address contains invalid characters"};
+
     const std::map<const std::string, const errors::Error&> throw_cases = {
-        {"", errors::AddrTooShortError},
-        {"00", errors::AddrTooShortError},
-        {"00:00", errors::AddrTooShortError},
-        {"0002w22", errors::AddrInvalidError},
-        {"00000w", errors::AddrInvalidError},
+        {"", too_short},
+        {"00", too_short},
+        {"00:00", too_short},
+        {"0002w22", invalid},
+        {"00000w", invalid},
+        {"xxxxxx", invalid}
     };
 
     for (const auto& [input, expected_error] : throw_cases) {
@@ -79,7 +82,7 @@ TEST_CASE("construct_queries") {
         try {
             construct_queries(input);
         } catch (const errors::Error& e) {
-            REQUIRE(e == expected_error);
+            REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
             FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
@@ -87,8 +90,6 @@ TEST_CASE("construct_queries") {
 
         FAIL("no exception was thrown");
     }
-
-    REQUIRE_THROWS_AS(construct_queries("xxxxxx"), std::invalid_argument);
 }
 
 TEST_CASE("suppress_like_wildcards") {

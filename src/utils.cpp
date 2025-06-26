@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "exception.hpp"
 #include "utils.hpp"
 
@@ -30,7 +32,7 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     }
 
     if (queries.empty()) {
-        throw errors::AddrTooShortError;
+        throw errors::Error{"specified MAC address is too short"};
     }
 
     return queries;
@@ -44,12 +46,18 @@ std::optional<std::string> get_ieee_block(const std::string& addr, const size_t 
 }
 
 int64_t prefix_to_id(const std::string& prefix) {
-    size_t  pos  = 0;
-    int64_t conv = std::stoll(prefix, &pos, 16);
+    size_t  pos = 0;
+    int64_t conv;
+
+    try {
+        conv = std::stoll(prefix, &pos, 16);
+    } catch (const std::invalid_argument&) {
+        throw errors::Error{"specified MAC address contains invalid characters"};
+    }
 
     // Check if stoll did not stop too early
     if (pos != prefix.length()) {
-        throw errors::AddrInvalidError;
+        throw errors::Error{"specified MAC address contains invalid characters"};
     }
     return conv;
 }

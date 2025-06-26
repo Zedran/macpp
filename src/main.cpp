@@ -59,13 +59,9 @@ int main(int argc, char* argv[]) {
         else if (app.is_used("--name"))
             results = query_name(conn, app.get("--name"));
         else
-            throw errors::NoActionError;
+            throw errors::Error{"no action specified"};
     } catch (const errors::Error& e) {
         std::cerr << e << '\n';
-        return 1;
-    } catch (const std::invalid_argument&) {
-        // Thrown by std::stoll in prefix_to_id
-        std::cerr << errors::AddrInvalidError << '\n';
         return 1;
     } catch (const std::exception& e) {
         std::cerr << "unexpected error: " << e.what() << '\n';

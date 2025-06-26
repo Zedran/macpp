@@ -24,7 +24,7 @@ std::filesystem::path set_cache_dir_path() {
 #endif
 
     if (!env_var) {
-        throw errors::CachePathError;
+        throw errors::Error{"could not resolve cache path"};
     }
 
     cache_dir = env_var;

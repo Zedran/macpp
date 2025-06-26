@@ -23,13 +23,13 @@ std::stringstream download_data() {
 
     code = curl_global_init(CURL_GLOBAL_DEFAULT);
     if (code != CURLE_OK) {
-        throw errors::GlobalInitError.wrap(code);
+        throw errors::NetworkError{"curl_global_init failed", code};
     }
 
     const auto global_cleanup = finally([&] { curl_global_cleanup(); });
 
     if (!(curl = curl_easy_init())) {
-        throw errors::EasyInitError;
+        throw errors::NetworkError{"curl_easy_init failed"};
     }
 
     const auto easy_cleanup = finally([&] { curl_easy_cleanup(curl); });
@@ -45,9 +45,9 @@ std::stringstream download_data() {
     code = curl_easy_perform(curl);
 
     if (code == CURLE_FILESIZE_EXCEEDED) {
-        throw errors::FileSizeError;
+        throw errors::NetworkError{"file size limit exceeded during download"};
     } else if (code != CURLE_OK) {
-        throw errors::PerformError.wrap(code);
+        throw errors::NetworkError{"curl_easy_perform failed", code};
     }
 
     return readBuffer;
@@ -59,5 +59,5 @@ std::fstream get_local_file(const std::string& path) {
     if (file.good()) {
         return file;
     }
-    throw errors::UpdatePathError;
+    throw errors::Error{"file '" + path + "' not found"};
 }
