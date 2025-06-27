@@ -26,13 +26,13 @@ TEST_CASE("create_cache") {
 
     REQUIRE_NOTHROW(get_conn(conn, ":memory:", "testdata/update.csv"));
 
-    const Stmt stmt{conn, "SELECT * FROM vendors"};
+    Stmt stmt{conn, "SELECT * FROM vendors"};
     REQUIRE(stmt.ok());
 
     std::vector<Vendor> out;
 
     while (stmt.step() == SQLITE_ROW) {
-        out.push_back(Vendor(stmt.get()));
+        out.push_back(Vendor(stmt));
     }
 
     REQUIRE(cases.size() == out.size());
@@ -62,12 +62,12 @@ TEST_CASE("create_cache") {
 
     REQUIRE_NOTHROW(update_cache(conn2, ":memory:", "testdata/poisoned.csv"));
 
-    const Stmt stmt2{conn2, "SELECT * FROM vendors"};
+    Stmt stmt2{conn2, "SELECT * FROM vendors"};
     REQUIRE(stmt2.ok());
 
     out.clear();
     while (stmt2.step() == SQLITE_ROW) {
-        out.push_back(Vendor(stmt2.get()));
+        out.push_back(Vendor(stmt2));
     }
 
     REQUIRE(out.size() == 1);

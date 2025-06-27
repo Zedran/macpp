@@ -61,7 +61,7 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
             continue;
         }
         Vendor v(line);
-        v.bind(stmt.get());
+        v.bind(stmt);
 
         if (code = stmt.step(); code != SQLITE_DONE) {
             throw errors::CacheError{"step", __func__, code};
@@ -82,7 +82,7 @@ void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& 
         throw errors::CacheError{"failed to open the database", __func__, conn};
     }
 
-    const Stmt stmt{conn, "PRAGMA schema_version"};
+    Stmt stmt{conn, "PRAGMA schema_version"};
     if (!stmt.ok()) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
@@ -92,9 +92,7 @@ void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& 
         throw errors::CacheError{"not a cache file"};
     }
 
-    int version{-1};
-
-    version = sqlite3_column_int(stmt.get(), 0);
+    const int version = stmt.get_col<int>(0);
 
     if (version == 0) {
         // File is empty
@@ -121,13 +119,13 @@ std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) 
 
     int code;
     for (size_t i = 0; i < queries.size(); i++) {
-        if (code = sqlite3_bind_int64(stmt.get(), static_cast<int>(i + 1), queries[i]); code != SQLITE_OK) {
+        if (code = stmt.bind(static_cast<int>(i + 1), queries[i]); code != SQLITE_OK) {
             throw errors::CacheError{"bind", __func__, code};
         }
     }
 
     while (stmt.step() == SQLITE_ROW) {
-        results.push_back(Vendor(stmt.get()));
+        results.push_back(Vendor(stmt));
     }
 
     return results;
@@ -150,12 +148,12 @@ std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_na
         throw errors::CacheError{"prepare", __func__, conn};
     }
 
-    if (int code = sqlite3_bind_text(stmt.get(), 1, query.c_str(), -1, SQLITE_STATIC); code != SQLITE_OK) {
+    if (int code = stmt.bind(1, query); code != SQLITE_OK) {
         throw errors::CacheError{"bind", __func__, code};
     }
 
     while (stmt.step() == SQLITE_ROW) {
-        results.push_back(Vendor(stmt.get()));
+        results.push_back(Vendor(stmt));
     }
 
     return results;

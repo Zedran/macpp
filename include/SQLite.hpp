@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <sqlite3.h>
 #include <string>
 
@@ -18,8 +19,52 @@ public:
 
     ~Stmt();
 
+    // Binds an int64 to coln of the statement. Returns SQLite result code.
+    int bind(const int coln, const int64_t value) const noexcept;
+
+    // Binds a boolean to coln of the statement. Returns SQLite result code.
+    int bind(const int coln, const bool value) const noexcept;
+
+    // Binds a string to coln of the statement. Returns SQLite result code.
+    int bind(const int coln, const std::string& value) const noexcept;
+
     // Returns pointer to the wrapped sqlite3_stmt object.
     sqlite3_stmt* get() const noexcept;
+
+    // Generic function for extracting value from SQLite table column.
+    // Supported types:
+    //   - std::string
+    //   - bool
+    //   - int32
+    //   - int64
+    //
+    // For strings, if column value is NULL, an empty string is returned.
+    // This should never happen unless the cache has been tampered with.
+    template <typename T>
+        requires(std::same_as<T, std::string> || std::same_as<T, bool> || std::same_as<T, int32_t> || std::same_as<T, int64_t>)
+    T get_col(const int coln) const noexcept {
+        if constexpr (std::is_same_v<T, std::string>) {
+            const unsigned char* text = sqlite3_column_text(stmt, coln);
+
+            if (text) [[likely]] {
+                return std::string{reinterpret_cast<const char*>(text)};
+            } else {
+                return "";
+            }
+        }
+
+        if constexpr (std::is_same_v<T, bool>) {
+            return sqlite3_column_int(stmt, coln) != 0;
+        }
+
+        if constexpr (std::is_same_v<T, int32_t>) {
+            return sqlite3_column_int(stmt, coln);
+        }
+
+        if constexpr (std::is_same_v<T, int64_t>) {
+            return sqlite3_column_int64(stmt, coln);
+        }
+    }
 
     // Returns true if statement has been prepared correctly.
     bool ok() const noexcept;

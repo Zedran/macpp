@@ -155,7 +155,7 @@ TEST_CASE("Vendor::bind") {
     for (auto& c : cases) {
         CAPTURE(c.mac_prefix);
 
-        REQUIRE_NOTHROW(c.bind(stmt.get()));
+        REQUIRE_NOTHROW(c.bind(stmt));
 
         REQUIRE(stmt.step() == SQLITE_DONE);
         REQUIRE(stmt.reset() == SQLITE_OK);
@@ -163,7 +163,7 @@ TEST_CASE("Vendor::bind") {
 
     // Empty MAC prefix not allowed
     Vendor malformed{"", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
-    REQUIRE_THROWS(malformed.bind(stmt.get()));
+    REQUIRE_THROWS(malformed.bind(stmt));
     REQUIRE(stmt.reset() == SQLITE_OK);
 
     REQUIRE(sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr) == SQLITE_OK);
