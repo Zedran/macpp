@@ -145,7 +145,7 @@ TEST_CASE("Vendor::bind") {
         "INSERT INTO vendors (id, addr, name, private, block, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
 
     Stmt stmt{conn, insert_stmt};
-    REQUIRE(stmt.ok());
+    REQUIRE(stmt.good());
 
     Vendor cases[] = {
         Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},

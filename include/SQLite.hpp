@@ -67,7 +67,7 @@ public:
     }
 
     // Returns true if statement has been prepared correctly.
-    bool ok() const noexcept;
+    bool good() const noexcept;
 
     // Returns result code returned by sqlite3_prepare function.
     int rc() const noexcept;
@@ -80,6 +80,6 @@ public:
 
     // Returns true if statement has been prepared correctly.
     explicit operator bool() const noexcept {
-        return ok();
+        return good();
     }
 };

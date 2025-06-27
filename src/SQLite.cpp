@@ -29,7 +29,7 @@ sqlite3_stmt* Stmt::get() const noexcept {
     return stmt;
 }
 
-bool Stmt::ok() const noexcept {
+bool Stmt::good() const noexcept {
     return prepare_rc == SQLITE_OK;
 }
 

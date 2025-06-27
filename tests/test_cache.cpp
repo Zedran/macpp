@@ -27,7 +27,7 @@ TEST_CASE("create_cache") {
     REQUIRE_NOTHROW(get_conn(conn, ":memory:", "testdata/update.csv"));
 
     Stmt stmt{conn, "SELECT * FROM vendors"};
-    REQUIRE(stmt.ok());
+    REQUIRE(stmt.good());
 
     std::vector<Vendor> out;
 
@@ -63,7 +63,7 @@ TEST_CASE("create_cache") {
     REQUIRE_NOTHROW(update_cache(conn2, ":memory:", "testdata/poisoned.csv"));
 
     Stmt stmt2{conn2, "SELECT * FROM vendors"};
-    REQUIRE(stmt2.ok());
+    REQUIRE(stmt2.good());
 
     out.clear();
     while (stmt2.step() == SQLITE_ROW) {
