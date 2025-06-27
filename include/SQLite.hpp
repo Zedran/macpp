@@ -17,6 +17,9 @@ public:
 
     Stmt(sqlite3* const conn, const std::string& str_stmt);
 
+    Stmt(const Stmt&)            = delete;
+    Stmt& operator=(const Stmt&) = delete;
+
     ~Stmt();
 
     // Binds an int64 to coln of the statement. Returns SQLite result code.
