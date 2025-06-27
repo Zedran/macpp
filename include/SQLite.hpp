@@ -77,4 +77,9 @@ public:
 
     // Steps the statement.
     int step() const noexcept;
+
+    // Returns true if statement has been prepared correctly.
+    explicit operator bool() const noexcept {
+        return ok();
+    }
 };

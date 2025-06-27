@@ -42,7 +42,7 @@ void create_cache(sqlite3* const conn, const std::string& update_fpath) {
         "INSERT INTO vendors (id, addr, name, private, block, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
 
     Stmt stmt{conn, insert_stmt};
-    if (!stmt.ok()) {
+    if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
 
@@ -83,7 +83,7 @@ void get_conn(sqlite3*& conn, const std::string& cache_path, const std::string& 
     }
 
     Stmt stmt{conn, "PRAGMA schema_version"};
-    if (!stmt.ok()) {
+    if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
 
@@ -113,7 +113,7 @@ std::vector<Vendor> query_addr(sqlite3* const conn, const std::string& address) 
     std::vector<Vendor> results;
 
     Stmt stmt{conn, stmt_string};
-    if (!stmt.ok()) {
+    if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
 
@@ -144,7 +144,7 @@ std::vector<Vendor> query_name(sqlite3* const conn, const std::string& vendor_na
     std::vector<Vendor> results;
 
     Stmt stmt{conn, stmt_string};
-    if (!stmt.ok()) {
+    if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
 
