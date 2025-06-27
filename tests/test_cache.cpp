@@ -4,6 +4,7 @@
 #include <sqlite3.h>
 
 #include "FinalAction.hpp"
+#include "SQLite.hpp"
 #include "cache.hpp"
 #include "exception.hpp"
 
@@ -25,15 +26,13 @@ TEST_CASE("create_cache") {
 
     REQUIRE_NOTHROW(get_conn(conn, ":memory:", "testdata/update.csv"));
 
-    sqlite3_stmt* stmt{};
-    const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
-
-    REQUIRE(sqlite3_prepare_v2(conn, "SELECT * FROM vendors", -1, &stmt, nullptr) == SQLITE_OK);
+    const Stmt stmt{conn, "SELECT * FROM vendors"};
+    REQUIRE(stmt.ok());
 
     std::vector<Vendor> out;
 
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        out.push_back(Vendor(stmt));
+    while (stmt.step() == SQLITE_ROW) {
+        out.push_back(Vendor(stmt.get()));
     }
 
     REQUIRE(cases.size() == out.size());
@@ -57,15 +56,18 @@ TEST_CASE("create_cache") {
     }
 
     // Line length limits
-    sqlite3_finalize(stmt);
-    sqlite3_close(conn);
+    sqlite3* conn2{};
 
-    REQUIRE_NOTHROW(update_cache(conn, ":memory:", "testdata/poisoned.csv"));
-    REQUIRE(sqlite3_prepare_v2(conn, "SELECT * FROM vendors", -1, &stmt, nullptr) == SQLITE_OK);
+    const auto cleanup2 = finally([&] { sqlite3_close(conn2); });
+
+    REQUIRE_NOTHROW(update_cache(conn2, ":memory:", "testdata/poisoned.csv"));
+
+    const Stmt stmt2{conn2, "SELECT * FROM vendors"};
+    REQUIRE(stmt2.ok());
 
     out.clear();
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        out.push_back(Vendor(stmt));
+    while (stmt2.step() == SQLITE_ROW) {
+        out.push_back(Vendor(stmt2.get()));
     }
 
     REQUIRE(out.size() == 1);

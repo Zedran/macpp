@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include "FinalAction.hpp"
+#include "SQLite.hpp"
 #include "Vendor.hpp"
 #include "cache.hpp"
 #include "exception.hpp"
@@ -143,10 +144,8 @@ TEST_CASE("Vendor::bind") {
     constexpr const char* insert_stmt =
         "INSERT INTO vendors (id, addr, name, private, block, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
 
-    sqlite3_stmt* stmt{};
-    const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
-
-    REQUIRE(sqlite3_prepare_v2(conn, insert_stmt, -1, &stmt, nullptr) == SQLITE_OK);
+    Stmt stmt{conn, insert_stmt};
+    REQUIRE(stmt.ok());
 
     Vendor cases[] = {
         Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
@@ -156,16 +155,16 @@ TEST_CASE("Vendor::bind") {
     for (auto& c : cases) {
         CAPTURE(c.mac_prefix);
 
-        REQUIRE_NOTHROW(c.bind(stmt));
+        REQUIRE_NOTHROW(c.bind(stmt.get()));
 
-        REQUIRE(sqlite3_step(stmt) == SQLITE_DONE);
-        REQUIRE(sqlite3_reset(stmt) == SQLITE_OK);
+        REQUIRE(stmt.step() == SQLITE_DONE);
+        REQUIRE(stmt.reset() == SQLITE_OK);
     }
 
     // Empty MAC prefix not allowed
     Vendor malformed{"", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
-    REQUIRE_THROWS(malformed.bind(stmt));
-    REQUIRE(sqlite3_reset(stmt) == SQLITE_OK);
+    REQUIRE_THROWS(malformed.bind(stmt.get()));
+    REQUIRE(stmt.reset() == SQLITE_OK);
 
     REQUIRE(sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr) == SQLITE_OK);
 
