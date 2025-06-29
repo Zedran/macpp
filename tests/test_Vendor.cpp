@@ -4,7 +4,7 @@
 #include <sstream>
 
 #include "FinalAction.hpp"
-#include "SQLite.hpp"
+#include "Stmt.hpp"
 #include "Vendor.hpp"
 #include "cache.hpp"
 #include "exception.hpp"

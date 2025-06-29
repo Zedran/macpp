@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "SQLite.hpp"
+#include "Stmt.hpp"
 #include "Vendor.hpp"
 #include "cache.hpp"
 #include "download.hpp"

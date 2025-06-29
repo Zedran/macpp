@@ -4,7 +4,7 @@
 #include <sqlite3.h>
 
 #include "FinalAction.hpp"
-#include "SQLite.hpp"
+#include "Stmt.hpp"
 #include "cache.hpp"
 #include "exception.hpp"
 

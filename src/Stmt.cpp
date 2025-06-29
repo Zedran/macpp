@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include "SQLite.hpp"
+#include "Stmt.hpp"
 
 Stmt::Stmt(sqlite3* const conn, const char* str_stmt)
     : prepare_rc{sqlite3_prepare_v2(conn, str_stmt, -1, &stmt, nullptr)} {}
