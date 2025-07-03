@@ -85,6 +85,16 @@ TEST_CASE("ConnR construction") {
 
     // Throws, because there are no records in the table
     REQUIRE_THROWS(ConnR{db_path, true});
+
+    const Stmt stmt{conn_rw.get(), "DROP TABLE vendors;"};
+    REQUIRE(stmt.good());
+    REQUIRE(stmt.step() == SQLITE_DONE);
+
+    // Throws, because there is no table
+    REQUIRE_THROWS(ConnR{db_path, true});
+
+    // Throws, because the file does not exist
+    REQUIRE_THROWS(ConnR{"non-existent", true});
 }
 
 TEST_CASE("ConnRW construction") {
