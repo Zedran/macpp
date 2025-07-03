@@ -3,12 +3,11 @@
 #include <map>
 #include <sstream>
 
+#include "ConnR.hpp"
+#include "ConnRW.hpp"
 #include "FinalAction.hpp"
-#include "Stmt.hpp"
 #include "Vendor.hpp"
-#include "cache.hpp"
 #include "exception.hpp"
-#include "internal/internal.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
 // The main challenge is that the file is comma-separated and sometimes
@@ -111,16 +110,13 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
 TEST_CASE("Vendor::Vendor(sqlite3_stmt* stmt)") {
     sqlite3_initialize();
 
-    sqlite3* conn{};
-
     const auto cleanup = finally([&] {
-        sqlite3_close(conn);
         sqlite3_shutdown();
     });
 
-    get_conn(conn, "testdata/poisoned.db");
+    const ConnR conn{"testdata/poisoned.db", true};
 
-    std::vector<Vendor> results = query_addr(conn, "00:00:0C");
+    std::vector<Vendor> results = conn.find_by_addr("00:00:0C");
 
     REQUIRE(!results.empty());
     REQUIRE(results.at(0).vendor_name == "");
@@ -131,49 +127,41 @@ TEST_CASE("Vendor::Vendor(sqlite3_stmt* stmt)") {
 TEST_CASE("Vendor::bind") {
     sqlite3_initialize();
 
-    sqlite3* conn{};
-
     const auto cleanup = finally([&] {
-        sqlite3_close(conn);
         sqlite3_shutdown();
     });
 
-    REQUIRE(internal::open_mem_db(conn) == SQLITE_OK);
-    REQUIRE(sqlite3_exec(conn, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr) == SQLITE_OK);
+    const std::string db_path = "file:memdb_vendor_bind?mode=memory&cache=shared";
 
-    constexpr const char* insert_stmt =
-        "INSERT INTO vendors (id, addr, name, private, block, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
+    ConnRW conn_rw{db_path, true};
 
-    Stmt stmt{conn, insert_stmt};
-    REQUIRE(stmt.good());
-
-    Vendor cases[] = {
+    const Vendor cases[] = {
         Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
         Vendor{"00:48:54", "", true, "", "0001/01/01"},
     };
 
-    for (auto& c : cases) {
+    REQUIRE(conn_rw.begin() == SQLITE_OK);
+
+    for (const auto& c : cases) {
         CAPTURE(c.mac_prefix);
-
-        REQUIRE_NOTHROW(c.bind(stmt));
-
-        REQUIRE(stmt.step() == SQLITE_DONE);
-        REQUIRE(stmt.reset() == SQLITE_OK);
+        REQUIRE_NOTHROW(conn_rw.insert(c));
     }
 
     // Empty MAC prefix not allowed
-    Vendor malformed{"", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
-    REQUIRE_THROWS(malformed.bind(stmt));
-    REQUIRE(stmt.reset() == SQLITE_OK);
+    const Vendor malformed{"", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
 
-    REQUIRE(sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr) == SQLITE_OK);
+    REQUIRE_THROWS(conn_rw.insert(malformed));
+
+    REQUIRE(conn_rw.commit() == SQLITE_OK);
+
+    const ConnR conn_r{db_path, true};
 
     std::vector<Vendor> results;
 
-    for (auto& c : cases) {
+    for (const auto& c : cases) {
         CAPTURE(c.mac_prefix);
 
-        results = query_addr(conn, c.mac_prefix);
+        results = conn_r.find_by_addr(c.mac_prefix);
 
         REQUIRE(results.size() == 1);
 
