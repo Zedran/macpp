@@ -28,9 +28,6 @@ protected:
     // Returns true if the vendors table exists in the database.
     bool has_table();
 
-    // Returns the result code of the sqlite3_open_v2 function.
-    int rc() const noexcept;
-
 public:
     Conn(const Conn&)            = delete;
     Conn& operator=(const Conn&) = delete;
@@ -40,4 +37,7 @@ public:
 
     // Returns a pointer to sqlite3 object.
     sqlite3* get() const noexcept;
+
+    // Returns the result code of the sqlite3_open_v2 function.
+    int rc() const noexcept;
 };
