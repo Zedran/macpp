@@ -30,7 +30,7 @@ public:
     // Constructs new read-only database connection given the database path.
     // If override_once_flags is set to true, the constructor ignores static
     // once_flag class members that prevent doing extra work during
-    // instantialization in multithreaded context. This boolean switch should
+    // instantiation in multithreaded context. This boolean switch should
     // only be set to true for testing purposes.
     ConnR(const std::string& path, const bool override_once_flags = false);
 
