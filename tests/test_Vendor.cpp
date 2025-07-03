@@ -5,7 +5,6 @@
 
 #include "ConnR.hpp"
 #include "ConnRW.hpp"
-#include "FinalAction.hpp"
 #include "Vendor.hpp"
 #include "exception.hpp"
 
@@ -108,12 +107,6 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
 // allow NULL text values, the check was implemented
 // for protection against a compromised cache.
 TEST_CASE("Vendor::Vendor(sqlite3_stmt* stmt)") {
-    sqlite3_initialize();
-
-    const auto cleanup = finally([&] {
-        sqlite3_shutdown();
-    });
-
     const ConnR conn{"testdata/poisoned.db", true};
 
     std::vector<Vendor> results = conn.find_by_addr("00:00:0C");
@@ -125,12 +118,6 @@ TEST_CASE("Vendor::Vendor(sqlite3_stmt* stmt)") {
 // Ensures that binding and insertion into the table produces
 // desired entries.
 TEST_CASE("Vendor::bind") {
-    sqlite3_initialize();
-
-    const auto cleanup = finally([&] {
-        sqlite3_shutdown();
-    });
-
     const std::string db_path = "file:memdb_vendor_bind?mode=memory&cache=shared";
 
     ConnRW conn_rw{db_path, true};

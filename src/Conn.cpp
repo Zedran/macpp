@@ -4,9 +4,17 @@
 #include "Stmt.hpp"
 #include "exception.hpp"
 
+std::once_flag Conn::sqlite_initialized{};
+
 Conn::Conn() noexcept : conn{nullptr}, sqlite_open_rc{SQLITE_NOTADB} {}
 
-Conn::Conn(const std::string& path, const int flags) noexcept : conn{nullptr} {
+Conn::Conn(const std::string& path, const int flags) : conn{nullptr} {
+    std::call_once(sqlite_initialized, [&] {
+        if (const int rc = sqlite3_initialize(); rc != SQLITE_OK) {
+            throw errors::CacheError{"sqlite3_initialize failed", __func__, rc};
+        }
+    });
+
     if (sqlite_open_rc = sqlite3_open_v2(path.c_str(), &conn, flags | SQLITE_OPEN_URI, nullptr); sqlite_open_rc != SQLITE_OK) {
         return;
     }

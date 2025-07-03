@@ -6,7 +6,6 @@
 
 #include "ConnR.hpp"
 #include "ConnRW.hpp"
-#include "FinalAction.hpp"
 #include "Stmt.hpp"
 #include "exception.hpp"
 
@@ -17,12 +16,6 @@ TEST_CASE("ConnRW::insert") {
         Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
         Vendor{"00:48:54", "", true, "", ""},
     };
-
-    sqlite3_initialize();
-
-    const auto cleanup = finally([&] {
-        sqlite3_shutdown();
-    });
 
     ConnRW conn_rw{"file:memdb_connrw_insert?mode=memory&cache=shared", true};
 
@@ -79,12 +72,6 @@ TEST_CASE("ConnRW::insert") {
 }
 
 TEST_CASE("ConnR construction") {
-    sqlite3_initialize();
-
-    const auto cleanup = finally([&] {
-        sqlite3_shutdown();
-    });
-
     // Non-empty file that is not a SQLite database
     REQUIRE_THROWS(ConnR{"testdata/not_cache.txt"}, true);
 
@@ -101,12 +88,6 @@ TEST_CASE("ConnR construction") {
 }
 
 TEST_CASE("ConnRW construction") {
-    sqlite3_initialize();
-
-    const auto cleanup = finally([&] {
-        sqlite3_shutdown();
-    });
-
     // Non-empty file that is not a SQLite database
     REQUIRE_THROWS(ConnRW{"testdata/not_cache.txt", true});
 
@@ -118,12 +99,6 @@ TEST_CASE("ConnRW construction") {
 }
 
 TEST_CASE("injections") {
-    sqlite3_initialize();
-
-    const auto cleanup = finally([&] {
-        sqlite3_shutdown();
-    });
-
     ConnR conn{"testdata/sample.db", true};
 
     const std::string cases[] = {
@@ -161,12 +136,6 @@ TEST_CASE("injections") {
 }
 
 TEST_CASE("query_addr") {
-    sqlite3_initialize();
-
-    const auto cleanup = finally([&] {
-        sqlite3_shutdown();
-    });
-
     ConnR conn{"testdata/sample.db", true};
 
     Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
@@ -237,12 +206,6 @@ TEST_CASE("query_addr") {
 }
 
 TEST_CASE("query_name") {
-    sqlite3_initialize();
-
-    const auto cleanup = finally([&] {
-        sqlite3_shutdown();
-    });
-
     ConnR conn{"testdata/sample.db", true};
 
     Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
