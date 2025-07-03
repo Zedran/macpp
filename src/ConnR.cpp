@@ -34,11 +34,11 @@ void ConnR::check() {
         throw errors::CacheError{"not a cache file", __func__, rc};
     }
 
-    if (rc == SQLITE_DONE) {
-        throw errors::CacheError{"missing cache data - file empty"};
-    } else if (!has_table()) {
+    if (!has_table()) {
         throw errors::CacheError{"missing cache data - table not found"};
-    } else if (count_records() == 0) {
+    }
+
+    if (count_records() == 0) {
         throw errors::CacheError{"missing cache data - no records found"};
     }
 }
