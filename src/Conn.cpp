@@ -1,0 +1,44 @@
+#include <cassert>
+
+#include "Conn.hpp"
+#include "Stmt.hpp"
+#include "exception.hpp"
+
+Conn::Conn() noexcept : conn{nullptr}, sqlite_open_rc{SQLITE_NOTADB} {}
+
+Conn::Conn(const std::string& path, const int flags) noexcept : conn{nullptr} {
+    if (sqlite_open_rc = sqlite3_open_v2(path.c_str(), &conn, flags | SQLITE_OPEN_URI, nullptr); sqlite_open_rc != SQLITE_OK) {
+        return;
+    }
+    sqlite_open_rc = sqlite3_busy_timeout(conn, BUSY_TIMEOUT_MS);
+}
+
+Conn::~Conn() {
+    [[maybe_unused]] const int rc = sqlite3_close(conn);
+    assert(rc == SQLITE_OK);
+}
+
+sqlite3* Conn::get() const noexcept {
+    return conn;
+}
+
+bool Conn::has_table() {
+    Stmt stmt{conn, "SELECT 1 FROM sqlite_master WHERE type='table' AND name='vendors'"};
+    if (!stmt) {
+        throw errors::CacheError{"prepare", __func__, stmt.rc()};
+    }
+
+    const int rc = stmt.step();
+
+    if (rc == SQLITE_ROW) {
+        return true;
+    } else if (rc == SQLITE_DONE) {
+        return false;
+    } else {
+        throw errors::CacheError{"step", __func__, rc};
+    }
+}
+
+int Conn::rc() {
+    return sqlite_open_rc;
+}
