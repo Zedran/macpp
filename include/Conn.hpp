@@ -29,7 +29,7 @@ protected:
     bool has_table();
 
     // Returns the result code of the sqlite3_open_v2 function.
-    int rc();
+    int rc() const noexcept;
 
 public:
     Conn(const Conn&)            = delete;

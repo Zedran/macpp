@@ -47,6 +47,6 @@ bool Conn::has_table() {
     }
 }
 
-int Conn::rc() {
+int Conn::rc() const noexcept {
     return sqlite_open_rc;
 }
