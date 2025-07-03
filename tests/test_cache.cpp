@@ -135,7 +135,7 @@ TEST_CASE("injections") {
     }
 }
 
-TEST_CASE("query_addr") {
+TEST_CASE("ConnR::find_by_addr") {
     ConnR conn{"testdata/sample.db", true};
 
     Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
@@ -205,7 +205,7 @@ TEST_CASE("query_addr") {
     }
 }
 
-TEST_CASE("query_name") {
+TEST_CASE("ConnR::find_by_name") {
     ConnR conn{"testdata/sample.db", true};
 
     Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
