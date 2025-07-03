@@ -7,7 +7,7 @@
 
 std::once_flag ConnRW::db_checked{};
 std::once_flag ConnRW::table_created{};
-std::once_flag ConnRW::dropped_before_insert{};
+std::once_flag ConnRW::cleared_before_insert{};
 
 ConnRW::ConnRW() noexcept : Conn{} {}
 
@@ -96,7 +96,7 @@ void ConnRW::insert(std::istream& is) {
     begin();
 
     if (!override_once_flags) [[likely]] {
-        std::call_once(dropped_before_insert, [&] { clear_table(); });
+        std::call_once(cleared_before_insert, [&] { clear_table(); });
     }
 
     Stmt stmt{conn, INSERT_STMT};

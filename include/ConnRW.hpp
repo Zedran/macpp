@@ -24,7 +24,7 @@ class ConnRW : public Conn {
     static std::once_flag table_created;
 
     // Signals whether table records were dropped before insertions.
-    static std::once_flag dropped_before_insert;
+    static std::once_flag cleared_before_insert;
 
     // Signals whether static once_flag class members should be respected.
     bool override_once_flags;
