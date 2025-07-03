@@ -93,9 +93,11 @@ int ConnRW::create_table() noexcept {
 }
 
 void ConnRW::insert(std::istream& is) {
-    std::call_once(dropped_before_insert, [&] { clear_table(); });
-
     begin();
+
+    if (!override_once_flags) [[likely]] {
+        std::call_once(dropped_before_insert, [&] { clear_table(); });
+    }
 
     Stmt stmt{conn, INSERT_STMT};
     if (!stmt) {
