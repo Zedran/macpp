@@ -27,9 +27,7 @@ void ConnR::check() {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};
     }
 
-    int rc;
-
-    if (rc = stmt.step(); rc == SQLITE_NOTADB) {
+    if (const int rc = stmt.step(); rc == SQLITE_NOTADB) {
         // File is not a database and is not empty
         throw errors::CacheError{"not a cache file", __func__, rc};
     }
