@@ -23,7 +23,7 @@ TEST_CASE("ConnRW::insert") {
 
     REQUIRE_NOTHROW(conn_rw.insert(good_file));
 
-    Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
+    const Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
     REQUIRE(stmt.rc() == SQLITE_OK);
 
     std::vector<Vendor> out;
@@ -125,7 +125,7 @@ TEST_CASE("ConnRW destruction") {
     const std::string db_path = "file:conn_rw_rollback?mode=memory&cache=shared";
 
     // Keeps the database alive across scopes.
-    ConnRW conn_master{db_path, true};
+    const ConnRW conn_master{db_path, true};
 
     const Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors;"};
     REQUIRE(stmt.rc() == SQLITE_OK);
@@ -162,7 +162,7 @@ TEST_CASE("ConnRW destruction") {
 }
 
 TEST_CASE("injections") {
-    ConnR conn{"testdata/sample.db", true};
+    const ConnR conn{"testdata/sample.db", true};
 
     const std::string cases[] = {
         "DIG_LINK",
@@ -199,9 +199,9 @@ TEST_CASE("injections") {
 }
 
 TEST_CASE("ConnR::find_by_addr") {
-    ConnR conn{"testdata/sample.db", true};
+    const ConnR conn{"testdata/sample.db", true};
 
-    Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
+    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
 
     const std::string cases[] = {
         "00:00:0C",          // with separators, short
@@ -269,9 +269,9 @@ TEST_CASE("ConnR::find_by_addr") {
 }
 
 TEST_CASE("ConnR::find_by_name") {
-    ConnR conn{"testdata/sample.db", true};
+    const ConnR conn{"testdata/sample.db", true};
 
-    Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
+    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
 
     const std::string cases[] = {
         "Cisco Systems, Inc",
