@@ -108,25 +108,25 @@ Vendor::Vendor(const Stmt& stmt)
 void Vendor::bind(Stmt& stmt) const {
     const int64_t id = prefix_to_id(remove_addr_separators(mac_prefix));
 
-    int code;
+    int rc;
 
-    if (code = stmt.bind(1, id); code != SQLITE_OK) {
-        throw errors::CacheError{"col1", __func__, code};
+    if (rc = stmt.bind(1, id); rc != SQLITE_OK) {
+        throw errors::CacheError{"col1", __func__, rc};
     }
-    if (code = stmt.bind(2, mac_prefix); code != SQLITE_OK) {
-        throw errors::CacheError{"col2", __func__, code};
+    if (rc = stmt.bind(2, mac_prefix); rc != SQLITE_OK) {
+        throw errors::CacheError{"col2", __func__, rc};
     }
-    if (code = stmt.bind(3, vendor_name); code != SQLITE_OK) {
-        throw errors::CacheError{"col3", __func__, code};
+    if (rc = stmt.bind(3, vendor_name); rc != SQLITE_OK) {
+        throw errors::CacheError{"col3", __func__, rc};
     }
-    if (code = stmt.bind(4, is_private); code != SQLITE_OK) {
-        throw errors::CacheError{"col4", __func__, code};
+    if (rc = stmt.bind(4, is_private); rc != SQLITE_OK) {
+        throw errors::CacheError{"col4", __func__, rc};
     }
-    if (code = stmt.bind(5, block_type); code != SQLITE_OK) {
-        throw errors::CacheError{"col5", __func__, code};
+    if (rc = stmt.bind(5, block_type); rc != SQLITE_OK) {
+        throw errors::CacheError{"col5", __func__, rc};
     }
-    if (code = stmt.bind(6, last_update); code != SQLITE_OK) {
-        throw errors::CacheError{"col6", __func__, code};
+    if (rc = stmt.bind(6, last_update); rc != SQLITE_OK) {
+        throw errors::CacheError{"col6", __func__, rc};
     }
 }
 
