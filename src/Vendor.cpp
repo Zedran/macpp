@@ -105,7 +105,7 @@ Vendor::Vendor(const Stmt& stmt)
       block_type(stmt.get_col<std::string>(4)),
       last_update(stmt.get_col<std::string>(5)) {}
 
-void Vendor::bind(Stmt& stmt) const {
+void Vendor::bind(const Stmt& stmt) const {
     const int64_t id = prefix_to_id(remove_addr_separators(mac_prefix));
 
     int rc;

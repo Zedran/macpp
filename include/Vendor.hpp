@@ -30,7 +30,7 @@ struct Vendor {
     Vendor(const Stmt& stmt);
 
     // Binds struct members to the insert statement.
-    void bind(Stmt& stmt) const;
+    void bind(const Stmt& stmt) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Vendor& v);
 };
