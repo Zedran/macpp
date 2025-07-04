@@ -18,11 +18,11 @@ class ConnR : public Conn {
 
     // Checks whether the database file exists, has a proper structure
     // and the data is present.
-    void check();
+    void check() const;
 
     // Helper function for check(). Returns a number of records present
     // in the vendors table.
-    int64_t count_records();
+    int64_t count_records() const;
 
 public:
     ConnR() noexcept;

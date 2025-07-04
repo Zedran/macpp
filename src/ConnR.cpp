@@ -21,7 +21,7 @@ ConnR::ConnR(const std::string& path, const bool override_once_flags)
     }
 }
 
-void ConnR::check() {
+void ConnR::check() const {
     const Stmt stmt{conn, "PRAGMA schema_version"};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};
@@ -41,7 +41,7 @@ void ConnR::check() {
     }
 }
 
-int64_t ConnR::count_records() {
+int64_t ConnR::count_records() const {
     Stmt stmt{conn, "SELECT COUNT(*) FROM vendors;"};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};

@@ -34,11 +34,11 @@ class ConnRW : public Conn {
 
     // Checks whether the database file exists and if it does,
     // asserts that its structure is correct or empty.
-    void check();
+    void check() const;
 
     // Creates table vendors in the database. Returns the result code
     // by sqlite3_exec.
-    int create_table() noexcept;
+    int create_table() const noexcept;
 
 public:
     ConnRW() noexcept;
@@ -61,7 +61,7 @@ public:
     int begin() noexcept;
 
     // Deletes all records from the vendors table.
-    int clear_table() noexcept;
+    int clear_table() const noexcept;
 
     // Commits database transaction.
     int commit() noexcept;
@@ -77,7 +77,7 @@ public:
 
     // Inserts a single Vendors into the database. The caller is responsible
     // for managing transactions.
-    void insert(const Vendor& v);
+    void insert(const Vendor& v) const;
 
     // Reverts uncommitted database transaction.
     int rollback() noexcept;

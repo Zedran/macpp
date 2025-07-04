@@ -30,7 +30,7 @@ sqlite3* Conn::get() const noexcept {
     return conn;
 }
 
-bool Conn::has_table() {
+bool Conn::has_table() const {
     Stmt stmt{conn, "SELECT 1 FROM sqlite_master WHERE type='table' AND name='vendors'"};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};

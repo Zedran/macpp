@@ -47,14 +47,14 @@ ConnRW::~ConnRW() {
 }
 
 int ConnRW::begin() noexcept {
-    int rc = sqlite3_exec(conn, "BEGIN;", nullptr, nullptr, nullptr);
+    const int rc = sqlite3_exec(conn, "BEGIN;", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = true;
     }
     return rc;
 }
 
-void ConnRW::check() {
+void ConnRW::check() const {
     const Stmt stmt{conn, "PRAGMA schema_version"};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};
@@ -66,19 +66,19 @@ void ConnRW::check() {
     }
 }
 
-int ConnRW::clear_table() noexcept {
+int ConnRW::clear_table() const noexcept {
     return sqlite3_exec(conn, "DELETE FROM vendors;", nullptr, nullptr, nullptr);
 }
 
 int ConnRW::commit() noexcept {
-    int rc = sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr);
+    const int rc = sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = false;
     }
     return rc;
 }
 
-int ConnRW::create_table() noexcept {
+int ConnRW::create_table() const noexcept {
     static constexpr const char* create_table_stmt =
         "CREATE TABLE vendors ("
         "id      INTEGER PRIMARY KEY,"
@@ -130,7 +130,7 @@ void ConnRW::insert(std::istream& is) {
     commit();
 }
 
-void ConnRW::insert(const Vendor& v) {
+void ConnRW::insert(const Vendor& v) const {
     Stmt stmt{conn, INSERT_STMT};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
@@ -150,7 +150,7 @@ void ConnRW::insert(const Vendor& v) {
 }
 
 int ConnRW::rollback() noexcept {
-    int rc = sqlite3_exec(conn, "ROLLBACK;", nullptr, nullptr, nullptr);
+    const int rc = sqlite3_exec(conn, "ROLLBACK;", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = false;
     }

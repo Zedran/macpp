@@ -26,7 +26,7 @@ protected:
     Conn(const std::string& path, const int flags);
 
     // Returns true if the vendors table exists in the database.
-    bool has_table();
+    bool has_table() const;
 
 public:
     Conn(const Conn&)            = delete;
