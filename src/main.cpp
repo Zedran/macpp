@@ -1,14 +1,31 @@
 #include <curl/curl.h>
 #include <iostream>
+#include <optional>
 
+#include "ConnR.hpp"
+#include "ConnRW.hpp"
 #include "FinalAction.hpp"
 #include "argparse/argparse.hpp"
-#include "cache.hpp"
 #include "config.hpp"
 #include "dir.hpp"
+#include "download.hpp"
 #include "exception.hpp"
 
 void setup_parser(argparse::ArgumentParser& app);
+
+// Updates cache at the specified db_path. If update_path holds string, the function
+// will update the database from local file instead of downloading data.
+void update(const std::string& db_path, std::optional<std::string> update_fpath) {
+    ConnRW conn{db_path};
+
+    if (!update_fpath) {
+        std::stringstream data = download_data();
+        conn.insert(data);
+    } else {
+        std::fstream data = get_local_file(*update_fpath);
+        conn.insert(data);
+    }
+}
 
 int main(int argc, char* argv[]) {
     argparse::ArgumentParser app("macpp", std::string(VERSION_INFO));
@@ -21,17 +38,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if (sqlite3_initialize() != SQLITE_OK) {
-        std::cerr << "failed to initialize sqlite\n";
-        return 1;
-    }
-
-    sqlite3* conn{};
-
     const auto cleanup = finally([&] {
-        if (sqlite3_close(conn) != SQLITE_OK) {
-            std::cerr << "failed to close connection\n";
-        }
         if (sqlite3_shutdown() != SQLITE_OK) {
             std::cerr << "failed to shutdown sqlite\n";
         }
@@ -43,23 +50,24 @@ int main(int argc, char* argv[]) {
         const std::string cache_path = prepare_cache_dir();
 
         if (app.is_used("--update")) {
-            std::string update_fpath{};
+            std::optional<std::string> update_fpath{std::nullopt};
 
             if (app.is_used("--file")) {
                 update_fpath = app.get("--file");
             }
-            update_cache(conn, cache_path, update_fpath);
+            update(cache_path, update_fpath);
             return 0;
         }
 
-        get_conn(conn, cache_path);
+        const ConnR conn{cache_path};
 
-        if (app.is_used("--addr"))
-            results = query_addr(conn, app.get("--addr"));
-        else if (app.is_used("--name"))
-            results = query_name(conn, app.get("--name"));
-        else
+        if (app.is_used("--addr")) {
+            results = conn.find_by_addr(app.get("--addr"));
+        } else if (app.is_used("--name")) {
+            results = conn.find_by_name(app.get("--name"));
+        } else {
             throw errors::Error{"no action specified"};
+        }
     } catch (const errors::Error& e) {
         std::cerr << e << '\n';
         return 1;
