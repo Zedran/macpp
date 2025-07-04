@@ -42,7 +42,7 @@ void ConnR::check() const {
 }
 
 int64_t ConnR::count_records() const {
-    Stmt stmt{conn, "SELECT COUNT(*) FROM vendors;"};
+    const Stmt stmt{conn, "SELECT COUNT(*) FROM vendors;"};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};
     }
@@ -66,7 +66,7 @@ std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
 
     std::vector<Vendor> results;
 
-    Stmt stmt{conn, stmt_string};
+    const Stmt stmt{conn, stmt_string};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
@@ -98,7 +98,7 @@ std::vector<Vendor> ConnR::find_by_name(const std::string& name) const {
 
     std::vector<Vendor> results;
 
-    Stmt stmt{conn, stmt_string};
+    const Stmt stmt{conn, stmt_string};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }

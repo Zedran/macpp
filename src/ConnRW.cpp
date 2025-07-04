@@ -99,7 +99,7 @@ void ConnRW::insert(std::istream& is) {
         std::call_once(cleared_before_insert, [&] { clear_table(); });
     }
 
-    Stmt stmt{conn, INSERT_STMT};
+    const Stmt stmt{conn, INSERT_STMT};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
@@ -131,7 +131,7 @@ void ConnRW::insert(std::istream& is) {
 }
 
 void ConnRW::insert(const Vendor& v) const {
-    Stmt stmt{conn, INSERT_STMT};
+    const Stmt stmt{conn, INSERT_STMT};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
