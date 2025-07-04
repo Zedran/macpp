@@ -108,6 +108,59 @@ TEST_CASE("ConnRW construction") {
     REQUIRE_NOTHROW(ConnRW{":memory:", true});
 }
 
+// Tests the behaviour of ConnRW destructor.
+//
+// This test uses ConnRW::insert(istream&) member function.
+// It begins new transaction, parses the CSV file stream, inserts records
+// into the database and commits changes on success, but does not close
+// the transaction if CSV parser throws.
+//
+// If a transaction begins and CSV parser throws an exception causing ConnRW
+// object to leave scope, the destructor should roll changes back automatically,
+// because the transaction is not closed on failure.
+//
+// If the stream is processed in its entirety without triggering an exception,
+// the transaction should be committed, so that changes persist across scopes.
+TEST_CASE("ConnRW destruction") {
+    const std::string db_path = "file:conn_rw_rollback?mode=memory&cache=shared";
+
+    // Keeps the database alive across scopes.
+    ConnRW conn_master{db_path, true};
+
+    const Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors;"};
+    REQUIRE(stmt.rc() == SQLITE_OK);
+
+    REQUIRE(stmt.step() == SQLITE_ROW);
+    REQUIRE(stmt.get_col<int>(0) == 0);
+    REQUIRE(stmt.reset() == SQLITE_OK);
+
+    {
+        // Correctly structured file causes transaction to be committed
+        // into the database.
+        ConnRW        conn_rw_good{db_path, true};
+        std::ifstream good_file{"testdata/update.csv"};
+        REQUIRE_NOTHROW(conn_rw_good.insert(good_file));
+    }
+
+    REQUIRE(stmt.step() == SQLITE_ROW);
+    REQUIRE(stmt.get_col<int>(0) == 2);
+    REQUIRE(stmt.reset() == SQLITE_OK);
+
+    REQUIRE(conn_master.clear_table() == SQLITE_OK);
+
+    {
+        // Incorrectly structured file causes current transaction to be
+        // rolled back as the object is destroyed.
+        ConnRW        conn_rw_failing{db_path, true};
+        std::ifstream malformed_file{"testdata/malformed.csv"};
+        REQUIRE_THROWS_AS(conn_rw_failing.insert(malformed_file), errors::QuotedTermSeqError);
+    }
+
+    REQUIRE(stmt.step() == SQLITE_ROW);
+
+    REQUIRE(stmt.get_col<int>(0) == 0);
+}
+
 TEST_CASE("injections") {
     ConnR conn{"testdata/sample.db", true};
 
