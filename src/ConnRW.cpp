@@ -47,7 +47,7 @@ ConnRW::~ConnRW() {
 }
 
 int ConnRW::begin() noexcept {
-    const int rc = sqlite3_exec(conn, "BEGIN;", nullptr, nullptr, nullptr);
+    int rc = sqlite3_exec(conn, "BEGIN;", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = true;
     }
@@ -71,7 +71,7 @@ int ConnRW::clear_table() const noexcept {
 }
 
 int ConnRW::commit() noexcept {
-    const int rc = sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr);
+    int rc = sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = false;
     }
@@ -150,7 +150,7 @@ void ConnRW::insert(const Vendor& v) const {
 }
 
 int ConnRW::rollback() noexcept {
-    const int rc = sqlite3_exec(conn, "ROLLBACK;", nullptr, nullptr, nullptr);
+    int rc = sqlite3_exec(conn, "ROLLBACK;", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = false;
     }
