@@ -87,7 +87,7 @@ int ConnRW::create_table() const noexcept {
         "private BOOLEAN,"
         "block   TEXT NOT NULL,"
         "updated TEXT NOT NULL"
-        ");";
+        ")";
 
     return sqlite3_exec(conn, create_table_stmt, nullptr, nullptr, nullptr);
 }

@@ -14,7 +14,7 @@ class ConnRW : public Conn {
     static constexpr const char* INSERT_STMT =
         "INSERT INTO vendors "
         "(id, addr, name, private, block, updated) "
-        "VALUES (?1, ?2, ?3, ?4, ?5, ?6);";
+        "VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
 
     // Signals whether check() member function has been called.
     static std::once_flag db_checked;

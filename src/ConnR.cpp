@@ -42,7 +42,7 @@ void ConnR::check() const {
 }
 
 int64_t ConnR::count_records() const {
-    const Stmt stmt{conn, "SELECT COUNT(*) FROM vendors;"};
+    const Stmt stmt{conn, "SELECT COUNT(*) FROM vendors"};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};
     }
@@ -88,7 +88,7 @@ std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
 std::vector<Vendor> ConnR::find_by_name(const std::string& name) const {
     constexpr const char* stmt_string =
         "SELECT * FROM vendors "
-        "WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY ESCAPE '\\';";
+        "WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY ESCAPE '\\'";
 
     if (name.empty()) {
         throw errors::Error{"empty vendor name"};
