@@ -4,6 +4,8 @@
 #include <sqlite3.h>
 #include <string>
 
+#include "Stmt.hpp"
+
 struct Vendor {
     std::string mac_prefix;
     std::string vendor_name;
@@ -25,10 +27,10 @@ struct Vendor {
     );
 
     // Reconstructs Vendor from SQLite row.
-    Vendor(sqlite3_stmt* const stmt);
+    Vendor(const Stmt& stmt);
 
     // Binds struct members to the insert statement.
-    void bind(sqlite3_stmt* const stmt) const;
+    void bind(const Stmt& stmt) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Vendor& v);
 };

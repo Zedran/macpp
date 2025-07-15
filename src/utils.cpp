@@ -10,7 +10,7 @@ std::string build_query_by_id_stmt(const size_t length) noexcept {
     for (size_t i = 1; i < length; i++) {
         stmt += ",?";
     }
-    stmt += ");";
+    stmt += ')';
 
     return stmt;
 }

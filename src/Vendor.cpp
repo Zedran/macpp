@@ -1,15 +1,10 @@
 #include <sqlite3.h>
 #include <string>
 
+#include "Stmt.hpp"
 #include "Vendor.hpp"
 #include "exception.hpp"
 #include "utils.hpp"
-
-static inline void bind(sqlite3_stmt* const stmt, const int coln, const std::string& value);
-static inline void bind(sqlite3_stmt* const stmt, const int coln, const int64_t value);
-static inline void bind(sqlite3_stmt* const stmt, const int coln, const bool value);
-
-static inline std::string get_column_text(sqlite3_stmt* const stmt, const int coln);
 
 Vendor::Vendor(const std::string& line) {
     constexpr char        COMMA = ',';
@@ -103,22 +98,36 @@ Vendor::Vendor(
     block_type(block_type),
     last_update(last_update) {}
 
-Vendor::Vendor(sqlite3_stmt* const stmt)
-    : mac_prefix(get_column_text(stmt, 1)),
-      vendor_name(get_column_text(stmt, 2)),
-      is_private(sqlite3_column_int(stmt, 3) != 0),
-      block_type(get_column_text(stmt, 4)),
-      last_update(get_column_text(stmt, 5)) {}
+Vendor::Vendor(const Stmt& stmt)
+    : mac_prefix(stmt.get_col<std::string>(1)),
+      vendor_name(stmt.get_col<std::string>(2)),
+      is_private(stmt.get_col<bool>(3)),
+      block_type(stmt.get_col<std::string>(4)),
+      last_update(stmt.get_col<std::string>(5)) {}
 
-void Vendor::bind(sqlite3_stmt* const stmt) const {
+void Vendor::bind(const Stmt& stmt) const {
     const int64_t id = prefix_to_id(remove_addr_separators(mac_prefix));
 
-    ::bind(stmt, 1, id);
-    ::bind(stmt, 2, mac_prefix);
-    ::bind(stmt, 3, vendor_name);
-    ::bind(stmt, 4, is_private);
-    ::bind(stmt, 5, block_type);
-    ::bind(stmt, 6, last_update);
+    int rc;
+
+    if (rc = stmt.bind(1, id); rc != SQLITE_OK) {
+        throw errors::CacheError{"col1", __func__, rc};
+    }
+    if (rc = stmt.bind(2, mac_prefix); rc != SQLITE_OK) {
+        throw errors::CacheError{"col2", __func__, rc};
+    }
+    if (rc = stmt.bind(3, vendor_name); rc != SQLITE_OK) {
+        throw errors::CacheError{"col3", __func__, rc};
+    }
+    if (rc = stmt.bind(4, is_private); rc != SQLITE_OK) {
+        throw errors::CacheError{"col4", __func__, rc};
+    }
+    if (rc = stmt.bind(5, block_type); rc != SQLITE_OK) {
+        throw errors::CacheError{"col5", __func__, rc};
+    }
+    if (rc = stmt.bind(6, last_update); rc != SQLITE_OK) {
+        throw errors::CacheError{"col6", __func__, rc};
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
@@ -128,36 +137,4 @@ std::ostream& operator<<(std::ostream& os, const Vendor& v) {
        << "Block type   " << (v.is_private ? "-" : v.block_type) << '\n'
        << "Last update  " << (v.is_private ? "-" : v.last_update);
     return os;
-}
-
-// Binds an int64 to coln of sqlite3 statement.
-static inline void bind(sqlite3_stmt* const stmt, const int coln, const int64_t value) {
-    if (int code = sqlite3_bind_int64(stmt, coln, value); code != SQLITE_OK) {
-        throw errors::CacheError{"bind", "bind(int64_t)", code};
-    }
-}
-
-// Binds a boolean value to coln of sqlite3 statement.
-static inline void bind(sqlite3_stmt* const stmt, const int coln, const bool value) {
-    if (int code = sqlite3_bind_int(stmt, coln, value ? 1 : 0); code != SQLITE_OK) {
-        throw errors::CacheError{"bind", "bind(bool)", code};
-    }
-}
-
-// Binds a string to coln of sqlite3 statement.
-static inline void bind(sqlite3_stmt* const stmt, const int coln, const std::string& value) {
-    if (int code = sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC); code != SQLITE_OK) {
-        throw errors::CacheError{"bind", "bind(string)", code};
-    }
-}
-
-// Returns a string value stored in column 'coln' of sqlite row. If the value
-// is NULL, an empty string is returned.
-static inline std::string get_column_text(sqlite3_stmt* const stmt, const int coln) {
-    const unsigned char* text = sqlite3_column_text(stmt, coln);
-
-    if (text) {
-        return reinterpret_cast<const char*>(text);
-    }
-    return "";
 }

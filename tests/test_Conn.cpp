@@ -1,47 +1,43 @@
 #include <catch2/catch_test_macros.hpp>
 #include <format>
+#include <fstream>
 #include <map>
 #include <sqlite3.h>
 
-#include "FinalAction.hpp"
-#include "cache.hpp"
+#include "ConnR.hpp"
+#include "ConnRW.hpp"
+#include "Stmt.hpp"
 #include "exception.hpp"
 
-// Tests the create_cache function using a local file.
-TEST_CASE("create_cache") {
+// Tests the ability of ConnRW class to correctly insert records into the cache
+// using a local file.
+TEST_CASE("ConnRW::insert") {
     const std::vector<Vendor> cases = {
         Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
         Vendor{"00:48:54", "", true, "", ""},
     };
 
-    sqlite3_initialize();
+    ConnRW conn_rw{"file:memdb_connrw_insert?mode=memory&cache=shared", true};
 
-    sqlite3* conn{};
+    std::ifstream good_file{"testdata/update.csv"};
 
-    const auto cleanup = finally([&] {
-        sqlite3_close(conn);
-        sqlite3_shutdown();
-    });
+    REQUIRE_NOTHROW(conn_rw.insert(good_file));
 
-    REQUIRE_NOTHROW(get_conn(conn, ":memory:", "testdata/update.csv"));
-
-    sqlite3_stmt* stmt{};
-    const auto    finalize = finally([&] { sqlite3_finalize(stmt); });
-
-    REQUIRE(sqlite3_prepare_v2(conn, "SELECT * FROM vendors", -1, &stmt, nullptr) == SQLITE_OK);
+    const Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
+    REQUIRE(stmt.rc() == SQLITE_OK);
 
     std::vector<Vendor> out;
 
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        out.push_back(Vendor(stmt));
+    while (stmt.step() == SQLITE_ROW) {
+        out.emplace_back(Vendor{stmt});
     }
 
     REQUIRE(cases.size() == out.size());
 
-    for (auto& o : out) {
+    for (const auto& o : out) {
         bool found = false;
 
-        for (auto& c : cases) {
+        for (const auto& c : cases) {
             if (o.mac_prefix == c.mac_prefix) {
                 found = true;
 
@@ -56,16 +52,18 @@ TEST_CASE("create_cache") {
         REQUIRE(found == true);
     }
 
-    // Line length limits
-    sqlite3_finalize(stmt);
-    sqlite3_close(conn);
-
-    REQUIRE_NOTHROW(update_cache(conn, ":memory:", "testdata/poisoned.csv"));
-    REQUIRE(sqlite3_prepare_v2(conn, "SELECT * FROM vendors", -1, &stmt, nullptr) == SQLITE_OK);
-
+    REQUIRE(conn_rw.clear_table() == SQLITE_OK);
+    REQUIRE(stmt.reset() == SQLITE_OK);
     out.clear();
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        out.push_back(Vendor(stmt));
+
+    // Line length limits
+
+    std::ifstream poisoned_file{"testdata/poisoned.csv"};
+
+    REQUIRE_NOTHROW(conn_rw.insert(poisoned_file));
+
+    while (stmt.step() == SQLITE_ROW) {
+        out.emplace_back(Vendor{stmt});
     }
 
     REQUIRE(out.size() == 1);
@@ -73,42 +71,105 @@ TEST_CASE("create_cache") {
     REQUIRE(out[0].vendor_name == "Cisco Systems, Inc");
 }
 
-TEST_CASE("get_conn") {
-    sqlite3_initialize();
-
-    sqlite3* conn{};
-
-    const auto cleanup = finally([&] {
-        sqlite3_close(conn);
-        sqlite3_shutdown();
-    });
+TEST_CASE("ConnR construction") {
+    // Non-empty file that is not a SQLite database
+    REQUIRE_THROWS(ConnR{"testdata/not_cache.txt"}, true);
 
     // A good cache file
-    REQUIRE_NOTHROW(get_conn(conn, "testdata/sample.db"));
-    REQUIRE(sqlite3_close(conn) == SQLITE_OK);
+    REQUIRE_NOTHROW(ConnR{"testdata/sample.db"}, true);
 
+    const std::string db_path = "file:connr_construction_empty?mode=memory&cache=shared";
+
+    // Opens the database and creates an empty table
+    const ConnRW conn_rw{db_path, true};
+
+    // Throws, because there are no records in the table
+    REQUIRE_THROWS(ConnR{db_path, true});
+
+    const Stmt stmt{conn_rw.get(), "DROP TABLE vendors;"};
+    REQUIRE(stmt.good());
+    REQUIRE(stmt.step() == SQLITE_DONE);
+
+    // Throws, because there is no table
+    REQUIRE_THROWS(ConnR{db_path, true});
+
+    // Throws, because the file does not exist
+    REQUIRE_THROWS(ConnR{"non-existent", true});
+}
+
+TEST_CASE("ConnRW construction") {
     // Non-empty file that is not a SQLite database
-    REQUIRE_THROWS(get_conn(conn, "testdata/not_cache.txt"));
+    REQUIRE_THROWS(ConnRW{"testdata/not_cache.txt", true});
+
+    // A good cache file
+    REQUIRE_NOTHROW(ConnRW{"testdata/sample.db", true});
+
+    // An in-memory, empty file
+    REQUIRE_NOTHROW(ConnRW{":memory:", true});
+}
+
+// Tests the behaviour of ConnRW destructor.
+//
+// This test uses ConnRW::insert(istream&) member function.
+// It begins new transaction, parses the CSV file stream, inserts records
+// into the database and commits changes on success, but does not close
+// the transaction if CSV parser throws.
+//
+// If a transaction begins and CSV parser throws an exception causing ConnRW
+// object to leave scope, the destructor should roll changes back automatically,
+// because the transaction is not closed on failure.
+//
+// If the stream is processed in its entirety without triggering an exception,
+// the transaction should be committed, so that changes persist across scopes.
+TEST_CASE("ConnRW destruction") {
+    const std::string db_path = "file:conn_rw_rollback?mode=memory&cache=shared";
+
+    // Keeps the database alive across scopes.
+    const ConnRW conn_master{db_path, true};
+
+    const Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors;"};
+    REQUIRE(stmt.rc() == SQLITE_OK);
+
+    REQUIRE(stmt.step() == SQLITE_ROW);
+    REQUIRE(stmt.get_col<int>(0) == 0);
+    REQUIRE(stmt.reset() == SQLITE_OK);
+
+    {
+        // Correctly structured file causes transaction to be committed
+        // into the database.
+        ConnRW        conn_rw_good{db_path, true};
+        std::ifstream good_file{"testdata/update.csv"};
+        REQUIRE_NOTHROW(conn_rw_good.insert(good_file));
+    }
+
+    REQUIRE(stmt.step() == SQLITE_ROW);
+    REQUIRE(stmt.get_col<int>(0) == 2);
+    REQUIRE(stmt.reset() == SQLITE_OK);
+
+    REQUIRE(conn_master.clear_table() == SQLITE_OK);
+
+    {
+        // Incorrectly structured file causes current transaction to be
+        // rolled back as the object is destroyed.
+        ConnRW        conn_rw_failing{db_path, true};
+        std::ifstream malformed_file{"testdata/malformed.csv"};
+        REQUIRE_THROWS_AS(conn_rw_failing.insert(malformed_file), errors::QuotedTermSeqError);
+    }
+
+    REQUIRE(stmt.step() == SQLITE_ROW);
+
+    REQUIRE(stmt.get_col<int>(0) == 0);
 }
 
 TEST_CASE("injections") {
-    sqlite3_initialize();
-
-    sqlite3* conn{};
-
-    const auto cleanup = finally([&] {
-        sqlite3_close(conn);
-        sqlite3_shutdown();
-    });
-
-    get_conn(conn, "testdata/sample.db");
+    const ConnR conn{"testdata/sample.db", true};
 
     const std::string cases[] = {
         "DIG_LINK",
     };
 
     for (const auto& c : cases) {
-        std::vector out = query_name(conn, c);
+        std::vector out = conn.find_by_name(c);
 
         if (out.size() != 1)
             FAIL(std::format("failed for case '{}': vector length {}", c, out.size()));
@@ -125,7 +186,7 @@ TEST_CASE("injections") {
         CAPTURE(input);
 
         try {
-            query_name(conn, input);
+            conn.find_by_name(input);
         } catch (const errors::Error& e) {
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
@@ -137,19 +198,10 @@ TEST_CASE("injections") {
     }
 }
 
-TEST_CASE("query_addr") {
-    sqlite3_initialize();
+TEST_CASE("ConnR::find_by_addr") {
+    const ConnR conn{"testdata/sample.db", true};
 
-    sqlite3* conn{};
-
-    const auto cleanup = finally([&] {
-        sqlite3_close(conn);
-        sqlite3_shutdown();
-    });
-
-    get_conn(conn, "testdata/sample.db");
-
-    Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
+    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
 
     const std::string cases[] = {
         "00:00:0C",          // with separators, short
@@ -168,7 +220,7 @@ TEST_CASE("query_addr") {
     for (auto c : cases) {
         CAPTURE(c);
 
-        results = query_addr(conn, c);
+        results = conn.find_by_addr(c);
 
         REQUIRE(results.size() == 1);
 
@@ -184,7 +236,7 @@ TEST_CASE("query_addr") {
     }
 
     // Valid, not found
-    results = query_addr(conn, "012345");
+    results = conn.find_by_addr("012345");
     REQUIRE(results.empty());
 
     const auto empty     = errors::Error{"empty MAC address"};
@@ -204,7 +256,7 @@ TEST_CASE("query_addr") {
         CAPTURE(input);
 
         try {
-            query_addr(conn, input);
+            conn.find_by_addr(input);
         } catch (const errors::Error& e) {
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
@@ -216,19 +268,10 @@ TEST_CASE("query_addr") {
     }
 }
 
-TEST_CASE("query_name") {
-    sqlite3_initialize();
+TEST_CASE("ConnR::find_by_name") {
+    const ConnR conn{"testdata/sample.db", true};
 
-    sqlite3* conn{};
-
-    const auto cleanup = finally([&] {
-        sqlite3_close(conn);
-        sqlite3_shutdown();
-    });
-
-    get_conn(conn, "testdata/sample.db");
-
-    Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
+    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
 
     const std::string cases[] = {
         "Cisco Systems, Inc",
@@ -246,7 +289,7 @@ TEST_CASE("query_name") {
     for (auto c : cases) {
         CAPTURE(c);
 
-        results = query_name(conn, c);
+        results = conn.find_by_name(c);
 
         REQUIRE(results.size() == 1);
 
@@ -262,7 +305,7 @@ TEST_CASE("query_name") {
     }
 
     // Valid, not found
-    results = query_name(conn, "non-existent");
+    results = conn.find_by_name("non-existent");
     REQUIRE(results.empty());
 
     const std::map<const std::string, const errors::Error> throw_cases = {
@@ -273,7 +316,7 @@ TEST_CASE("query_name") {
         CAPTURE(input);
 
         try {
-            query_name(conn, input);
+            conn.find_by_name(input);
         } catch (const errors::Error& e) {
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
