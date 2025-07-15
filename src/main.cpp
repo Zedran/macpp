@@ -15,7 +15,7 @@ void setup_parser(argparse::ArgumentParser& app);
 
 // Updates cache at the specified db_path. If update_path holds string, the function
 // will update the database from local file instead of downloading data.
-void update(const std::string& db_path, std::optional<std::string> update_fpath) {
+void update(const std::string& db_path, const std::optional<std::string>& update_fpath) {
     ConnRW conn{db_path};
 
     if (!update_fpath) {
