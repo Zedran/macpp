@@ -5,11 +5,11 @@
 
 // Common interface for Downloader and Reader classes.
 class Updater {
-protected:
-    // Maximum file size that is allowed to be processed by the application.
-    static constexpr size_t MAX_FSIZE = 1 << 23; // 8 MiB
-
 public:
+    // Maximum file size that is allowed to be processed by the application.
+    // Set at 8 MiB.
+    static constexpr size_t MAX_FSIZE = 1 << 23;
+
     virtual ~Updater() = default;
 
     // Returns a reference to stream wrapped by derived class.
