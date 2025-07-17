@@ -4,11 +4,12 @@
 
 #include "ConnR.hpp"
 #include "ConnRW.hpp"
+#include "Downloader.hpp"
 #include "FinalAction.hpp"
+#include "Reader.hpp"
 #include "argparse/argparse.hpp"
 #include "config.hpp"
 #include "dir.hpp"
-#include "download.hpp"
 #include "exception.hpp"
 
 void setup_parser(argparse::ArgumentParser& app);
@@ -19,11 +20,10 @@ void update(const std::string& db_path, const std::optional<std::string>& update
     ConnRW conn{db_path};
 
     if (!update_fpath) {
-        std::stringstream data = download_data();
-        conn.insert(data);
+        const auto cleanup = finally([&] { curl_global_cleanup(); });
+        conn.insert(Downloader{"https://maclookup.app/downloads/csv-database/get-db"}.get());
     } else {
-        std::fstream data = get_local_file(*update_fpath);
-        conn.insert(data);
+        conn.insert(Reader{*update_fpath}.get());
     }
 }
 
