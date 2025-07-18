@@ -1,4 +1,6 @@
 if (BUNDLE)
+    set(CURL_VERSION curl-8_11_1)
+
     string(REPLACE "_" "." CURL_VERSION_DOTS "${CURL_VERSION}")
 
     include(FetchContent)
