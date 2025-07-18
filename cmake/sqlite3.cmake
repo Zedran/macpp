@@ -18,7 +18,7 @@ function(add_sqlite3 target_name)
 
         target_compile_definitions(${target_name} PRIVATE
             SQLITE_DQS=0
-            SQLITE_THREADSAFE=0
+            SQLITE_THREADSAFE=1
             SQLITE_DEFAULT_MEMSTATUS=0
             SQLITE_DEFAULT_WAL_SYNCHRONOUS=0
             SQLITE_LIKE_DOESNT_MATCH_BLOBS
@@ -26,7 +26,6 @@ function(add_sqlite3 target_name)
             SQLITE_OMIT_DECLTYPE
             SQLITE_OMIT_DEPRECATED
             SQLITE_OMIT_PROGRESS_CALLBACK
-            SQLITE_OMIT_SHARED_CACHE
             SQLITE_USE_ALLOCA
             SQLITE_OMIT_AUTOINIT
         )
