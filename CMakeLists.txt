@@ -34,6 +34,8 @@ set(CONFIG_HPP_SCRIPT   ${SCRIPTS}/config_hpp.cmake)
 set(CONFIG_HPP_TEMPLATE ${INC_DIR}/config.hpp.in)
 set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
 
+find_package(CURL REQUIRED)
+include(${SCRIPTS}/sqlite3.cmake)
 include(${SCRIPTS}/argparse.cmake)
 
 include(${SCRIPTS}/manual.cmake)

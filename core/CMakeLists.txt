@@ -1,6 +1,3 @@
-find_package(CURL REQUIRED)
-include(${SCRIPTS}/sqlite3.cmake)
-
 set(CORE_SOURCES
     Conn.cpp
     ConnR.cpp
