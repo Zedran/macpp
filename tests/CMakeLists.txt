@@ -1,21 +1,16 @@
 set(test_name t)
 
-file(GLOB TEST_SOURCES ${PROJECT_SOURCE_DIR}/tests/test_*.cpp)
-set(INTERNAL_TEST_SOURCES ${PROJECT_SOURCE_DIR}/tests/internal/internal.cpp)
+add_executable(${test_name}
+    internal/internal.cpp
+    test_Conn.cpp
+    test_Updater.cpp
+    test_Vendor.cpp
+    test_utils.cpp
+)
 
-add_executable(${test_name} ${TEST_SOURCES} ${INTERNAL_TEST_SOURCES} ${SOURCES})
 set_target_properties(${test_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
-
-target_include_directories(${test_name}
-    PRIVATE ${INC_DIR} ${PROJECT_SOURCE_DIR}/internal
-)
-
-target_link_libraries(${test_name}
-    PRIVATE Catch2::Catch2WithMain
-    CURL::libcurl
-)
-
-add_sqlite3(${test_name})
+target_include_directories(${test_name} PRIVATE ${INC_DIR} ${PROJECT_SOURCE_DIR}/internal)
+target_link_libraries(${test_name} PRIVATE Catch2::Catch2WithMain)
 
 add_test(
     NAME ${test_name}
@@ -54,6 +49,8 @@ add_custom_command(
 add_custom_target(build_db ALL DEPENDS ${TESTDATA_DB} ${TESTDATA_POISONED_DB})
 
 if (COVER)
+    target_link_libraries(${test_name} PRIVATE "-Wl,--whole-archive" core_coverage "-Wl,--no-whole-archive")
+
     target_compile_options(${test_name} PRIVATE -g --coverage)
     target_link_options(${test_name} PRIVATE --coverage)
 
@@ -64,9 +61,11 @@ if (COVER)
         COMMAND ${LCOV} --quiet --zerocounters --directory ${PROJECT_SOURCE_DIR}
         COMMAND ${test_name}
         COMMAND ${LCOV} --quiet --capture --directory ${PROJECT_SOURCE_DIR} --output-file coverage.info 2> lcov.log
-        COMMAND ${LCOV} --quiet --extract coverage.info '${INC_DIR}/*' '${SRC_DIR}/*' --output-file coverage.info
+        COMMAND ${LCOV} --quiet --extract coverage.info '${INC_DIR}/*' '${PROJECT_SOURCE_DIR}/core/*' --output-file coverage.info
         COMMAND ${GENHTML} coverage.info --quiet --filter brace --demangle-cpp --dark --output-directory cover
         DEPENDS ${test_name} build_db
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     )
+else()
+    target_link_libraries(${test_name} PRIVATE core)
 endif()

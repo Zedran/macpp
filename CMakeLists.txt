@@ -28,7 +28,6 @@ endif()
 project(macpp)
 
 set(INC_DIR ${PROJECT_SOURCE_DIR}/include)
-set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 
 set(CONFIG_HPP_TARGET   config_hpp)
 set(CONFIG_HPP_SCRIPT   ${SCRIPTS}/config_hpp.cmake)
@@ -46,9 +45,6 @@ include(${SCRIPTS}/argparse.cmake)
 
 include(${SCRIPTS}/manual.cmake)
 
-file(GLOB SOURCES ${SRC_DIR}/*.cpp)
-list(FILTER SOURCES EXCLUDE REGEX "main.cpp")
-
 add_custom_target(${CONFIG_HPP_TARGET}
     COMMAND ${CMAKE_COMMAND}
         -DPROJECT_NAME=${PROJECT_NAME}
@@ -58,13 +54,11 @@ add_custom_target(${CONFIG_HPP_TARGET}
         -P ${CONFIG_HPP_SCRIPT}
 )
 
-add_executable(${PROJECT_NAME} ${SRC_DIR}/main.cpp ${SOURCES})
+add_subdirectory(core)
 
+add_executable(${PROJECT_NAME} src/main.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIR})
-
-target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl argparse)
-
-add_sqlite3(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE core argparse)
 
 add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 
