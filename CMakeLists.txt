@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-option(BUNDLE     "Bundle custom builds of SQLite3 and CURL with the application" OFF)
+option(BUNDLE     "Bundle custom build of SQLite3 with the application"           OFF)
 option(MAKE_TESTS "Build test and benchmark targets"                              OFF)
 option(COVER      "Generate test coverage target if MAKE_TESTS=ON"                OFF)
 option(MAKE_MAN   "Generate Linux manual"                                         OFF)
@@ -34,7 +34,7 @@ set(CONFIG_HPP_SCRIPT   ${SCRIPTS}/config_hpp.cmake)
 set(CONFIG_HPP_TEMPLATE ${INC_DIR}/config.hpp.in)
 set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
 
-include(${SCRIPTS}/curl.cmake)
+find_package(CURL REQUIRED)
 include(${SCRIPTS}/sqlite3.cmake)
 include(${SCRIPTS}/argparse.cmake)
 
