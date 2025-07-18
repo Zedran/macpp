@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
 
-option(BUNDLE     "Bundle custom build of SQLite3 with the application"           OFF)
-option(MAKE_TESTS "Build test and benchmark targets"                              OFF)
-option(COVER      "Generate test coverage target if MAKE_TESTS=ON"                OFF)
-option(MAKE_MAN   "Generate Linux manual"                                         OFF)
+option(BUNDLE     "Bundle custom build of SQLite3 with the application" OFF)
+option(MAKE_TESTS "Build test and benchmark targets"                    OFF)
+option(COVER      "Generate test coverage target if MAKE_TESTS=ON"      OFF)
+option(MAKE_MAN   "Generate Linux manual"                               OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
