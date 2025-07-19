@@ -54,7 +54,7 @@ add_subdirectory(core)
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE core argparse CURL::libcurl)
-add_sqlite3(${PROJECT_NAME})
+target_add_sqlite3(${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 

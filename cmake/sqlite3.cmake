@@ -11,7 +11,7 @@ else()
     find_package(SQLite3 REQUIRED)
 endif()
 
-function(add_sqlite3 target_name)
+function(target_add_sqlite3 target_name)
     if (BUNDLE)
         target_sources(${target_name} PRIVATE ${sqlite3_SOURCE_DIR}/sqlite3.c)
         target_include_directories(${target_name} PRIVATE ${sqlite3_SOURCE_DIR})
