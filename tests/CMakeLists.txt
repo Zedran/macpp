@@ -63,7 +63,7 @@ if (COVER)
         COMMAND ${test_name}
         COMMAND ${LCOV} --quiet --capture --directory ${PROJECT_SOURCE_DIR} --output-file coverage.info 2> lcov.log
         COMMAND ${LCOV} --quiet --extract coverage.info '${INC_DIR}/*' '${PROJECT_SOURCE_DIR}/core/*' --output-file coverage.info
-        COMMAND ${GENHTML} coverage.info --quiet --filter brace --demangle-cpp --dark --output-directory cover
+        COMMAND ${GENHTML} coverage.info --quiet --filter brace --demangle-cpp --flat --dark --output-directory cover
         DEPENDS ${test_name} build_db
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     )
