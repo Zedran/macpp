@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
 
-option(BUNDLE     "Bundle custom builds of SQLite3 and CURL with the application" OFF)
-option(MAKE_TESTS "Build test and benchmark targets"                              OFF)
-option(COVER      "Generate test coverage target if MAKE_TESTS=ON"                OFF)
-option(MAKE_MAN   "Generate Linux manual"                                         OFF)
+option(BUNDLE     "Bundle custom build of SQLite3 with the application" OFF)
+option(MAKE_TESTS "Build test and benchmark targets"                    OFF)
+option(COVER      "Generate test coverage target if MAKE_TESTS=ON"      OFF)
+option(MAKE_MAN   "Generate Linux manual"                               OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -28,26 +28,17 @@ endif()
 project(macpp)
 
 set(INC_DIR ${PROJECT_SOURCE_DIR}/include)
-set(SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 
 set(CONFIG_HPP_TARGET   config_hpp)
 set(CONFIG_HPP_SCRIPT   ${SCRIPTS}/config_hpp.cmake)
 set(CONFIG_HPP_TEMPLATE ${INC_DIR}/config.hpp.in)
 set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
 
-set(CATCH2_VERSION v3.7.1)
-set(CURL_VERSION curl-8_11_1)
-set(ARGPARSE_VERSION cbd9fd8ed675ed6a2ac1bd7142d318c6ad5d3462)
-
-include(${SCRIPTS}/curl.cmake)
-
+find_package(CURL REQUIRED)
 include(${SCRIPTS}/sqlite3.cmake)
 include(${SCRIPTS}/argparse.cmake)
 
 include(${SCRIPTS}/manual.cmake)
-
-file(GLOB SOURCES ${SRC_DIR}/*.cpp)
-list(FILTER SOURCES EXCLUDE REGEX "main.cpp")
 
 add_custom_target(${CONFIG_HPP_TARGET}
     COMMAND ${CMAKE_COMMAND}
@@ -58,13 +49,12 @@ add_custom_target(${CONFIG_HPP_TARGET}
         -P ${CONFIG_HPP_SCRIPT}
 )
 
-add_executable(${PROJECT_NAME} ${SRC_DIR}/main.cpp ${SOURCES})
+add_subdirectory(core)
 
+add_executable(${PROJECT_NAME} src/main.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIR})
-
-target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl argparse)
-
-add_sqlite3(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE core argparse CURL::libcurl)
+target_add_sqlite3(${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 

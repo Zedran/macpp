@@ -3,9 +3,9 @@
 #include <map>
 #include <sstream>
 
-#include "ConnR.hpp"
-#include "ConnRW.hpp"
 #include "Vendor.hpp"
+#include "cache/ConnR.hpp"
+#include "cache/ConnRW.hpp"
 #include "exception.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.

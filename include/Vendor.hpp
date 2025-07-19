@@ -4,7 +4,7 @@
 #include <sqlite3.h>
 #include <string>
 
-#include "Stmt.hpp"
+#include "cache/Stmt.hpp"
 
 struct Vendor {
     std::string mac_prefix;

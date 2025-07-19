@@ -58,11 +58,9 @@ make
 
 ### CMake options
 
-| Option         | Description                                                   |
-|:---------------|:--------------------------------------------------------------|
-| `-DBUNDLE`     | Compile SQLite into the application and link CURL statically* |
-| `-DMAKE_TESTS` | Build test binary                                             |
-| `-DMAKE_COVER` | Generate coverage report target (`make cover`)                |
-| `-DMAKE_MAN`   | Generate a manual for the application                         |
-
-\* Bundled build is slightly faster and uses significantly less memory. CURL still requires its dynamically-linked dependencies.
+| Option         | Description                                    |
+|:---------------|:-----------------------------------------------|
+| `-DBUNDLE`     | Compile SQLite into the application directly   |
+| `-DMAKE_TESTS` | Build test binary                              |
+| `-DMAKE_COVER` | Generate coverage report target (`make cover`) |
+| `-DMAKE_MAN`   | Generate a manual for the application          |

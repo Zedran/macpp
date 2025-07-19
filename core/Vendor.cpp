@@ -1,8 +1,8 @@
 #include <sqlite3.h>
 #include <string>
 
-#include "Stmt.hpp"
 #include "Vendor.hpp"
+#include "cache/Stmt.hpp"
 #include "exception.hpp"
 #include "utils.hpp"
 

@@ -1,8 +1,8 @@
 #include <cassert>
 
-#include "ConnRW.hpp"
-#include "Stmt.hpp"
 #include "Vendor.hpp"
+#include "cache/ConnRW.hpp"
+#include "cache/Stmt.hpp"
 #include "exception.hpp"
 
 std::once_flag ConnRW::db_checked{};

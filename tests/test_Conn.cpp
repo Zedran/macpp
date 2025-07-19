@@ -4,9 +4,9 @@
 #include <map>
 #include <sqlite3.h>
 
-#include "ConnR.hpp"
-#include "ConnRW.hpp"
-#include "Stmt.hpp"
+#include "cache/ConnR.hpp"
+#include "cache/ConnRW.hpp"
+#include "cache/Stmt.hpp"
 #include "exception.hpp"
 
 // Tests the ability of ConnRW class to correctly insert records into the cache

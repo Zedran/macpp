@@ -2,15 +2,15 @@
 #include <iostream>
 #include <optional>
 
-#include "ConnR.hpp"
-#include "ConnRW.hpp"
-#include "Downloader.hpp"
 #include "FinalAction.hpp"
-#include "Reader.hpp"
 #include "argparse/argparse.hpp"
+#include "cache/ConnR.hpp"
+#include "cache/ConnRW.hpp"
 #include "config.hpp"
 #include "dir.hpp"
 #include "exception.hpp"
+#include "update/Downloader.hpp"
+#include "update/Reader.hpp"
 
 void setup_parser(argparse::ArgumentParser& app);
 

@@ -1,7 +1,7 @@
 #include <cassert>
 
-#include "Conn.hpp"
-#include "Stmt.hpp"
+#include "cache/Conn.hpp"
+#include "cache/Stmt.hpp"
 #include "exception.hpp"
 
 std::once_flag Conn::sqlite_initialized{};

@@ -1,5 +1,7 @@
 include(FetchContent)
 
+set(CATCH2_VERSION v3.7.1)
+
 FetchContent_Declare(
     Catch2
     DOWNLOAD_EXTRACT_TIMESTAMP OFF
