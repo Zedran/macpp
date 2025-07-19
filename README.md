@@ -1,22 +1,22 @@
 # macpp
 
-A simple tool for MAC address lookup. It uses the database provided by [MAC Address Lookup](https://maclookup.app/downloads/csv-database) as its data source.
+CLI tool for MAC address lookup. It uses the database provided by [MAC Address Lookup](https://maclookup.app/downloads/csv-database) as its data source.
 
-## Searching
+## Subcommands
 
-| Option     | Description                            |
-|:-----------|:---------------------------------------|
-| `--addr`   | Search by MAC address                  |
-| `--name`   | Search by vendor name                  |
+| Subcommand       | Description                            |
+|:-----------------|:---------------------------------------|
+| `addr`           | Search by MAC address                  |
+| `name`           | Search by vendor name                  |
+| `update`         | Update / initialize cache              |
 
-## Updating cache
+## Optional arguments
 
-When search is requested for the first time, the application's cache is created. It can be updated (or created) using the options below.
-
-| Option     | Description                            |
-|:-----------|:---------------------------------------|
-| `--file`   | Use a local CSV file during operation  |
-| `--update` | Update cache                           |
+| Option           | Description                            |
+|:-----------------|:---------------------------------------|
+| `-f` `--file`    | Use a local CSV file for `update`      |
+| `-h` `--help`    | Display brief usage information.       |
+| `-v` `--version` | Display version information.           |
 
 ## Installation
 
