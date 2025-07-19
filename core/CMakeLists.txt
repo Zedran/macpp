@@ -1,10 +1,10 @@
 set(CORE_SOURCES
-    Conn.cpp
-    ConnR.cpp
-    ConnRW.cpp
-    Downloader.cpp
-    Reader.cpp
-    Stmt.cpp
+    cache/Conn.cpp
+    cache/ConnR.cpp
+    cache/ConnRW.cpp
+    cache/Stmt.cpp
+    update/Downloader.cpp
+    update/Reader.cpp
     Vendor.cpp
     dir.cpp
     utils.cpp

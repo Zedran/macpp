@@ -1,4 +1,4 @@
-#include "Downloader.hpp"
+#include "update/Downloader.hpp"
 #include "exception.hpp"
 
 std::once_flag Downloader::curl_init{};
