@@ -31,7 +31,7 @@ TEST_CASE("build_query_by_id_stmt") {
 // can be constructed (query string too short).
 TEST_CASE("construct_queries") {
     struct test_case {
-        std::string               input;
+        std::string          input;
         std::vector<int64_t> expected;
     };
 
