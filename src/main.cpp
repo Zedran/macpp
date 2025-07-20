@@ -91,6 +91,10 @@ int main(int argc, char* argv[]) {
     } catch (const errors::Error& e) {
         std::cerr << e << '\n';
         return 1;
+    } catch (const std::logic_error& e) {
+        // Expected Argparse getter errors
+        std::cerr << e.what() << '\n';
+        return 1;
     } catch (const std::exception& e) {
         std::cerr << "unexpected error: " << e.what() << '\n';
         return 1;
