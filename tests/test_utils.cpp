@@ -1,5 +1,4 @@
 #include <catch2/catch_test_macros.hpp>
-#include <format>
 #include <map>
 
 #include "exception.hpp"
@@ -69,10 +68,11 @@ TEST_CASE("construct_queries") {
         try {
             construct_queries(input);
         } catch (const errors::Error& e) {
+            CAPTURE(e);
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
-            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+            FAIL("unexpected exception was thrown: '" + std::string{e.what()} + "'");
         }
 
         FAIL("no exception was thrown");
