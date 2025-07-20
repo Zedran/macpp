@@ -101,9 +101,11 @@ int main(int argc, char* argv[]) {
 
     if (results.empty()) {
         std::cout << "no matches found\n";
-    } else {
-        for (auto it = results.begin(); it != results.end(); it++)
-            std::cout << *it << (std::next(it) == results.end() ? "\n" : "\n\n");
+        return 0;
+    }
+
+    for (auto it = results.begin(); it != results.end(); it++) {
+        std::cout << *it << (std::next(it) == results.end() ? "\n" : "\n\n");
     }
 
     return 0;
