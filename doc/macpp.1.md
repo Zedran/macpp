@@ -1,35 +1,37 @@
 % MACPP(1)
 %
-% January 2025
+% July 2025
 
 # NAME
 
-**macpp** - a simple tool for MAC address lookup.
+**macpp** - tool for MAC address lookup.
 
 # SYNOPSIS
 
-**macpp** \[**-a** *mac-address*]  
-**macpp** \[**-n** *vendor-name*]  
-**macpp** \[**-u**] \[**-f** *path*]
+**macpp** \[-h | \--help] \[-v | \--version] \<command> \[args]
 
 # DESCRIPTION
 
 **macpp** is a tool for identifying hardware manufacturers by MAC prefix. This software uses the database provided by [MAC Address Lookup](https://maclookup.app) as its data source.
 
-**-a**, **\--addr**
+## SUBCOMMANDS
+
+**addr**
 : Search by MAC address. Specifying a complete address is not required, but it cannot be shorter than 6 characters. Colon separators are allowed, but not required.
 
+**name**
+: Search by vendor name. Case insensitive.
+
+**update**
+: Update vendor database and exit. By itself, it performs the online update, but a path to a local file may be provided with **--file**. The update option is provided for convenience, but it is not recommended to generate unnecessary traffic with frequent updates. Database created initially should be sufficient for most users.
+
+## OPTIONAL ARGUMENTS
+
 **-f**, **\--file**
-: Provide path to a local CSV file for **-u**. It must conform to the format of the file provided by maclookup.app.
+: Provide path to a local CSV file for the **update** subcommand. It must conform with the format of the file provided by maclookup.app.
 
 **-h**, **\--help**
 : Display brief usage information and exit.
-
-**-n**, **\--name**
-: Search by vendor name. Case insensitive.
-
-**-u**, **\--update**
-: Update vendor database and exit. By itself, it performs the online update, but a path to a local file may be provided with **-f**. The update option is provided for convenience, but it is not recommended to generate unnecessary traffic with frequent updates. Database created during the initial run should be sufficient for most users.
 
 **-v**, **\--version**
 : Display version information and exit.
@@ -38,18 +40,18 @@
 
 ## Searching by MAC address
 
-macpp \--addr 000000  
-macpp \--addr C0:FB:F9:01:23:45
+macpp addr 000000  
+macpp addr C0:FB:F9:01:23:45
 
 ## Searching by vendor name
 
-macpp \--name xerox  
-macpp \--name "xerox corporation"
+macpp name xerox  
+macpp name "xerox corporation"
 
 ## Updating vendor database
 
-macpp \--update  
-macpp \--update \--file local-file.csv
+macpp update  
+macpp update \--file local-file.csv
 
 # REPORTING BUGS
 

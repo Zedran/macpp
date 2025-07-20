@@ -12,8 +12,6 @@
 #include "update/Downloader.hpp"
 #include "update/Reader.hpp"
 
-void setup_parser(argparse::ArgumentParser& app);
-
 // Updates cache at the specified db_path. If update_path holds string, the function
 // will update the database from local file instead of downloading data.
 void update(const std::string& db_path, const std::optional<std::string>& update_fpath) {
@@ -28,15 +26,30 @@ void update(const std::string& db_path, const std::optional<std::string>& update
 }
 
 int main(int argc, char* argv[]) {
-    argparse::ArgumentParser app("macpp", std::string(VERSION_INFO));
-    setup_parser(app);
+    argparse::ArgumentParser app{"macpp", VERSION_INFO};
+    app.add_description("Tool for MAC address lookup.");
+    app.set_usage_max_line_width(80);
 
-    try {
-        app.parse_args(argc, argv);
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << '\n';
-        return 1;
-    }
+    argparse::ArgumentParser sc_addr{"addr"};
+    sc_addr.add_description("Search by MAC address.");
+    sc_addr.add_argument("addr")
+        .help("MAC address (e.g. \"000000\", \"01:23:45:67:89:01\").")
+        .remaining();
+    app.add_subparser(sc_addr);
+
+    argparse::ArgumentParser sc_name{"name"};
+    sc_name.add_description("Search by vendor name.");
+    sc_name.add_argument("name")
+        .help("Vendor name (e.g. \"xerox\", \"xerox corporation\").")
+        .remaining();
+    app.add_subparser(sc_name);
+
+    argparse::ArgumentParser sc_update{"update"};
+    sc_update.add_description("Update vendor database and exit.");
+    sc_update.add_argument("-f", "--file")
+        .help("Use a local file instead of downloading one during update.")
+        .metavar("PATH");
+    app.add_subparser(sc_update);
 
     const auto cleanup = finally([&] {
         if (sqlite3_shutdown() != SQLITE_OK) {
@@ -47,13 +60,15 @@ int main(int argc, char* argv[]) {
     std::vector<Vendor> results;
 
     try {
+        app.parse_args(argc, argv);
+
         const std::string cache_path = prepare_cache_dir();
 
-        if (app.is_used("--update")) {
+        if (app.is_subcommand_used(sc_update)) {
             std::optional<std::string> update_fpath{std::nullopt};
 
-            if (app.is_used("--file")) {
-                update_fpath = app.get("--file");
+            if (sc_update.is_used("--file")) {
+                update_fpath = sc_update.get<std::string>("--file");
             }
             update(cache_path, update_fpath);
             return 0;
@@ -61,15 +76,23 @@ int main(int argc, char* argv[]) {
 
         const ConnR conn{cache_path};
 
-        if (app.is_used("--addr")) {
-            results = conn.find_by_addr(app.get("--addr"));
-        } else if (app.is_used("--name")) {
-            results = conn.find_by_name(app.get("--name"));
+        if (app.is_subcommand_used(sc_addr)) {
+            results = conn.find_by_addr(sc_addr.get<std::string>("addr"));
+        } else if (app.is_subcommand_used(sc_name)) {
+            results = conn.find_by_name(sc_name.get<std::string>("name"));
         } else {
             throw errors::Error{"no action specified"};
         }
     } catch (const errors::Error& e) {
         std::cerr << e << '\n';
+        return 1;
+    } catch (const std::runtime_error& e) {
+        // Expected Argparse parsing errors
+        std::cerr << e.what() << '\n';
+        return 1;
+    } catch (const std::logic_error& e) {
+        // Expected Argparse getter errors
+        std::cerr << e.what() << '\n';
         return 1;
     } catch (const std::exception& e) {
         std::cerr << "unexpected error: " << e.what() << '\n';
@@ -84,22 +107,4 @@ int main(int argc, char* argv[]) {
     }
 
     return 0;
-}
-
-void setup_parser(argparse::ArgumentParser& app) {
-    app.add_description("A simple tool for MAC address lookup.");
-    app.set_usage_max_line_width(80);
-
-    app.add_argument("-a", "--addr")
-        .help("Search by MAC address (e.g. \"000000\", \"01:23:45:67:89:01\").")
-        .metavar("ADDR");
-    app.add_argument("-n", "--name")
-        .help("Search by vendor name (e.g. \"xerox\", \"xerox corporation\").")
-        .metavar("NAME");
-    app.add_argument("-u", "--update")
-        .help("Update vendor database and exit.")
-        .flag();
-    app.add_argument("-f", "--file")
-        .help("Use a local file instead of downloading one during update.")
-        .metavar("PATH");
 }
