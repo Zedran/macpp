@@ -18,7 +18,7 @@ TEST_CASE("Reader") {
         CAPTURE(e);
         REQUIRE((e.what() == expected_error.what()) == 0);
     } catch (const std::exception& e) {
-        FAIL("unexpected exception was thrown:" + std::string{e.what()} + "'");
+        FAIL("unexpected exception was thrown: " + std::string{e.what()} + "'");
     }
 
     namespace fs = std::filesystem;
