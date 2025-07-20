@@ -1,5 +1,4 @@
 #include <catch2/catch_test_macros.hpp>
-#include <format>
 #include <map>
 #include <sstream>
 
@@ -92,10 +91,11 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
         try {
             Vendor v{input};
         } catch (const errors::ParsingError& e) {
+            CAPTURE(e);
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
-            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+            FAIL("unexpected exception was thrown: '" + std::string{e.what()} + "'");
         }
 
         FAIL("no exception was thrown");
@@ -187,19 +187,11 @@ TEST_CASE("Vendor::operator<<") {
 
     std::ostringstream oss;
     for (const auto& c : cases) {
-        CAPTURE(c.input);
 
         oss << c.input;
 
         std::string out = oss.str();
-        if (out != c.expected) {
-            FAIL(std::format(
-                "failed for '{}'\n\nexpected:\n{}\n\ngot:\n{}",
-                c.input.mac_prefix,
-                c.expected,
-                out
-            ));
-        }
+        REQUIRE(out == c.expected);
 
         oss.str("");
         oss.clear();
