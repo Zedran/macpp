@@ -1,10 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
-#include <format>
 #include <map>
-#include <sstream>
 
 #include "exception.hpp"
-#include "internal/internal.hpp"
 #include "utils.hpp"
 
 // Ensures that the query statement returned from build_query_by_id_stmt
@@ -34,34 +31,23 @@ TEST_CASE("build_query_by_id_stmt") {
 // can be constructed (query string too short).
 TEST_CASE("construct_queries") {
     struct test_case {
-        std::string               input;
-        std::vector<std::int64_t> expected;
+        std::string          input;
+        std::vector<int64_t> expected;
     };
 
     const test_case cases[] = {
-        test_case{"000000", {0}},
-        test_case{"000000", {0}},
-        test_case{"5CF286D", {6091398, 97462381}},
-        test_case{"8C1F64F5A", {9183076, 146929231, 37613883226}},
-        test_case{"8C1F64F5A000", {9183076, 146929231, 37613883226}},
-        test_case{"000222", {546}},
+        test_case{"000000", {0x000000}},
+        test_case{"5CF286D", {0x5CF286, 0x5CF286D}},
+        test_case{"8C1F64F5A", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
+        test_case{"8C1F64F5A000", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
+        test_case{"000222", {0x000222}},
     };
 
-    for (auto& c : cases) {
+    for (const auto& c : cases) {
         std::vector<int64_t> out = construct_queries(c.input);
 
-        if (out != c.expected) {
-            std::ostringstream oss;
-            oss << "failed for case '" << c.input << "': got '";
-
-            internal::print_vector(oss, out);
-            oss << "', expected '";
-
-            internal::print_vector(oss, c.expected);
-            oss << "'";
-
-            FAIL(oss.str());
-        }
+        CAPTURE(c.input);
+        REQUIRE(out == c.expected);
     }
 
     const auto too_short = errors::Error{"specified MAC address is too short"};
@@ -82,10 +68,11 @@ TEST_CASE("construct_queries") {
         try {
             construct_queries(input);
         } catch (const errors::Error& e) {
+            CAPTURE(e);
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
-            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+            FAIL("unexpected exception was thrown: '" + std::string{e.what()} + "'");
         }
 
         FAIL("no exception was thrown");
@@ -103,9 +90,8 @@ TEST_CASE("suppress_like_wildcards") {
     for (const auto& [input, expected] : cases) {
         std::string out = suppress_like_wildcards(input);
 
-        if (out != expected) {
-            FAIL_CHECK(std::format("failed for '{}': got '{}'", input, out));
-        }
+        CAPTURE(input);
+        REQUIRE(out == expected);
     }
 }
 
@@ -153,10 +139,9 @@ TEST_CASE("get_ieee_block") {
 // Ensures that prefix_to_id returns a correct numerical value.
 TEST_CASE("prefix_to_id") {
     const std::map<std::string, int64_t> cases = {
-        {"000000", 0},
-        {"101010", 1052688},
-        {"101010", 1052688},
-        {"FFFFFFFFF", 68719476735},
+        {"000000", 0x000000},
+        {"101010", 0x101010},
+        {"FFFFFFFFF", 0xFFFFFFFFF},
     };
 
     for (auto& [input, expected] : cases) {

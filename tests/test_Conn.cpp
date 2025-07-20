@@ -1,5 +1,4 @@
 #include <catch2/catch_test_macros.hpp>
-#include <format>
 #include <fstream>
 #include <map>
 #include <sqlite3.h>
@@ -171,11 +170,8 @@ TEST_CASE("injections") {
     for (const auto& c : cases) {
         std::vector out = conn.find_by_name(c);
 
-        if (out.size() != 1)
-            FAIL(std::format("failed for case '{}': vector length {}", c, out.size()));
-
-        if (c != out.at(0).vendor_name)
-            FAIL(std::format("failed for case '{}': got '{}', expected '{}'", c, out.at(0).vendor_name, c));
+        REQUIRE(out.size() == 1);
+        REQUIRE(c == out[0].vendor_name);
     }
 
     const std::map<const std::string, const errors::Error> throw_cases = {
@@ -188,10 +184,11 @@ TEST_CASE("injections") {
         try {
             conn.find_by_name(input);
         } catch (const errors::Error& e) {
+            CAPTURE(e);
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
-            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+            FAIL("unexpected exception was thrown: " + std::string{e.what()} + "'");
         }
 
         FAIL("no exception was thrown");
@@ -258,10 +255,11 @@ TEST_CASE("ConnR::find_by_addr") {
         try {
             conn.find_by_addr(input);
         } catch (const errors::Error& e) {
+            CAPTURE(e);
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
-            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+            FAIL("unexpected exception was thrown: " + std::string{e.what()} + "'");
         }
 
         FAIL("no exception was thrown");
@@ -318,10 +316,11 @@ TEST_CASE("ConnR::find_by_name") {
         try {
             conn.find_by_name(input);
         } catch (const errors::Error& e) {
+            CAPTURE(e);
             REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
             continue;
         } catch (const std::exception& e) {
-            FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+            FAIL("unexpected exception was thrown: " + std::string{e.what()} + "'");
         }
 
         FAIL("no exception was thrown");
