@@ -51,13 +51,6 @@ int main(int argc, char* argv[]) {
         .metavar("PATH");
     app.add_subparser(sc_update);
 
-    try {
-        app.parse_args(argc, argv);
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << '\n';
-        return 1;
-    }
-
     const auto cleanup = finally([&] {
         if (sqlite3_shutdown() != SQLITE_OK) {
             std::cerr << "failed to shutdown sqlite\n";
@@ -67,6 +60,8 @@ int main(int argc, char* argv[]) {
     std::vector<Vendor> results;
 
     try {
+        app.parse_args(argc, argv);
+
         const std::string cache_path = prepare_cache_dir();
 
         if (app.is_subcommand_used(sc_update)) {
@@ -90,6 +85,10 @@ int main(int argc, char* argv[]) {
         }
     } catch (const errors::Error& e) {
         std::cerr << e << '\n';
+        return 1;
+    } catch (const std::runtime_error& e) {
+        // Expected Argparse parsing errors
+        std::cerr << e.what() << '\n';
         return 1;
     } catch (const std::logic_error& e) {
         // Expected Argparse getter errors
