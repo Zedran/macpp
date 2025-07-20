@@ -90,9 +90,8 @@ TEST_CASE("suppress_like_wildcards") {
     for (const auto& [input, expected] : cases) {
         std::string out = suppress_like_wildcards(input);
 
-        if (out != expected) {
-            FAIL_CHECK(std::format("failed for '{}': got '{}'", input, out));
-        }
+        CAPTURE(input);
+        REQUIRE(out == expected);
     }
 }
 
