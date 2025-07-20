@@ -1,6 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
 #include <filesystem>
-#include <format>
 
 #include "exception.hpp"
 #include "update/Reader.hpp"
@@ -16,9 +15,10 @@ TEST_CASE("Reader") {
         Reader r{bad_path};
         FAIL("no exception was thrown");
     } catch (const errors::Error& e) {
+        CAPTURE(e);
         REQUIRE((e.what() == expected_error.what()) == 0);
     } catch (const std::exception& e) {
-        FAIL(std::format("unexpected exception was thrown: '{}'", e.what()));
+        FAIL("unexpected exception was thrown:" + std::string{e.what()} + "'");
     }
 
     namespace fs = std::filesystem;
