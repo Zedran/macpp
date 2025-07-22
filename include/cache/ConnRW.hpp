@@ -16,15 +16,11 @@ class ConnRW : public Conn {
         "(id, addr, name, private, block, updated) "
         "VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
 
-    // Signals whether check() member function has been called.
-    static std::once_flag db_checked;
-
-    // Signals whether table has been confirmed to exist or created
-    // if it was not found.
-    static std::once_flag table_created;
-
     // Signals whether table records were dropped before insertions.
     static std::once_flag cleared_before_insert;
+
+    // Signals whether prepare_database has been called.
+    static std::once_flag db_prepared;
 
     // Signals whether static once_flag class members should be respected.
     bool override_once_flags;
@@ -32,13 +28,16 @@ class ConnRW : public Conn {
     // Signals whether database transaction is opened.
     bool transaction_open;
 
-    // Checks whether the database file exists and if it does,
-    // asserts that its structure is correct or empty.
-    void check() const;
-
     // Creates table vendors in the database. Returns the result code
     // by sqlite3_exec.
     int create_table() const noexcept;
+
+    // Drops table vendors. Returns the result code reported by sqlite3_exec.
+    int drop_table() const noexcept;
+
+    // Handles the initial preparation stage. Ensures the database exists
+    // and has been correctly formatted.
+    void prepare_db() const;
 
 public:
     ConnRW() noexcept;
@@ -82,7 +81,7 @@ public:
     // Reverts uncommitted database transaction.
     int rollback() noexcept;
 
-    // Sets user_version value to Conn::CACHE_VERSION. Returns the result code
+    // Assigns the user_version value as specifed. Returns the result code
     // reported by sqlite3_exec.
-    int set_version() const noexcept;
+    int set_version(const int version) const noexcept;
 };

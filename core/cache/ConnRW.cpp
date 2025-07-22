@@ -5,9 +5,8 @@
 #include "cache/Stmt.hpp"
 #include "exception.hpp"
 
-std::once_flag ConnRW::db_checked{};
-std::once_flag ConnRW::table_created{};
 std::once_flag ConnRW::cleared_before_insert{};
+std::once_flag ConnRW::db_prepared{};
 
 ConnRW::ConnRW() noexcept : Conn{} {}
 
@@ -20,22 +19,11 @@ ConnRW::ConnRW(const std::string& path, const bool override_once_flags)
     }
 
     if (!override_once_flags) [[likely]] {
-        std::call_once(db_checked, [&] { check(); });
-
-        std::call_once(table_created, [&] {
-            if (!has_table()) {
-                if (int rc = create_table(); rc != SQLITE_OK) {
-                    throw errors::CacheError{"create_table", __func__, rc};
-                }
-            }
+        std::call_once(db_prepared, [&] {
+            prepare_db();
         });
     } else [[unlikely]] {
-        check();
-        if (!has_table()) {
-            if (int rc = create_table(); rc != SQLITE_OK) {
-                throw errors::CacheError{"create_table", __func__, rc};
-            }
-        }
+        prepare_db();
     }
 }
 
@@ -52,18 +40,6 @@ int ConnRW::begin() noexcept {
         transaction_open = true;
     }
     return rc;
-}
-
-void ConnRW::check() const {
-    const Stmt stmt{conn, "PRAGMA schema_version"};
-    if (!stmt) {
-        throw errors::CacheError{"prepare", __func__, stmt.rc()};
-    }
-
-    if (int rc = stmt.step(); rc == SQLITE_NOTADB) {
-        // File is not a database and is not empty
-        throw errors::CacheError{"not a cache file", __func__, rc};
-    }
 }
 
 int ConnRW::clear_table() const noexcept {
@@ -90,6 +66,10 @@ int ConnRW::create_table() const noexcept {
         ")";
 
     return sqlite3_exec(conn, create_table_stmt, nullptr, nullptr, nullptr);
+}
+
+int ConnRW::drop_table() const noexcept {
+    return sqlite3_exec(conn, "DROP TABLE IF EXISTS vendors", nullptr, nullptr, nullptr);
 }
 
 void ConnRW::insert(std::istream& is) {
@@ -149,6 +129,26 @@ void ConnRW::insert(const Vendor& v) const {
     }
 }
 
+void ConnRW::prepare_db() const {
+    bool needs_table;
+
+    if (version() != EXPECTED_CACHE_VERSION) {
+        if (int rc = drop_table(); rc != SQLITE_OK) {
+            throw errors::CacheError{"drop", __func__, rc};
+        }
+        needs_table = true;
+        set_version(EXPECTED_CACHE_VERSION);
+    } else {
+        needs_table = !has_table();
+    }
+
+    if (needs_table) {
+        if (int rc = create_table(); rc != SQLITE_OK) {
+            throw errors::CacheError{"create_table", __func__, rc};
+        }
+    }
+}
+
 int ConnRW::rollback() noexcept {
     int rc = sqlite3_exec(conn, "ROLLBACK;", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
@@ -157,10 +157,10 @@ int ConnRW::rollback() noexcept {
     return rc;
 }
 
-int ConnRW::set_version() const noexcept {
+int ConnRW::set_version(const int version) const noexcept {
     return sqlite3_exec(
         conn,
-        ("PRAGMA user_version = " + std::to_string(CACHE_VERSION)).c_str(),
+        ("PRAGMA user_version = " + std::to_string(version)).c_str(),
         nullptr,
         nullptr,
         nullptr

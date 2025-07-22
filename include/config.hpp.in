@@ -1,3 +1,5 @@
 #pragma once
 
+#define __MACPP_CACHE_VERSION__ @MACPP_CACHE_VERSION@
+
 constexpr const char* VERSION_INFO = "@PROJECT_NAME@ @GIT_TAG@ @GIT_BRANCH@";

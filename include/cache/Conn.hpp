@@ -4,6 +4,8 @@
 #include <sqlite3.h>
 #include <string>
 
+#include "config.hpp"
+
 // Base class wrapping SQLite3 database connection.
 class Conn {
     // Default busy timeout value for the connection.
@@ -31,7 +33,7 @@ protected:
 public:
     // Current SQLite user_version value. Incremented manually on every cache
     // modification.
-    static constexpr int CACHE_VERSION = 1;
+    static constexpr int EXPECTED_CACHE_VERSION = __MACPP_CACHE_VERSION__;
 
     Conn(const Conn&)            = delete;
     Conn& operator=(const Conn&) = delete;

@@ -22,14 +22,8 @@ ConnR::ConnR(const std::string& path, const bool override_once_flags)
 }
 
 void ConnR::check() const {
-    const Stmt stmt{conn, "PRAGMA schema_version"};
-    if (!stmt) {
-        throw errors::CacheError{"prepare", __func__, stmt.rc()};
-    }
-
-    if (const int rc = stmt.step(); rc == SQLITE_NOTADB) {
-        // File is not a database and is not empty
-        throw errors::CacheError{"not a cache file", __func__, rc};
+    if (version() != EXPECTED_CACHE_VERSION) {
+        throw errors::CacheError{"database version missmatch, update required"};
     }
 
     if (!has_table()) {
