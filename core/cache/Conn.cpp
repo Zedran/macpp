@@ -50,3 +50,19 @@ bool Conn::has_table() const {
 int Conn::rc() const noexcept {
     return sqlite_open_rc;
 }
+
+int Conn::version() const {
+    const Stmt stmt{conn, "PRAGMA user_version"};
+    if (!stmt) {
+        throw errors::CacheError{"prepare", __func__, stmt.rc()};
+    }
+
+    if (int rc = stmt.step(); rc == SQLITE_NOTADB) {
+        // File is not a database and is not empty
+        throw errors::CacheError{"not a cache file", __func__, rc};
+    } else if (rc != SQLITE_ROW) {
+        throw errors::CacheError{"version retrieval", __func__, rc};
+    }
+
+    return stmt.get_col<int>(0);
+}

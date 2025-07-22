@@ -156,3 +156,13 @@ int ConnRW::rollback() noexcept {
     }
     return rc;
 }
+
+int ConnRW::set_version() const noexcept {
+    return sqlite3_exec(
+        conn,
+        ("PRAGMA user_version = " + std::to_string(CACHE_VERSION)).c_str(),
+        nullptr,
+        nullptr,
+        nullptr
+    );
+}

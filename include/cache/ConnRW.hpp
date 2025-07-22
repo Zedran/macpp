@@ -81,4 +81,8 @@ public:
 
     // Reverts uncommitted database transaction.
     int rollback() noexcept;
+
+    // Sets user_version value to Conn::CACHE_VERSION. Returns the result code
+    // reported by sqlite3_exec.
+    int set_version() const noexcept;
 };
