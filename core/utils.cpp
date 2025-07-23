@@ -1,3 +1,4 @@
+#include <sstream>
 #include <stdexcept>
 
 #include "exception.hpp"
@@ -27,7 +28,7 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
         ieee_block = get_ieee_block(addr, block_len);
 
         if (ieee_block) {
-            queries.push_back(prefix_to_id(*ieee_block));
+            queries.push_back(prefix_to_int(*ieee_block));
         }
     }
 
@@ -45,21 +46,48 @@ std::optional<std::string> get_ieee_block(const std::string& addr, const size_t 
     return std::nullopt;
 }
 
-int64_t prefix_to_id(const std::string& prefix) {
+int64_t prefix_to_int(const std::string& prefix) {
+    std::string clean = remove_addr_separators(prefix);
+
     size_t  pos = 0;
     int64_t conv;
 
     try {
-        conv = std::stoll(prefix, &pos, 16);
+        conv = std::stoll(clean, &pos, 16);
     } catch (const std::invalid_argument&) {
         throw errors::Error{"specified MAC address contains invalid characters"};
     }
 
     // Check if stoll did not stop too early
-    if (pos != prefix.length()) {
+    if (pos != clean.length()) {
         throw errors::Error{"specified MAC address contains invalid characters"};
     }
     return conv;
+}
+
+std::string prefix_to_string(const int64_t prefix) {
+    static constexpr size_t MIN_PREFIX_LEN = 6;
+
+    std::ostringstream ss;
+    ss << std::uppercase << std::hex << prefix;
+
+    std::string hex_str = ss.str();
+
+    ss.str("");
+    ss.clear();
+
+    if (hex_str.size() < MIN_PREFIX_LEN) {
+        hex_str.insert(0, MIN_PREFIX_LEN - hex_str.size(), '0');
+    }
+
+    for (size_t i = 0; i < hex_str.size(); i++) {
+        ss << hex_str[i];
+        if (i < hex_str.size() - 1 && i % 2 == 1) {
+            ss << ':';
+        }
+    }
+
+    return ss.str();
 }
 
 void replace_escaped_quotes(std::string& str) {

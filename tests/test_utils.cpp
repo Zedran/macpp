@@ -136,16 +136,36 @@ TEST_CASE("get_ieee_block") {
     }
 }
 
-// Ensures that prefix_to_id returns a correct numerical value.
-TEST_CASE("prefix_to_id") {
+// Ensures that prefix_to_int returns a correct numerical value.
+TEST_CASE("prefix_to_int") {
     const std::map<std::string, int64_t> cases = {
         {"000000", 0x000000},
         {"101010", 0x101010},
+        {"1234567", 0x1234567},
         {"FFFFFFFFF", 0xFFFFFFFFF},
+        {"00:00:00", 0x000000},
+        {"10:10:10", 0x101010},
+        {"12:34:56:7", 0x1234567},
+        {"FF:FF:FF:FF:F", 0xFFFFFFFFF},
     };
 
     for (auto& [input, expected] : cases) {
-        REQUIRE(prefix_to_id(input) == expected);
+        REQUIRE(prefix_to_int(input) == expected);
+    }
+}
+
+// Ensures that prefix_to_string returns a correct numerical value.
+TEST_CASE("prefix_to_string") {
+    const std::map<int64_t, std::string> cases = {
+        {0x000000, "00:00:00"},
+        {0x101010, "10:10:10"},
+        {0x1234567, "12:34:56:7"},
+        {0xFFFFFFFFF, "FF:FF:FF:FF:F"},
+    };
+
+    for (auto& [input, expected] : cases) {
+        CAPTURE(input);
+        REQUIRE(prefix_to_string(input) == expected);
     }
 }
 

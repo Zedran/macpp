@@ -23,8 +23,11 @@ std::vector<int64_t> construct_queries(const std::string& addr);
 // Accepts addr without separators (101010).
 std::optional<std::string> get_ieee_block(const std::string& addr, const size_t block_len);
 
-// Converts MAC prefix without separators (101010) from string to an integer.
-int64_t prefix_to_id(const std::string& prefix);
+// Converts MAC prefix from string to an integer. Colon separators allowed.
+int64_t prefix_to_int(const std::string& prefix);
+
+// Converts integral MAC prefix to colon-separated string.
+std::string prefix_to_string(const int64_t prefix);
 
 // Removes ':' characters from addr.
 inline std::string remove_addr_separators(const std::string& addr) {
