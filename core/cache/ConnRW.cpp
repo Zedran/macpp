@@ -19,9 +19,7 @@ ConnRW::ConnRW(const std::string& path, const bool override_once_flags)
     }
 
     if (!override_once_flags) [[likely]] {
-        std::call_once(db_prepared, [&] {
-            prepare_db();
-        });
+        std::call_once(db_prepared, [&] { prepare_db(); });
     } else [[unlikely]] {
         prepare_db();
     }
