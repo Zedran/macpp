@@ -10,7 +10,6 @@ add_executable(${test_name}
 set_target_properties(${test_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 target_include_directories(${test_name} PRIVATE ${INC_DIR})
 target_link_libraries(${test_name} PRIVATE Catch2::Catch2WithMain)
-target_add_sqlite3(${test_name})
 
 add_test(
     NAME ${test_name}
