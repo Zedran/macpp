@@ -3,3 +3,5 @@ build/
 
 cmake/uninstall.cmake
 include/config.hpp
+tests/testdata/poisoned.sql
+tests/testdata/sample.sql

@@ -326,3 +326,12 @@ TEST_CASE("ConnR::find_by_name") {
         FAIL("no exception was thrown");
     }
 }
+
+TEST_CASE("user_version") {
+    const std::string path = "file:memdb_user_version?mode=memory&cache=shared";
+
+    ConnRW conn_rw{path, true};
+    REQUIRE(conn_rw.set_version(0) == SQLITE_OK);
+
+    REQUIRE_THROWS(ConnR{path, true});
+}

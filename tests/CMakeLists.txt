@@ -28,6 +28,18 @@ set(TESTDATA_DB   ${TESTDATA_DEST}/sample.db)
 set(TESTDATA_POISONED_SQL ${TESTDATA_DEST}/poisoned.sql)
 set(TESTDATA_POISONED_DB  ${TESTDATA_DEST}/poisoned.db)
 
+configure_file(
+    ${TESTDATA_SRC}/sample.sql.in
+    ${TESTDATA_SRC}/sample.sql
+    @ONLY
+)
+
+configure_file(
+    ${TESTDATA_SRC}/poisoned.sql.in
+    ${TESTDATA_SRC}/poisoned.sql
+    @ONLY
+)
+
 add_custom_target(copy_testdata ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${TESTDATA_SRC} ${TESTDATA_DEST}
 )

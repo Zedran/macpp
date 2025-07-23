@@ -27,6 +27,8 @@ endif()
 
 project(macpp)
 
+set(MACPP_CACHE_VERSION 1)
+
 set(INC_DIR ${PROJECT_SOURCE_DIR}/include)
 
 set(CONFIG_HPP_TARGET   config_hpp)
@@ -43,6 +45,7 @@ include(${SCRIPTS}/manual.cmake)
 add_custom_target(${CONFIG_HPP_TARGET}
     COMMAND ${CMAKE_COMMAND}
         -DPROJECT_NAME=${PROJECT_NAME}
+        -DMACPP_CACHE_VERSION=${MACPP_CACHE_VERSION}
         -DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
         -DCONFIG_HPP_TEMPLATE=${CONFIG_HPP_TEMPLATE}
         -DCONFIG_HPP_OUT=${CONFIG_HPP_OUT}
