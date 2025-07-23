@@ -13,8 +13,8 @@ class ConnRW : public Conn {
 
     static constexpr const char* INSERT_STMT =
         "INSERT INTO vendors "
-        "(id, addr, name, private, block, updated) "
-        "VALUES (?1, ?2, ?3, ?4, ?5, ?6)";
+        "(prefix, name, private, block, updated) "
+        "VALUES (?1, ?2, ?3, ?4, ?5)";
 
     // Signals whether table records were dropped before insertions.
     static std::once_flag cleared_before_insert;

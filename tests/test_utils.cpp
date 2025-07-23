@@ -13,9 +13,9 @@ TEST_CASE("build_query_by_id_stmt") {
     };
 
     const test_case cases[] = {
-        test_case{1, "SELECT * FROM vendors WHERE id IN (?)"},
-        test_case{2, "SELECT * FROM vendors WHERE id IN (?,?)"},
-        test_case{3, "SELECT * FROM vendors WHERE id IN (?,?,?)"},
+        test_case{1, "SELECT * FROM vendors WHERE prefix IN (?)"},
+        test_case{2, "SELECT * FROM vendors WHERE prefix IN (?,?)"},
+        test_case{3, "SELECT * FROM vendors WHERE prefix IN (?,?,?)"},
     };
 
     for (auto& c : cases) {

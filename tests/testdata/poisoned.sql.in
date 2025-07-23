@@ -3,12 +3,11 @@ PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 DROP TABLE IF EXISTS vendors;
 CREATE TABLE vendors (
-    id      INTEGER PRIMARY KEY,
-    addr    TEXT,
+    prefix  INTEGER PRIMARY KEY,
     name    TEXT,
     private BOOLEAN,
     block   TEXT,
     updated TEXT
 );
-INSERT INTO vendors VALUES(12,'00:00:0C',NULL,0,'MA-L','2015/11/17');
+INSERT INTO vendors VALUES(12,NULL,0,'MA-L','2015/11/17');
 COMMIT;

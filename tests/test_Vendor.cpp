@@ -6,6 +6,7 @@
 #include "cache/ConnR.hpp"
 #include "cache/ConnRW.hpp"
 #include "exception.hpp"
+#include "utils.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
 // The main challenge is that the file is comma-separated and sometimes
@@ -130,14 +131,12 @@ TEST_CASE("Vendor::bind") {
     REQUIRE(conn_rw.begin() == SQLITE_OK);
 
     for (const auto& c : cases) {
-        CAPTURE(c.mac_prefix);
+        CAPTURE(prefix_to_string(c.mac_prefix));
         REQUIRE_NOTHROW(conn_rw.insert(c));
     }
 
     // Empty MAC prefix not allowed
-    const Vendor malformed{"", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
-
-    REQUIRE_THROWS(conn_rw.insert(malformed));
+    REQUIRE_THROWS(Vendor{"", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"});
 
     REQUIRE(conn_rw.commit() == SQLITE_OK);
 
@@ -146,9 +145,9 @@ TEST_CASE("Vendor::bind") {
     std::vector<Vendor> results;
 
     for (const auto& c : cases) {
-        CAPTURE(c.mac_prefix);
+        CAPTURE(prefix_to_string(c.mac_prefix));
 
-        results = conn_r.find_by_addr(c.mac_prefix);
+        results = conn_r.find_by_addr(prefix_to_string(c.mac_prefix));
 
         REQUIRE(results.size() == 1);
 

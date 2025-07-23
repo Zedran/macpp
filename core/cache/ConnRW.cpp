@@ -55,8 +55,7 @@ int ConnRW::commit() noexcept {
 int ConnRW::create_table() const noexcept {
     static constexpr const char* create_table_stmt =
         "CREATE TABLE vendors ("
-        "id      INTEGER PRIMARY KEY,"
-        "addr    TEXT NOT NULL,"
+        "prefix  INTEGER PRIMARY KEY,"
         "name    TEXT NOT NULL,"
         "private BOOLEAN,"
         "block   TEXT NOT NULL,"

@@ -7,7 +7,7 @@
 #include "cache/Stmt.hpp"
 
 struct Vendor {
-    std::string mac_prefix;
+    int64_t     mac_prefix;
     std::string vendor_name;
     bool        is_private;
     std::string block_type;

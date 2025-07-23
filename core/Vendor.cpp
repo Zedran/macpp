@@ -20,7 +20,7 @@ Vendor::Vendor(const std::string& line) {
     if ((p1 = line.find(COMMA, 0)) == std::string::npos) {
         throw errors::NoCommaError{line};
     }
-    mac_prefix = line.substr(0, p1);
+    mac_prefix = prefix_to_int(line.substr(0, p1));
     p1++;
 
     if (line.at(p1) == QUOTE) {
@@ -92,46 +92,43 @@ Vendor::Vendor(
     const bool         is_private,
     const std::string& block_type,
     const std::string& last_update
-) : mac_prefix(mac_prefix),
+) : mac_prefix(prefix_to_int(mac_prefix)),
     vendor_name(vendor_name),
     is_private(is_private),
     block_type(block_type),
     last_update(last_update) {}
 
 Vendor::Vendor(const Stmt& stmt)
-    : mac_prefix(stmt.get_col<std::string>(1)),
-      vendor_name(stmt.get_col<std::string>(2)),
-      is_private(stmt.get_col<bool>(3)),
-      block_type(stmt.get_col<std::string>(4)),
-      last_update(stmt.get_col<std::string>(5)) {}
+    : mac_prefix(stmt.get_col<int>(0)),
+      vendor_name(stmt.get_col<std::string>(1)),
+      is_private(stmt.get_col<bool>(2)),
+      block_type(stmt.get_col<std::string>(3)),
+      last_update(stmt.get_col<std::string>(4)) {}
 
 void Vendor::bind(const Stmt& stmt) const {
-    const int64_t id = prefix_to_int(mac_prefix);
-
     int rc;
 
-    if (rc = stmt.bind(1, id); rc != SQLITE_OK) {
+    if (rc = stmt.bind(1, mac_prefix); rc != SQLITE_OK) {
         throw errors::CacheError{"col1", __func__, rc};
     }
-    if (rc = stmt.bind(2, mac_prefix); rc != SQLITE_OK) {
+    if (rc = stmt.bind(2, vendor_name); rc != SQLITE_OK) {
         throw errors::CacheError{"col2", __func__, rc};
     }
-    if (rc = stmt.bind(3, vendor_name); rc != SQLITE_OK) {
+    if (rc = stmt.bind(3, is_private); rc != SQLITE_OK) {
         throw errors::CacheError{"col3", __func__, rc};
     }
-    if (rc = stmt.bind(4, is_private); rc != SQLITE_OK) {
+    if (rc = stmt.bind(4, block_type); rc != SQLITE_OK) {
         throw errors::CacheError{"col4", __func__, rc};
     }
-    if (rc = stmt.bind(5, block_type); rc != SQLITE_OK) {
+    if (rc = stmt.bind(5, last_update); rc != SQLITE_OK) {
         throw errors::CacheError{"col5", __func__, rc};
-    }
-    if (rc = stmt.bind(6, last_update); rc != SQLITE_OK) {
-        throw errors::CacheError{"col6", __func__, rc};
     }
 }
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
-    os << "MAC prefix   " << v.mac_prefix << "\n"
+    const std::string prefix = prefix_to_string(v.mac_prefix);
+
+    os << "MAC prefix   " << prefix << '\n'
        << "Vendor name  " << (v.is_private ? "-" : v.vendor_name) << '\n'
        << "Private      " << (v.is_private ? "yes" : "no") << '\n'
        << "Block type   " << (v.is_private ? "-" : v.block_type) << '\n'
