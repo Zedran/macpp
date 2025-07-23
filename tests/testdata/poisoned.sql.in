@@ -6,8 +6,8 @@ CREATE TABLE vendors (
     prefix  INTEGER PRIMARY KEY,
     name    TEXT,
     private BOOLEAN,
-    block   TEXT,
+    block   INTEGER,
     updated TEXT
 );
-INSERT INTO vendors VALUES(12,NULL,0,'MA-L','2015/11/17');
+INSERT INTO vendors VALUES(12,NULL,0,3,'2015/11/17');
 COMMIT;

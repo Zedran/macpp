@@ -60,7 +60,7 @@ Vendor::Vendor(const std::string& line) {
     if (line.at(p1) == 't') {
         // Private entry contains no more meaningful information
         is_private  = true;
-        block_type  = "";
+        block_type  = Registry::Unknown;
         last_update = "";
         return;
     } else if (line.at(p1) != 'f') {
@@ -82,7 +82,7 @@ Vendor::Vendor(const std::string& line) {
         throw errors::BlockTypeTermError{line};
     }
 
-    block_type  = line.substr(p1, p2 - p1);
+    block_type  = to_registry(line.substr(p1, p2 - p1));
     last_update = line.substr(p2 + 1);
 }
 
@@ -95,14 +95,14 @@ Vendor::Vendor(
 ) : mac_prefix(prefix_to_int(mac_prefix)),
     vendor_name(vendor_name),
     is_private(is_private),
-    block_type(block_type),
+    block_type(to_registry(block_type)),
     last_update(last_update) {}
 
 Vendor::Vendor(const Stmt& stmt)
     : mac_prefix(stmt.get_col<int>(0)),
       vendor_name(stmt.get_col<std::string>(1)),
       is_private(stmt.get_col<bool>(2)),
-      block_type(stmt.get_col<std::string>(3)),
+      block_type(stmt.get_col<Registry>(3)),
       last_update(stmt.get_col<std::string>(4)) {}
 
 void Vendor::bind(const Stmt& stmt) const {
@@ -131,7 +131,7 @@ std::ostream& operator<<(std::ostream& os, const Vendor& v) {
     os << "MAC prefix   " << prefix << '\n'
        << "Vendor name  " << (v.is_private ? "-" : v.vendor_name) << '\n'
        << "Private      " << (v.is_private ? "yes" : "no") << '\n'
-       << "Block type   " << (v.is_private ? "-" : v.block_type) << '\n'
+       << "Block type   " << from_registry(v.block_type) << '\n'
        << "Last update  " << (v.is_private ? "-" : v.last_update);
     return os;
 }

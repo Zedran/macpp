@@ -58,7 +58,7 @@ int ConnRW::create_table() const noexcept {
         "prefix  INTEGER PRIMARY KEY,"
         "name    TEXT NOT NULL,"
         "private BOOLEAN,"
-        "block   TEXT NOT NULL,"
+        "block   INTEGER NOT NULL,"
         "updated TEXT NOT NULL"
         ")";
 

@@ -10,7 +10,7 @@ struct Vendor {
     int64_t     mac_prefix;
     std::string vendor_name;
     bool        is_private;
-    std::string block_type;
+    Registry    block_type;
     std::string last_update;
 
     Vendor();
