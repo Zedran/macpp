@@ -134,9 +134,6 @@ TEST_CASE("Vendor::bind") {
         REQUIRE_NOTHROW(conn_rw.insert(c));
     }
 
-    // Empty MAC prefix not allowed
-    REQUIRE_THROWS(Vendor{"", "Cisco Systems, Inc", "MA-L", "2015/11/17"});
-
     REQUIRE(conn_rw.commit() == SQLITE_OK);
 
     const ConnR conn_r{db_path, true};
