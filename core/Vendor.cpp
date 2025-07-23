@@ -59,7 +59,6 @@ Vendor::Vendor(const std::string& line) {
 
     if (line.at(p1) == 't') {
         // Private entry contains no more meaningful information
-        is_private  = true;
         block_type  = Registry::Unknown;
         last_update = "";
         return;
@@ -67,8 +66,6 @@ Vendor::Vendor(const std::string& line) {
         // Private designator field must contain either 'true' or 'false'
         throw errors::PrivateInvalidError{line};
     }
-
-    is_private = false;
 
     // Skip past 'alse,' to the next field
     p1 += 5;
@@ -89,21 +86,18 @@ Vendor::Vendor(const std::string& line) {
 Vendor::Vendor(
     const std::string& mac_prefix,
     const std::string& vendor_name,
-    const bool         is_private,
     const std::string& block_type,
     const std::string& last_update
 ) : mac_prefix(prefix_to_int(mac_prefix)),
     vendor_name(vendor_name),
-    is_private(is_private),
     block_type(to_registry(block_type)),
     last_update(last_update) {}
 
 Vendor::Vendor(const Stmt& stmt)
     : mac_prefix(stmt.get_col<int>(0)),
       vendor_name(stmt.get_col<std::string>(1)),
-      is_private(stmt.get_col<bool>(2)),
-      block_type(stmt.get_col<Registry>(3)),
-      last_update(stmt.get_col<std::string>(4)) {}
+      block_type(stmt.get_col<Registry>(2)),
+      last_update(stmt.get_col<std::string>(3)) {}
 
 void Vendor::bind(const Stmt& stmt) const {
     int rc;
@@ -114,24 +108,22 @@ void Vendor::bind(const Stmt& stmt) const {
     if (rc = stmt.bind(2, vendor_name); rc != SQLITE_OK) {
         throw errors::CacheError{"col2", __func__, rc};
     }
-    if (rc = stmt.bind(3, is_private); rc != SQLITE_OK) {
+    if (rc = stmt.bind(3, block_type); rc != SQLITE_OK) {
         throw errors::CacheError{"col3", __func__, rc};
     }
-    if (rc = stmt.bind(4, block_type); rc != SQLITE_OK) {
+    if (rc = stmt.bind(4, last_update); rc != SQLITE_OK) {
         throw errors::CacheError{"col4", __func__, rc};
-    }
-    if (rc = stmt.bind(5, last_update); rc != SQLITE_OK) {
-        throw errors::CacheError{"col5", __func__, rc};
     }
 }
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
-    const std::string prefix = prefix_to_string(v.mac_prefix);
+    const std::string prefix     = prefix_to_string(v.mac_prefix);
+    const bool        is_private = v.vendor_name.empty();
 
     os << "MAC prefix   " << prefix << '\n'
-       << "Vendor name  " << (v.is_private ? "-" : v.vendor_name) << '\n'
-       << "Private      " << (v.is_private ? "yes" : "no") << '\n'
+       << "Vendor name  " << (is_private ? "-" : v.vendor_name) << '\n'
+       << "Private      " << (is_private ? "yes" : "no") << '\n'
        << "Block type   " << from_registry(v.block_type) << '\n'
-       << "Last update  " << (v.is_private ? "-" : v.last_update);
+       << "Last update  " << (is_private ? "-" : v.last_update);
     return os;
 }

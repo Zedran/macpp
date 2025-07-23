@@ -57,7 +57,6 @@ int ConnRW::create_table() const noexcept {
         "CREATE TABLE vendors ("
         "prefix  INTEGER PRIMARY KEY,"
         "name    TEXT NOT NULL,"
-        "private BOOLEAN,"
         "block   INTEGER NOT NULL,"
         "updated TEXT NOT NULL"
         ")";
