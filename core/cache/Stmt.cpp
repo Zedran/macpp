@@ -18,10 +18,6 @@ int Stmt::bind(const int coln, const int64_t value) const noexcept {
     return sqlite3_bind_int64(stmt, coln, value);
 }
 
-int Stmt::bind(const int coln, const bool value) const noexcept {
-    return sqlite3_bind_int(stmt, coln, value ? 1 : 0);
-}
-
 int Stmt::bind(const int coln, const std::string& value) const noexcept {
     return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
 }

@@ -27,9 +27,6 @@ public:
     // Binds an int64 to coln of the statement. Returns SQLite result code.
     int bind(const int coln, const int64_t value) const noexcept;
 
-    // Binds a boolean to coln of the statement. Returns SQLite result code.
-    int bind(const int coln, const bool value) const noexcept;
-
     // Binds a Registry enum class value to coln of the statement.
     // Returns SQLite result code.
     int bind(const int coln, const Registry value) const noexcept;
@@ -54,7 +51,6 @@ public:
         requires(
             std::same_as<T, std::string> ||
             std::same_as<T, Registry> ||
-            std::same_as<T, bool> ||
             std::same_as<T, int32_t> ||
             std::same_as<T, int64_t>
         )
@@ -71,10 +67,6 @@ public:
 
         if constexpr (std::is_same_v<T, Registry>) {
             return static_cast<Registry>(sqlite3_column_int(stmt, coln));
-        }
-
-        if constexpr (std::is_same_v<T, bool>) {
-            return sqlite3_column_int(stmt, coln) != 0;
         }
 
         if constexpr (std::is_same_v<T, int32_t>) {
