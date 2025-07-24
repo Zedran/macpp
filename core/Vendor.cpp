@@ -20,7 +20,7 @@ Vendor::Vendor(const std::string& line) {
     if ((p1 = line.find(COMMA, 0)) == std::string::npos) {
         throw errors::NoCommaError{line};
     }
-    mac_prefix = line.substr(0, p1);
+    mac_prefix = prefix_to_int(line.substr(0, p1));
     p1++;
 
     if (line.at(p1) == QUOTE) {
@@ -59,16 +59,13 @@ Vendor::Vendor(const std::string& line) {
 
     if (line.at(p1) == 't') {
         // Private entry contains no more meaningful information
-        is_private  = true;
-        block_type  = "";
+        block_type  = Registry::Unknown;
         last_update = "";
         return;
     } else if (line.at(p1) != 'f') {
         // Private designator field must contain either 'true' or 'false'
         throw errors::PrivateInvalidError{line};
     }
-
-    is_private = false;
 
     // Skip past 'alse,' to the next field
     p1 += 5;
@@ -82,59 +79,51 @@ Vendor::Vendor(const std::string& line) {
         throw errors::BlockTypeTermError{line};
     }
 
-    block_type  = line.substr(p1, p2 - p1);
+    block_type  = to_registry(line.substr(p1, p2 - p1));
     last_update = line.substr(p2 + 1);
 }
 
 Vendor::Vendor(
     const std::string& mac_prefix,
     const std::string& vendor_name,
-    const bool         is_private,
     const std::string& block_type,
     const std::string& last_update
-) : mac_prefix(mac_prefix),
+) : mac_prefix(prefix_to_int(mac_prefix)),
     vendor_name(vendor_name),
-    is_private(is_private),
-    block_type(block_type),
+    block_type(to_registry(block_type)),
     last_update(last_update) {}
 
 Vendor::Vendor(const Stmt& stmt)
-    : mac_prefix(stmt.get_col<std::string>(1)),
-      vendor_name(stmt.get_col<std::string>(2)),
-      is_private(stmt.get_col<bool>(3)),
-      block_type(stmt.get_col<std::string>(4)),
-      last_update(stmt.get_col<std::string>(5)) {}
+    : mac_prefix(stmt.get_col<int>(0)),
+      vendor_name(stmt.get_col<std::string>(1)),
+      block_type(stmt.get_col<Registry>(2)),
+      last_update(stmt.get_col<std::string>(3)) {}
 
 void Vendor::bind(const Stmt& stmt) const {
-    const int64_t id = prefix_to_id(remove_addr_separators(mac_prefix));
-
     int rc;
 
-    if (rc = stmt.bind(1, id); rc != SQLITE_OK) {
+    if (rc = stmt.bind(1, mac_prefix); rc != SQLITE_OK) {
         throw errors::CacheError{"col1", __func__, rc};
     }
-    if (rc = stmt.bind(2, mac_prefix); rc != SQLITE_OK) {
+    if (rc = stmt.bind(2, vendor_name); rc != SQLITE_OK) {
         throw errors::CacheError{"col2", __func__, rc};
     }
-    if (rc = stmt.bind(3, vendor_name); rc != SQLITE_OK) {
+    if (rc = stmt.bind(3, block_type); rc != SQLITE_OK) {
         throw errors::CacheError{"col3", __func__, rc};
     }
-    if (rc = stmt.bind(4, is_private); rc != SQLITE_OK) {
+    if (rc = stmt.bind(4, last_update); rc != SQLITE_OK) {
         throw errors::CacheError{"col4", __func__, rc};
-    }
-    if (rc = stmt.bind(5, block_type); rc != SQLITE_OK) {
-        throw errors::CacheError{"col5", __func__, rc};
-    }
-    if (rc = stmt.bind(6, last_update); rc != SQLITE_OK) {
-        throw errors::CacheError{"col6", __func__, rc};
     }
 }
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
-    os << "MAC prefix   " << v.mac_prefix << "\n"
-       << "Vendor name  " << (v.is_private ? "-" : v.vendor_name) << '\n'
-       << "Private      " << (v.is_private ? "yes" : "no") << '\n'
-       << "Block type   " << (v.is_private ? "-" : v.block_type) << '\n'
-       << "Last update  " << (v.is_private ? "-" : v.last_update);
+    const std::string prefix     = prefix_to_string(v.mac_prefix);
+    const bool        is_private = v.vendor_name.empty();
+
+    os << "MAC prefix   " << prefix << '\n'
+       << "Vendor name  " << (is_private ? "-" : v.vendor_name) << '\n'
+       << "Private      " << (is_private ? "yes" : "no") << '\n'
+       << "Block type   " << from_registry(v.block_type) << '\n'
+       << "Last update  " << (is_private ? "-" : v.last_update);
     return os;
 }

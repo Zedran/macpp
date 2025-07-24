@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include "Registry.hpp"
 #include "cache/Stmt.hpp"
 
 Stmt::Stmt(sqlite3* const conn, const char* str_stmt)
@@ -17,12 +18,12 @@ int Stmt::bind(const int coln, const int64_t value) const noexcept {
     return sqlite3_bind_int64(stmt, coln, value);
 }
 
-int Stmt::bind(const int coln, const bool value) const noexcept {
-    return sqlite3_bind_int(stmt, coln, value ? 1 : 0);
-}
-
 int Stmt::bind(const int coln, const std::string& value) const noexcept {
     return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
+}
+
+int Stmt::bind(const int coln, const Registry value) const noexcept {
+    return sqlite3_bind_int(stmt, coln, static_cast<int>(value));
 }
 
 sqlite3_stmt* Stmt::get() const noexcept {

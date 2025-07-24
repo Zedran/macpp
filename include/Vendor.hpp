@@ -7,10 +7,9 @@
 #include "cache/Stmt.hpp"
 
 struct Vendor {
-    std::string mac_prefix;
+    int64_t     mac_prefix;
     std::string vendor_name;
-    bool        is_private;
-    std::string block_type;
+    Registry    block_type;
     std::string last_update;
 
     Vendor();
@@ -21,7 +20,6 @@ struct Vendor {
     Vendor(
         const std::string& mac_prefix,
         const std::string& vendor_name,
-        const bool         is_private,
         const std::string& block_type,
         const std::string& last_update
     );

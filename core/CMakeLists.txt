@@ -5,6 +5,7 @@ set(CORE_SOURCES
     cache/Stmt.cpp
     update/Downloader.cpp
     update/Reader.cpp
+    Registry.cpp
     Vendor.cpp
     dir.cpp
     utils.cpp

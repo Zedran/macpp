@@ -6,6 +6,7 @@
 #include "cache/ConnR.hpp"
 #include "cache/ConnRW.hpp"
 #include "exception.hpp"
+#include "utils.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
 // The main challenge is that the file is comma-separated and sometimes
@@ -22,37 +23,37 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
         test_case{
             // Quoted vendor name
             R"(00:00:0C,"Cisco Systems, Inc",false,MA-L,2015/11/17)",
-            Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"}
+            Vendor{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"}
         },
         test_case{
             // Non-quoted vendor name
             R"(00:00:0D,FIBRONICS LTD.,false,MA-L,2015/11/17)",
-            Vendor{"00:00:0D", "FIBRONICS LTD.", false, "MA-L", "2015/11/17"}
+            Vendor{"00:00:0D", "FIBRONICS LTD.", "MA-L", "2015/11/17"}
         },
         test_case{
             // Quoted vendor name, longer prefix
             R"(5C:F2:86:D,"BrightSky, LLC",false,MA-M,2019/07/02)",
-            Vendor{"5C:F2:86:D", "BrightSky, LLC", false, "MA-M", "2019/07/02"}
+            Vendor{"5C:F2:86:D", "BrightSky, LLC", "MA-M", "2019/07/02"}
         },
         test_case{
             // Non-quoted vendor name, longer prefix
             R"(8C:1F:64:F5:A,Telco Antennas Pty Ltd,false,MA-S,2021/10/13)",
-            Vendor{"8C:1F:64:F5:A", "Telco Antennas Pty Ltd", false, "MA-S", "2021/10/13"}
+            Vendor{"8C:1F:64:F5:A", "Telco Antennas Pty Ltd", "MA-S", "2021/10/13"}
         },
         test_case{
             // Escaped quotes inside quoted vendor name
             R"(2C:7A:FE,"IEE&E ""Black"" ops",false,MA-L,2010/07/26)",
-            Vendor{"2C:7A:FE", "IEE&E \"Black\" ops", false, "MA-L", "2010/07/26"},
+            Vendor{"2C:7A:FE", "IEE&E \"Black\" ops", "MA-L", "2010/07/26"},
         },
         test_case{
             // Private block
             R"(00:48:54,,true,,0001/01/01)",
-            Vendor{"00:48:54", "", true, "", ""},
+            Vendor{"00:48:54", "", "", ""},
         },
         test_case{
             // The last update field is empty, but valid (comma present)
             R"(00:00:0D,FIBRONICS LTD.,false,MA-L,)",
-            Vendor{"00:00:0D", "FIBRONICS LTD.", false, "MA-L", ""},
+            Vendor{"00:00:0D", "FIBRONICS LTD.", "MA-L", ""},
         },
     };
 
@@ -62,7 +63,6 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
 
         REQUIRE(out.mac_prefix == c.expected.mac_prefix);
         REQUIRE(out.vendor_name == c.expected.vendor_name);
-        REQUIRE(out.is_private == c.expected.is_private);
         REQUIRE(out.block_type == c.expected.block_type);
         REQUIRE(out.last_update == c.expected.last_update);
     }
@@ -123,21 +123,16 @@ TEST_CASE("Vendor::bind") {
     ConnRW conn_rw{db_path, true};
 
     const Vendor cases[] = {
-        Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
-        Vendor{"00:48:54", "", true, "", "0001/01/01"},
+        Vendor{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"},
+        Vendor{"00:48:54", "", "", "0001/01/01"},
     };
 
     REQUIRE(conn_rw.begin() == SQLITE_OK);
 
     for (const auto& c : cases) {
-        CAPTURE(c.mac_prefix);
+        CAPTURE(prefix_to_string(c.mac_prefix));
         REQUIRE_NOTHROW(conn_rw.insert(c));
     }
-
-    // Empty MAC prefix not allowed
-    const Vendor malformed{"", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
-
-    REQUIRE_THROWS(conn_rw.insert(malformed));
 
     REQUIRE(conn_rw.commit() == SQLITE_OK);
 
@@ -146,9 +141,9 @@ TEST_CASE("Vendor::bind") {
     std::vector<Vendor> results;
 
     for (const auto& c : cases) {
-        CAPTURE(c.mac_prefix);
+        CAPTURE(prefix_to_string(c.mac_prefix));
 
-        results = conn_r.find_by_addr(c.mac_prefix);
+        results = conn_r.find_by_addr(prefix_to_string(c.mac_prefix));
 
         REQUIRE(results.size() == 1);
 
@@ -156,7 +151,6 @@ TEST_CASE("Vendor::bind") {
 
         REQUIRE(out.mac_prefix == c.mac_prefix);
         REQUIRE(out.vendor_name == c.vendor_name);
-        REQUIRE(out.is_private == c.is_private);
         REQUIRE(out.block_type == c.block_type);
         REQUIRE(out.last_update == c.last_update);
 
@@ -171,13 +165,13 @@ TEST_CASE("Vendor::operator<<") {
     };
 
     const test_case cases[] = {
-        {Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
+        {Vendor{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"},
          "MAC prefix   00:00:0C\n"
          "Vendor name  Cisco Systems, Inc\n"
          "Private      no\n"
          "Block type   MA-L\n"
          "Last update  2015/11/17"},
-        {Vendor{"00:48:54", "", true, "", "0001/01/01"},
+        {Vendor{"00:48:54", "", "", "0001/01/01"},
          "MAC prefix   00:48:54\n"
          "Vendor name  -\n"
          "Private      yes\n"

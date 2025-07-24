@@ -12,8 +12,8 @@
 // using a local file.
 TEST_CASE("ConnRW::insert") {
     const std::vector<Vendor> cases = {
-        Vendor{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"},
-        Vendor{"00:48:54", "", true, "", ""},
+        Vendor{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"},
+        Vendor{"00:48:54", "", "", ""},
     };
 
     ConnRW conn_rw{"file:memdb_connrw_insert?mode=memory&cache=shared", true};
@@ -41,7 +41,6 @@ TEST_CASE("ConnRW::insert") {
                 found = true;
 
                 REQUIRE(o.vendor_name == c.vendor_name);
-                REQUIRE(o.is_private == c.is_private);
                 REQUIRE(o.block_type == c.block_type);
                 REQUIRE(o.last_update == c.last_update);
 
@@ -198,7 +197,7 @@ TEST_CASE("injections") {
 TEST_CASE("ConnR::find_by_addr") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
+    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"};
 
     const std::string cases[] = {
         "00:00:0C",          // with separators, short
@@ -225,7 +224,6 @@ TEST_CASE("ConnR::find_by_addr") {
 
         REQUIRE(out.mac_prefix == expected.mac_prefix);
         REQUIRE(out.vendor_name == expected.vendor_name);
-        REQUIRE(out.is_private == expected.is_private);
         REQUIRE(out.block_type == expected.block_type);
         REQUIRE(out.last_update == expected.last_update);
 
@@ -269,7 +267,7 @@ TEST_CASE("ConnR::find_by_addr") {
 TEST_CASE("ConnR::find_by_name") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", false, "MA-L", "2015/11/17"};
+    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"};
 
     const std::string cases[] = {
         "Cisco Systems, Inc",
@@ -295,7 +293,6 @@ TEST_CASE("ConnR::find_by_name") {
 
         REQUIRE(out.mac_prefix == expected.mac_prefix);
         REQUIRE(out.vendor_name == expected.vendor_name);
-        REQUIRE(out.is_private == expected.is_private);
         REQUIRE(out.block_type == expected.block_type);
         REQUIRE(out.last_update == expected.last_update);
 

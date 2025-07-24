@@ -4,6 +4,8 @@
 #include <sqlite3.h>
 #include <string>
 
+#include "Registry.hpp"
+
 // A RAII wrapper for sqlite3_stmt object.
 class Stmt {
     // Result code returned by sqlite3_prepare function.
@@ -25,8 +27,9 @@ public:
     // Binds an int64 to coln of the statement. Returns SQLite result code.
     int bind(const int coln, const int64_t value) const noexcept;
 
-    // Binds a boolean to coln of the statement. Returns SQLite result code.
-    int bind(const int coln, const bool value) const noexcept;
+    // Binds a Registry enum class value to coln of the statement.
+    // Returns SQLite result code.
+    int bind(const int coln, const Registry value) const noexcept;
 
     // Binds a string to coln of the statement. Returns SQLite result code.
     int bind(const int coln, const std::string& value) const noexcept;
@@ -40,11 +43,17 @@ public:
     //   - bool
     //   - int32
     //   - int64
+    //   - Registry enum class
     //
     // For strings, if column value is NULL, an empty string is returned.
     // This should never happen unless the cache has been tampered with.
     template <typename T>
-        requires(std::same_as<T, std::string> || std::same_as<T, bool> || std::same_as<T, int32_t> || std::same_as<T, int64_t>)
+        requires(
+            std::same_as<T, std::string> ||
+            std::same_as<T, Registry> ||
+            std::same_as<T, int32_t> ||
+            std::same_as<T, int64_t>
+        )
     T get_col(const int coln) const noexcept {
         if constexpr (std::is_same_v<T, std::string>) {
             const unsigned char* text = sqlite3_column_text(stmt, coln);
@@ -56,8 +65,8 @@ public:
             }
         }
 
-        if constexpr (std::is_same_v<T, bool>) {
-            return sqlite3_column_int(stmt, coln) != 0;
+        if constexpr (std::is_same_v<T, Registry>) {
+            return static_cast<Registry>(sqlite3_column_int(stmt, coln));
         }
 
         if constexpr (std::is_same_v<T, int32_t>) {
