@@ -149,8 +149,20 @@ TEST_CASE("prefix_to_int") {
         {"FF:FF:FF:FF:F", 0xFFFFFFFFF},
     };
 
-    for (auto& [input, expected] : cases) {
+    for (const auto& [input, expected] : cases) {
         REQUIRE(prefix_to_int(input) == expected);
+    }
+
+    const std::string throw_cases[] = {
+        "-101010",    // Negative
+        "-FF:FF:FF",  // Negative
+        "FF:FF:FF:x", // Invalid character
+        "xxxxxx",     // Only invalid characters
+    };
+
+    for (const auto& c : throw_cases) {
+        CAPTURE(c);
+        REQUIRE_THROWS(prefix_to_int(c));
     }
 }
 

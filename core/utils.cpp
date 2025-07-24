@@ -62,6 +62,11 @@ int64_t prefix_to_int(const std::string& prefix) {
     if (pos != clean.length()) {
         throw errors::Error{"specified MAC address contains invalid characters"};
     }
+
+    if (conv < 0) {
+        throw errors::Error{"specified MAC address is negative"};
+    }
+
     return conv;
 }
 
