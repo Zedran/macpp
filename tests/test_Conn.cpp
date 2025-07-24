@@ -84,7 +84,7 @@ TEST_CASE("ConnR construction") {
     // Throws, because there are no records in the table
     REQUIRE_THROWS(ConnR{db_path, true});
 
-    const Stmt stmt{conn_rw.get(), "DROP TABLE vendors;"};
+    const Stmt stmt{conn_rw.get(), "DROP TABLE vendors"};
     REQUIRE(stmt.good());
     REQUIRE(stmt.step() == SQLITE_DONE);
 
@@ -125,7 +125,7 @@ TEST_CASE("ConnRW destruction") {
     // Keeps the database alive across scopes.
     const ConnRW conn_master{db_path, true};
 
-    const Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors;"};
+    const Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors"};
     REQUIRE(stmt.rc() == SQLITE_OK);
 
     REQUIRE(stmt.step() == SQLITE_ROW);

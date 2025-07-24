@@ -33,7 +33,7 @@ ConnRW::~ConnRW() {
 }
 
 int ConnRW::begin() noexcept {
-    int rc = sqlite3_exec(conn, "BEGIN;", nullptr, nullptr, nullptr);
+    int rc = sqlite3_exec(conn, "BEGIN", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = true;
     }
@@ -41,11 +41,11 @@ int ConnRW::begin() noexcept {
 }
 
 int ConnRW::clear_table() const noexcept {
-    return sqlite3_exec(conn, "DELETE FROM vendors;", nullptr, nullptr, nullptr);
+    return sqlite3_exec(conn, "DELETE FROM vendors", nullptr, nullptr, nullptr);
 }
 
 int ConnRW::commit() noexcept {
-    int rc = sqlite3_exec(conn, "COMMIT;", nullptr, nullptr, nullptr);
+    int rc = sqlite3_exec(conn, "COMMIT", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = false;
     }
@@ -127,7 +127,7 @@ void ConnRW::prepare_db() const {
 }
 
 int ConnRW::rollback() noexcept {
-    int rc = sqlite3_exec(conn, "ROLLBACK;", nullptr, nullptr, nullptr);
+    int rc = sqlite3_exec(conn, "ROLLBACK", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = false;
     }
