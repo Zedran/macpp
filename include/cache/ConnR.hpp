@@ -37,7 +37,7 @@ public:
     ConnR(const ConnR&)            = delete;
     ConnR& operator=(const ConnR&) = delete;
 
-    ~ConnR() = default;
+    ~ConnR();
 
     // Searches for records with given MAC address.
     std::vector<Vendor> find_by_addr(const std::string& addr) const;

@@ -21,6 +21,8 @@ ConnR::ConnR(const std::string& path, const bool override_once_flags)
     }
 }
 
+ConnR::~ConnR() = default;
+
 void ConnR::check() const {
     if (version() != EXPECTED_CACHE_VERSION) {
         throw errors::CacheError{"database version missmatch, update required"};
