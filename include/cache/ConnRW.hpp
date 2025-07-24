@@ -4,7 +4,6 @@
 #include <string>
 
 #include "Conn.hpp"
-#include "Vendor.hpp"
 
 // Wrapper for read-write database connection.
 class ConnRW : public Conn {
@@ -73,10 +72,6 @@ public:
     // result in ConnRW's destruction, it is the caller's responsibility
     // to rollback the transaction.
     void insert(std::istream& is);
-
-    // Inserts a single Vendors into the database. The caller is responsible
-    // for managing transactions.
-    void insert(const Vendor& v) const;
 
     // Reverts uncommitted database transaction.
     int rollback() noexcept;

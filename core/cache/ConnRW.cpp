@@ -106,25 +106,6 @@ void ConnRW::insert(std::istream& is) {
     commit();
 }
 
-void ConnRW::insert(const Vendor& v) const {
-    const Stmt stmt{conn, INSERT_STMT};
-    if (!stmt) {
-        throw errors::CacheError{"prepare", __func__, conn};
-    }
-
-    v.bind(stmt);
-
-    int rc;
-
-    if (rc = stmt.step(); rc != SQLITE_DONE) {
-        throw errors::CacheError{"step", __func__, rc};
-    }
-
-    if (rc = stmt.reset(); rc != SQLITE_OK) {
-        throw errors::CacheError{"reset", __func__, rc};
-    }
-}
-
 void ConnRW::prepare_db() const {
     bool needs_table;
 

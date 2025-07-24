@@ -4,9 +4,7 @@
 
 #include "Vendor.hpp"
 #include "cache/ConnR.hpp"
-#include "cache/ConnRW.hpp"
 #include "exception.hpp"
-#include "utils.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
 // The main challenge is that the file is comma-separated and sometimes
@@ -113,49 +111,6 @@ TEST_CASE("Vendor::Vendor(sqlite3_stmt* stmt)") {
 
     REQUIRE(!results.empty());
     REQUIRE(results.at(0).vendor_name == "");
-}
-
-// Ensures that binding and insertion into the table produces
-// desired entries.
-TEST_CASE("Vendor::bind") {
-    const std::string db_path = "file:memdb_vendor_bind?mode=memory&cache=shared";
-
-    ConnRW conn_rw{db_path, true};
-
-    const Vendor cases[] = {
-        Vendor{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"},
-        Vendor{"00:48:54", "", "", "0001/01/01"},
-    };
-
-    REQUIRE(conn_rw.begin() == SQLITE_OK);
-
-    for (const auto& c : cases) {
-        CAPTURE(prefix_to_string(c.mac_prefix));
-        REQUIRE_NOTHROW(conn_rw.insert(c));
-    }
-
-    REQUIRE(conn_rw.commit() == SQLITE_OK);
-
-    const ConnR conn_r{db_path, true};
-
-    std::vector<Vendor> results;
-
-    for (const auto& c : cases) {
-        CAPTURE(prefix_to_string(c.mac_prefix));
-
-        results = conn_r.find_by_addr(prefix_to_string(c.mac_prefix));
-
-        REQUIRE(results.size() == 1);
-
-        Vendor& out = results.at(0);
-
-        REQUIRE(out.mac_prefix == c.mac_prefix);
-        REQUIRE(out.vendor_name == c.vendor_name);
-        REQUIRE(out.block_type == c.block_type);
-        REQUIRE(out.last_update == c.last_update);
-
-        results.clear();
-    }
 }
 
 TEST_CASE("Vendor::operator<<") {
