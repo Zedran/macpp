@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <sstream>
 #include <stdexcept>
 
@@ -93,6 +94,12 @@ std::string prefix_to_string(const int64_t prefix) {
     }
 
     return ss.str();
+}
+
+std::string remove_addr_separators(const std::string& addr) {
+    std::string stripped = addr;
+    stripped.erase(std::remove(stripped.begin(), stripped.end(), ':'), stripped.end());
+    return stripped;
 }
 
 void replace_escaped_quotes(std::string& str) {

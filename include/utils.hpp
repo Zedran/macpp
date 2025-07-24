@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -30,11 +29,7 @@ int64_t prefix_to_int(const std::string& prefix);
 std::string prefix_to_string(const int64_t prefix);
 
 // Removes ':' characters from addr.
-inline std::string remove_addr_separators(const std::string& addr) {
-    std::string stripped = addr;
-    stripped.erase(std::remove(stripped.begin(), stripped.end(), ':'), stripped.end());
-    return stripped;
-}
+std::string remove_addr_separators(const std::string& addr);
 
 // Replaces "" (CSV escaped quotes) in str with ".
 void replace_escaped_quotes(std::string& str);
