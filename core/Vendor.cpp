@@ -15,7 +15,7 @@ Vendor::Vendor(const std::string& line) {
     // In this constructor, p1 typically points to the first element of interest
     // (opening quote, the beginning of a CSV field), while p2 points to its
     // terminating counterpart (closing quote, comma at the end of the field).
-    size_t p1{}, p2{};
+    size_t p1, p2;
 
     if ((p1 = line.find(COMMA, 0)) == std::string::npos) {
         throw errors::NoCommaError{line};
