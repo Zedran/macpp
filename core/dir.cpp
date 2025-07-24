@@ -4,7 +4,7 @@
 #include "exception.hpp"
 
 // Returns a system-dependent directory path for the application's cache file.
-std::filesystem::path set_cache_dir_path() {
+static std::filesystem::path set_cache_dir_path() {
     std::filesystem::path cache_dir{};
 
     char* env_var{};
