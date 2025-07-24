@@ -45,3 +45,7 @@ int Stmt::reset() const noexcept {
 int Stmt::step() const noexcept {
     return sqlite3_step(stmt);
 }
+
+Stmt::operator bool() const noexcept {
+    return good();
+}
