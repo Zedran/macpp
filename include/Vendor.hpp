@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <sqlite3.h>
 #include <string>
 
 #include "cache/Stmt.hpp"
