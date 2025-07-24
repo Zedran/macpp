@@ -21,7 +21,7 @@ TEST_CASE("build_query_by_id_stmt") {
     for (auto& c : cases) {
         CAPTURE(c.length);
 
-        std::string out = build_query_by_id_stmt(c.length);
+        std::string out = build_find_by_addr_stmt(c.length);
         REQUIRE(out == c.expected);
     }
 }

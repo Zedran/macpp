@@ -56,7 +56,7 @@ std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
     }
 
     const std::vector<int64_t> queries     = construct_queries(stripped_address);
-    const std::string          stmt_string = build_query_by_id_stmt(queries.size());
+    const std::string          stmt_string = build_find_by_addr_stmt(queries.size());
 
     std::vector<Vendor> results;
 

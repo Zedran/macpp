@@ -5,7 +5,7 @@
 #include "exception.hpp"
 #include "utils.hpp"
 
-std::string build_query_by_id_stmt(const size_t length) noexcept {
+std::string build_find_by_addr_stmt(const size_t length) noexcept {
     std::string stmt = "SELECT * FROM vendors WHERE prefix IN (?";
 
     // Start from 1, since the first placeholder is appended beforehand.
