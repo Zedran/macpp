@@ -88,16 +88,16 @@ Vendor::Vendor(
     const std::string& vendor_name,
     const std::string& block_type,
     const std::string& last_update
-) : mac_prefix(prefix_to_int(mac_prefix)),
-    vendor_name(vendor_name),
-    block_type(to_registry(block_type)),
-    last_update(last_update) {}
+) : mac_prefix{prefix_to_int(mac_prefix)},
+    vendor_name{vendor_name},
+    block_type{to_registry(block_type)},
+    last_update{last_update} {}
 
 Vendor::Vendor(const Stmt& stmt)
-    : mac_prefix(stmt.get_col<int>(0)),
-      vendor_name(stmt.get_col<std::string>(1)),
-      block_type(stmt.get_col<Registry>(2)),
-      last_update(stmt.get_col<std::string>(3)) {}
+    : mac_prefix{stmt.get_col<int>(0)},
+      vendor_name{stmt.get_col<std::string>(1)},
+      block_type{stmt.get_col<Registry>(2)},
+      last_update{stmt.get_col<std::string>(3)} {}
 
 void Vendor::bind(const Stmt& stmt) const {
     int rc;
