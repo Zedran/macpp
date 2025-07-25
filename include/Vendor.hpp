@@ -11,8 +11,6 @@ struct Vendor {
     Registry    block_type;
     std::string last_update;
 
-    Vendor();
-
     // Creates a Vendor struct from a comma-separated CSV line.
     Vendor(const std::string& line);
 
