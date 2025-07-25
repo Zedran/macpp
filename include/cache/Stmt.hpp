@@ -15,9 +15,9 @@ class Stmt {
     sqlite3_stmt* stmt;
 
 public:
-    Stmt(sqlite3* const conn, const char* str_stmt);
+    Stmt(sqlite3* const conn, const char* str_stmt) noexcept;
 
-    Stmt(sqlite3* const conn, const std::string& str_stmt);
+    Stmt(sqlite3* const conn, const std::string& str_stmt) noexcept;
 
     Stmt(const Stmt&)            = delete;
     Stmt& operator=(const Stmt&) = delete;

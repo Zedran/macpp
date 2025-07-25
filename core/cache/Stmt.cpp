@@ -3,10 +3,10 @@
 #include "Registry.hpp"
 #include "cache/Stmt.hpp"
 
-Stmt::Stmt(sqlite3* const conn, const char* str_stmt)
+Stmt::Stmt(sqlite3* const conn, const char* str_stmt) noexcept
     : prepare_rc{sqlite3_prepare_v2(conn, str_stmt, -1, &stmt, nullptr)} {}
 
-Stmt::Stmt(sqlite3* const conn, const std::string& str_stmt)
+Stmt::Stmt(sqlite3* const conn, const std::string& str_stmt) noexcept
     : prepare_rc{sqlite3_prepare_v2(conn, str_stmt.c_str(), -1, &stmt, nullptr)} {}
 
 Stmt::~Stmt() {
