@@ -94,7 +94,7 @@ Vendor::Vendor(
     last_update{last_update} {}
 
 Vendor::Vendor(const Stmt& stmt)
-    : mac_prefix{stmt.get_col<int>(0)},
+    : mac_prefix{stmt.get_col<int64_t>(0)},
       vendor_name{stmt.get_col<std::string>(1)},
       block_type{stmt.get_col<Registry>(2)},
       last_update{stmt.get_col<std::string>(3)} {}
