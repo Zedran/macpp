@@ -2,6 +2,7 @@
 
 #include "Registry.hpp"
 #include "cache/Stmt.hpp"
+#include "exception.hpp"
 
 Stmt::Stmt(sqlite3* const conn, const char* str_stmt) noexcept
     : prepare_rc{sqlite3_prepare_v2(conn, str_stmt, -1, &stmt, nullptr)} {}
@@ -19,15 +20,41 @@ int Stmt::bind(const int coln, const int64_t value) const noexcept {
 }
 
 int Stmt::bind(const int coln, const std::string& value) const noexcept {
-    return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
+    return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_TRANSIENT);
 }
 
 int Stmt::bind(const int coln, const Registry value) const noexcept {
     return sqlite3_bind_int(stmt, coln, static_cast<int>(value));
 }
 
+void Stmt::bind(const Vendor& v) const {
+    int rc;
+
+    if (rc = bind(1, v.mac_prefix); rc != SQLITE_OK) {
+        throw errors::CacheError{"col1", __func__, rc};
+    }
+    if (rc = bind(2, v.vendor_name); rc != SQLITE_OK) {
+        throw errors::CacheError{"col2", __func__, rc};
+    }
+    if (rc = bind(3, v.block_type); rc != SQLITE_OK) {
+        throw errors::CacheError{"col3", __func__, rc};
+    }
+    if (rc = bind(4, v.last_update); rc != SQLITE_OK) {
+        throw errors::CacheError{"col4", __func__, rc};
+    }
+}
+
 sqlite3_stmt* Stmt::get() const noexcept {
     return stmt;
+}
+
+Vendor Stmt::get_row() const noexcept {
+    return Vendor{
+        get_col<int64_t>(0),
+        get_col<std::string>(1),
+        get_col<Registry>(2),
+        get_col<std::string>(3),
+    };
 }
 
 bool Stmt::good() const noexcept {

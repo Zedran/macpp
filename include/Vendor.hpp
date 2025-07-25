@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-#include "cache/Stmt.hpp"
+#include "Registry.hpp"
 
 struct Vendor {
     int64_t     mac_prefix;
@@ -20,12 +20,6 @@ struct Vendor {
         const Registry     block_type,
         const std::string& last_update
     ) noexcept;
-
-    // Reconstructs Vendor from SQLite row.
-    Vendor(const Stmt& stmt);
-
-    // Binds struct members to the insert statement.
-    void bind(const Stmt& stmt) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Vendor& v);
 };

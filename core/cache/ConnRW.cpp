@@ -91,8 +91,7 @@ void ConnRW::insert(std::istream& is) {
         if (line.empty() || line.length() > MAX_LINE_LENGTH) {
             continue;
         }
-        Vendor v{line};
-        v.bind(stmt);
+        stmt.bind(Vendor{line});
 
         if (rc = stmt.step(); rc != SQLITE_DONE) {
             throw errors::CacheError{"step", __func__, rc};

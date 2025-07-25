@@ -28,7 +28,7 @@ TEST_CASE("ConnRW::insert") {
     std::vector<Vendor> out;
 
     while (stmt.step() == SQLITE_ROW) {
-        out.emplace_back(Vendor{stmt});
+        out.emplace_back(stmt.get_row());
     }
 
     REQUIRE(cases.size() == out.size());
@@ -61,7 +61,7 @@ TEST_CASE("ConnRW::insert") {
     REQUIRE_NOTHROW(conn_rw.insert(poisoned_file));
 
     while (stmt.step() == SQLITE_ROW) {
-        out.emplace_back(Vendor{stmt});
+        out.emplace_back(stmt.get_row());
     }
 
     REQUIRE(out.size() == 1);

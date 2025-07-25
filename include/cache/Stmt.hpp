@@ -5,6 +5,7 @@
 #include <string>
 
 #include "Registry.hpp"
+#include "Vendor.hpp"
 
 // A RAII wrapper for sqlite3_stmt object.
 class Stmt {
@@ -33,6 +34,9 @@ public:
 
     // Binds a string to coln of the statement. Returns SQLite result code.
     int bind(const int coln, const std::string& value) const noexcept;
+
+    // Binds Vendor instance to the statement.
+    void bind(const Vendor& v) const;
 
     // Returns pointer to the wrapped sqlite3_stmt object.
     sqlite3_stmt* get() const noexcept;
@@ -77,6 +81,9 @@ public:
             return sqlite3_column_int64(stmt, coln);
         }
     }
+
+    // Retrieves Vendor instance from SQLite row.
+    Vendor get_row() const noexcept;
 
     // Returns true if statement has been prepared correctly.
     bool good() const noexcept;
