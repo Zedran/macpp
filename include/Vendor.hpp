@@ -15,11 +15,11 @@ struct Vendor {
     Vendor(const std::string& line);
 
     Vendor(
-        const std::string& mac_prefix,
+        const int64_t      mac_prefix,
         const std::string& vendor_name,
-        const std::string& block_type,
+        const Registry     block_type,
         const std::string& last_update
-    );
+    ) noexcept;
 
     // Reconstructs Vendor from SQLite row.
     Vendor(const Stmt& stmt);

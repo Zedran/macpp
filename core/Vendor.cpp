@@ -84,14 +84,14 @@ Vendor::Vendor(const std::string& line) {
 }
 
 Vendor::Vendor(
-    const std::string& mac_prefix,
+    const int64_t      mac_prefix,
     const std::string& vendor_name,
-    const std::string& block_type,
+    const Registry     block_type,
     const std::string& last_update
-) : mac_prefix{prefix_to_int(mac_prefix)},
-    vendor_name{vendor_name},
-    block_type{to_registry(block_type)},
-    last_update{last_update} {}
+) noexcept : mac_prefix{mac_prefix},
+             vendor_name{vendor_name},
+             block_type{block_type},
+             last_update{last_update} {}
 
 Vendor::Vendor(const Stmt& stmt)
     : mac_prefix{stmt.get_col<int64_t>(0)},
