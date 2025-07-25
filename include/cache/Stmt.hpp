@@ -36,7 +36,7 @@ public:
     int bind(const int coln, const std::string& value) const noexcept;
 
     // Binds Vendor instance to the statement.
-    void bind(const Vendor& v) const;
+    void insert_row(const Vendor& v) const;
 
     // Returns pointer to the wrapped sqlite3_stmt object.
     sqlite3_stmt* get() const noexcept;

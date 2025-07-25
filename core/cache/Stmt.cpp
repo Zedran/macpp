@@ -20,14 +20,14 @@ int Stmt::bind(const int coln, const int64_t value) const noexcept {
 }
 
 int Stmt::bind(const int coln, const std::string& value) const noexcept {
-    return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_TRANSIENT);
+    return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
 }
 
 int Stmt::bind(const int coln, const Registry value) const noexcept {
     return sqlite3_bind_int(stmt, coln, static_cast<int>(value));
 }
 
-void Stmt::bind(const Vendor& v) const {
+void Stmt::insert_row(const Vendor& v) const {
     int rc;
 
     if (rc = bind(1, v.mac_prefix); rc != SQLITE_OK) {
@@ -41,6 +41,13 @@ void Stmt::bind(const Vendor& v) const {
     }
     if (rc = bind(4, v.last_update); rc != SQLITE_OK) {
         throw errors::CacheError{"col4", __func__, rc};
+    }
+
+    if (rc = step(); rc != SQLITE_DONE) {
+        throw errors::CacheError{"step", __func__, rc};
+    }
+    if (rc = reset(); rc != SQLITE_OK) {
+        throw errors::CacheError{"reset", __func__, rc};
     }
 }
 

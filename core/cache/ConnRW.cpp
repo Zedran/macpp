@@ -82,23 +82,12 @@ void ConnRW::insert(std::istream& is) {
 
     std::string line;
 
-    int rc;
-
     // Discard the header line
     std::getline(is, line);
 
     while (std::getline(is, line)) {
-        if (line.empty() || line.length() > MAX_LINE_LENGTH) {
-            continue;
-        }
-        stmt.bind(Vendor{line});
-
-        if (rc = stmt.step(); rc != SQLITE_DONE) {
-            throw errors::CacheError{"step", __func__, rc};
-        }
-
-        if (rc = stmt.reset(); rc != SQLITE_OK) {
-            throw errors::CacheError{"reset", __func__, rc};
+        if (!line.empty() && line.length() <= MAX_LINE_LENGTH) {
+            stmt.insert_row(Vendor{line});
         }
     }
 
