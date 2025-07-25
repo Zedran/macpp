@@ -75,7 +75,7 @@ std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
     }
 
     while (stmt.step() == SQLITE_ROW) {
-        results.emplace_back(Vendor{stmt});
+        results.emplace_back(stmt.get_row());
     }
 
     return results;
@@ -104,7 +104,7 @@ std::vector<Vendor> ConnR::find_by_name(const std::string& name) const {
     }
 
     while (stmt.step() == SQLITE_ROW) {
-        results.emplace_back(Vendor{stmt});
+        results.emplace_back(stmt.get_row());
     }
 
     return results;

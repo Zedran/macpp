@@ -12,8 +12,8 @@
 // using a local file.
 TEST_CASE("ConnRW::insert") {
     const std::vector<Vendor> cases = {
-        Vendor{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"},
-        Vendor{"00:48:54", "", "", ""},
+        Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
+        Vendor{0x004854, "", Registry::Unknown, ""},
     };
 
     ConnRW conn_rw{"file:memdb_connrw_insert?mode=memory&cache=shared", true};
@@ -28,7 +28,7 @@ TEST_CASE("ConnRW::insert") {
     std::vector<Vendor> out;
 
     while (stmt.step() == SQLITE_ROW) {
-        out.emplace_back(Vendor{stmt});
+        out.emplace_back(stmt.get_row());
     }
 
     REQUIRE(cases.size() == out.size());
@@ -61,7 +61,7 @@ TEST_CASE("ConnRW::insert") {
     REQUIRE_NOTHROW(conn_rw.insert(poisoned_file));
 
     while (stmt.step() == SQLITE_ROW) {
-        out.emplace_back(Vendor{stmt});
+        out.emplace_back(stmt.get_row());
     }
 
     REQUIRE(out.size() == 1);
@@ -197,7 +197,7 @@ TEST_CASE("injections") {
 TEST_CASE("ConnR::find_by_addr") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"};
+    const Vendor expected{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"};
 
     const std::string cases[] = {
         "00:00:0C",          // with separators, short
@@ -267,7 +267,7 @@ TEST_CASE("ConnR::find_by_addr") {
 TEST_CASE("ConnR::find_by_name") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"};
+    const Vendor expected{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"};
 
     const std::string cases[] = {
         "Cisco Systems, Inc",

@@ -2,7 +2,6 @@
 #include <string>
 
 #include "Vendor.hpp"
-#include "cache/Stmt.hpp"
 #include "exception.hpp"
 #include "utils.hpp"
 
@@ -84,37 +83,14 @@ Vendor::Vendor(const std::string& line) {
 }
 
 Vendor::Vendor(
-    const std::string& mac_prefix,
+    const int64_t      mac_prefix,
     const std::string& vendor_name,
-    const std::string& block_type,
+    const Registry     block_type,
     const std::string& last_update
-) : mac_prefix{prefix_to_int(mac_prefix)},
-    vendor_name{vendor_name},
-    block_type{to_registry(block_type)},
-    last_update{last_update} {}
-
-Vendor::Vendor(const Stmt& stmt)
-    : mac_prefix{stmt.get_col<int64_t>(0)},
-      vendor_name{stmt.get_col<std::string>(1)},
-      block_type{stmt.get_col<Registry>(2)},
-      last_update{stmt.get_col<std::string>(3)} {}
-
-void Vendor::bind(const Stmt& stmt) const {
-    int rc;
-
-    if (rc = stmt.bind(1, mac_prefix); rc != SQLITE_OK) {
-        throw errors::CacheError{"col1", __func__, rc};
-    }
-    if (rc = stmt.bind(2, vendor_name); rc != SQLITE_OK) {
-        throw errors::CacheError{"col2", __func__, rc};
-    }
-    if (rc = stmt.bind(3, block_type); rc != SQLITE_OK) {
-        throw errors::CacheError{"col3", __func__, rc};
-    }
-    if (rc = stmt.bind(4, last_update); rc != SQLITE_OK) {
-        throw errors::CacheError{"col4", __func__, rc};
-    }
-}
+) noexcept : mac_prefix{mac_prefix},
+             vendor_name{vendor_name},
+             block_type{block_type},
+             last_update{last_update} {}
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
     const std::string prefix     = prefix_to_string(v.mac_prefix);

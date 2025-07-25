@@ -69,7 +69,9 @@ int ConnRW::drop_table() const noexcept {
 }
 
 void ConnRW::insert(std::istream& is) {
-    begin();
+    if (int rc = begin(); rc != SQLITE_OK) {
+        throw errors::CacheError{"begin", __func__, rc};
+    }
 
     if (!override_once_flags) [[likely]] {
         std::call_once(cleared_before_insert, [&] { clear_table(); });
@@ -77,33 +79,23 @@ void ConnRW::insert(std::istream& is) {
 
     const Stmt stmt{conn, INSERT_STMT};
     if (!stmt) {
-        throw errors::CacheError{"prepare", __func__, conn};
+        throw errors::CacheError{"prepare", __func__, stmt.rc()};
     }
 
     std::string line;
-
-    int rc;
 
     // Discard the header line
     std::getline(is, line);
 
     while (std::getline(is, line)) {
-        if (line.empty() || line.length() > MAX_LINE_LENGTH) {
-            continue;
-        }
-        Vendor v{line};
-        v.bind(stmt);
-
-        if (rc = stmt.step(); rc != SQLITE_DONE) {
-            throw errors::CacheError{"step", __func__, rc};
-        }
-
-        if (rc = stmt.reset(); rc != SQLITE_OK) {
-            throw errors::CacheError{"reset", __func__, rc};
+        if (!line.empty() && line.length() <= MAX_LINE_LENGTH) {
+            stmt.insert_row(Vendor{line});
         }
     }
 
-    commit();
+    if (int rc = commit(); rc != SQLITE_OK) {
+        throw errors::CacheError{"commit", __func__, rc};
+    }
 }
 
 void ConnRW::prepare_db() const {

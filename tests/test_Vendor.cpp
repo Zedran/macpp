@@ -22,37 +22,37 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
         test_case{
             // Quoted vendor name
             R"(00:00:0C,"Cisco Systems, Inc",false,MA-L,2015/11/17)",
-            Vendor{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"}
+            Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"}
         },
         test_case{
             // Non-quoted vendor name
             R"(00:00:0D,FIBRONICS LTD.,false,MA-L,2015/11/17)",
-            Vendor{"00:00:0D", "FIBRONICS LTD.", "MA-L", "2015/11/17"}
+            Vendor{0x00000D, "FIBRONICS LTD.", Registry::MA_L, "2015/11/17"}
         },
         test_case{
             // Quoted vendor name, longer prefix
             R"(5C:F2:86:D,"BrightSky, LLC",false,MA-M,2019/07/02)",
-            Vendor{"5C:F2:86:D", "BrightSky, LLC", "MA-M", "2019/07/02"}
+            Vendor{0x5CF286D, "BrightSky, LLC", Registry::MA_M, "2019/07/02"}
         },
         test_case{
             // Non-quoted vendor name, longer prefix
             R"(8C:1F:64:F5:A,Telco Antennas Pty Ltd,false,MA-S,2021/10/13)",
-            Vendor{"8C:1F:64:F5:A", "Telco Antennas Pty Ltd", "MA-S", "2021/10/13"}
+            Vendor{0x8C1F64F5A, "Telco Antennas Pty Ltd", Registry::MA_S, "2021/10/13"}
         },
         test_case{
             // Escaped quotes inside quoted vendor name
             R"(2C:7A:FE,"IEE&E ""Black"" ops",false,MA-L,2010/07/26)",
-            Vendor{"2C:7A:FE", "IEE&E \"Black\" ops", "MA-L", "2010/07/26"},
+            Vendor{0x2C7AFE, "IEE&E \"Black\" ops", Registry::MA_L, "2010/07/26"},
         },
         test_case{
             // Private block
             R"(00:48:54,,true,,0001/01/01)",
-            Vendor{"00:48:54", "", "", ""},
+            Vendor{0x004854, "", Registry::Unknown, ""},
         },
         test_case{
             // The last update field is empty, but valid (comma present)
             R"(00:00:0D,FIBRONICS LTD.,false,MA-L,)",
-            Vendor{"00:00:0D", "FIBRONICS LTD.", "MA-L", ""},
+            Vendor{0x00000D, "FIBRONICS LTD.", Registry::MA_L, ""},
         },
     };
 
@@ -140,13 +140,13 @@ TEST_CASE("Vendor::operator<<") {
     };
 
     const test_case cases[] = {
-        {Vendor{"00:00:0C", "Cisco Systems, Inc", "MA-L", "2015/11/17"},
+        {Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
          "MAC prefix   00:00:0C\n"
          "Vendor name  Cisco Systems, Inc\n"
          "Private      no\n"
          "Block type   MA-L\n"
          "Last update  2015/11/17"},
-        {Vendor{"00:48:54", "", "", "0001/01/01"},
+        {Vendor{0x004854, "", Registry::Unknown, "0001/01/01"},
          "MAC prefix   00:48:54\n"
          "Vendor name  -\n"
          "Private      yes\n"

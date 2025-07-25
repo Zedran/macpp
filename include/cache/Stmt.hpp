@@ -5,6 +5,7 @@
 #include <string>
 
 #include "Registry.hpp"
+#include "Vendor.hpp"
 
 // A RAII wrapper for sqlite3_stmt object.
 class Stmt {
@@ -78,8 +79,14 @@ public:
         }
     }
 
+    // Retrieves Vendor instance from SQLite row.
+    Vendor get_row() const noexcept;
+
     // Returns true if statement has been prepared correctly.
     bool good() const noexcept;
+
+    // Binds Vendor instance to the statement.
+    void insert_row(const Vendor& v) const;
 
     // Returns result code returned by sqlite3_prepare function.
     int rc() const noexcept;
