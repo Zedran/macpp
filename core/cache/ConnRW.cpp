@@ -69,7 +69,9 @@ int ConnRW::drop_table() const noexcept {
 }
 
 void ConnRW::insert(std::istream& is) {
-    begin();
+    if (int rc = begin(); rc != SQLITE_OK) {
+        throw errors::CacheError{"begin", __func__, rc};
+    }
 
     if (!override_once_flags) [[likely]] {
         std::call_once(cleared_before_insert, [&] { clear_table(); });
@@ -91,7 +93,9 @@ void ConnRW::insert(std::istream& is) {
         }
     }
 
-    commit();
+    if (int rc = commit(); rc != SQLITE_OK) {
+        throw errors::CacheError{"commit", __func__, rc};
+    }
 }
 
 void ConnRW::prepare_db() const {
