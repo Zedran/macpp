@@ -27,6 +27,23 @@ int Stmt::bind(const int coln, const Registry value) const noexcept {
     return sqlite3_bind_int(stmt, coln, static_cast<int>(value));
 }
 
+sqlite3_stmt* Stmt::get() const noexcept {
+    return stmt;
+}
+
+Vendor Stmt::get_row() const noexcept {
+    return Vendor{
+        get_col<int64_t>(0),
+        get_col<std::string>(1),
+        get_col<Registry>(2),
+        get_col<std::string>(3),
+    };
+}
+
+bool Stmt::good() const noexcept {
+    return prepare_rc == SQLITE_OK;
+}
+
 void Stmt::insert_row(const Vendor& v) const {
     int rc;
 
@@ -49,23 +66,6 @@ void Stmt::insert_row(const Vendor& v) const {
     if (rc = reset(); rc != SQLITE_OK) {
         throw errors::CacheError{"reset", __func__, rc};
     }
-}
-
-sqlite3_stmt* Stmt::get() const noexcept {
-    return stmt;
-}
-
-Vendor Stmt::get_row() const noexcept {
-    return Vendor{
-        get_col<int64_t>(0),
-        get_col<std::string>(1),
-        get_col<Registry>(2),
-        get_col<std::string>(3),
-    };
-}
-
-bool Stmt::good() const noexcept {
-    return prepare_rc == SQLITE_OK;
 }
 
 int Stmt::rc() const noexcept {

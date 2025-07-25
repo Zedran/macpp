@@ -35,9 +35,6 @@ public:
     // Binds a string to coln of the statement. Returns SQLite result code.
     int bind(const int coln, const std::string& value) const noexcept;
 
-    // Binds Vendor instance to the statement.
-    void insert_row(const Vendor& v) const;
-
     // Returns pointer to the wrapped sqlite3_stmt object.
     sqlite3_stmt* get() const noexcept;
 
@@ -87,6 +84,9 @@ public:
 
     // Returns true if statement has been prepared correctly.
     bool good() const noexcept;
+
+    // Binds Vendor instance to the statement.
+    void insert_row(const Vendor& v) const;
 
     // Returns result code returned by sqlite3_prepare function.
     int rc() const noexcept;
