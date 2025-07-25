@@ -79,7 +79,7 @@ void ConnRW::insert(std::istream& is) {
 
     const Stmt stmt{conn, INSERT_STMT};
     if (!stmt) {
-        throw errors::CacheError{"prepare", __func__, conn};
+        throw errors::CacheError{"prepare", __func__, stmt.rc()};
     }
 
     std::string line;
