@@ -60,8 +60,6 @@ std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
     const std::vector<int64_t> queries     = construct_queries(stripped_address);
     const std::string          stmt_string = build_find_by_addr_stmt(queries.size());
 
-    std::vector<Vendor> results;
-
     const Stmt stmt{conn, stmt_string};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
@@ -73,6 +71,8 @@ std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
             throw errors::CacheError{"bind", __func__, rc};
         }
     }
+
+    std::vector<Vendor> results;
 
     while (stmt.step() == SQLITE_ROW) {
         results.emplace_back(stmt.get_row());
@@ -92,8 +92,6 @@ std::vector<Vendor> ConnR::find_by_name(const std::string& name) const {
 
     const std::string query = suppress_like_wildcards(name);
 
-    std::vector<Vendor> results;
-
     const Stmt stmt{conn, stmt_string};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
@@ -102,6 +100,8 @@ std::vector<Vendor> ConnR::find_by_name(const std::string& name) const {
     if (int rc = stmt.bind(1, query); rc != SQLITE_OK) {
         throw errors::CacheError{"bind", __func__, rc};
     }
+
+    std::vector<Vendor> results;
 
     while (stmt.step() == SQLITE_ROW) {
         results.emplace_back(stmt.get_row());
