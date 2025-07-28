@@ -18,7 +18,7 @@ void update(const std::string& db_path, const std::optional<std::string>& update
     ConnRW conn{db_path};
 
     if (!update_fpath) {
-        const auto cleanup = finally([&] { curl_global_cleanup(); });
+        const auto cleanup = finally([] { curl_global_cleanup(); });
         conn.insert(Downloader{"https://maclookup.app/downloads/csv-database/get-db"}.get());
     } else {
         conn.insert(Reader{*update_fpath}.get());
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
         .metavar("PATH");
     app.add_subparser(sc_update);
 
-    const auto cleanup = finally([&] {
+    const auto cleanup = finally([] {
         if (sqlite3_shutdown() != SQLITE_OK) {
             std::cerr << "failed to shutdown sqlite\n";
         }
