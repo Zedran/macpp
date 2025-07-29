@@ -64,6 +64,10 @@ add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 include(${SCRIPTS}/install.cmake)
 include(${SCRIPTS}/config_uninstall.cmake)
 
+if (CPACK_GENERATOR)
+    include(cmake/cpack.cmake)
+endif()
+
 if (MAKE_TESTS)
     include(${SCRIPTS}/catch2.cmake)
 
