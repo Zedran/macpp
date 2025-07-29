@@ -17,8 +17,8 @@ endif()
 string(REGEX REPLACE "^v" "" CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}")
 
 set(CPACK_PACKAGE_NAME                "${PROJECT_NAME}"                         )
-set(CPACK_PACKAGE_VENDOR              "github.com/Zedran"                       )
-set(CPACK_PACKAGE_CONTACT             "Wojciech Głąb (github.com/Zedran)"       )
+set(CPACK_PACKAGE_VENDOR              "Wojciech Głąb (github.com/Zedran)"       )
+set(CPACK_PACKAGE_CONTACT             "${CPACK_PACKAGE_VENDOR}"                 )
 set(CPACK_PACKAGE_HOMEPAGE_URL        "https://github.com/Zedran/macpp"         )
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "CLI tool for MAC address lookup."        )
 
@@ -39,7 +39,6 @@ set(CPACK_RPM_PACKAGE_REQUIRES        "libcurl, sqlite"                         
 set(CPACK_PACKAGE_INSTALL_DIRECTORY            "${PROJECT_NAME}"                )
 set(CPACK_NSIS_DISPLAY_NAME                    "${PROJECT_NAME}"                )
 set(CPACK_NSIS_PACKAGE_NAME                    "${PROJECT_NAME}"                )
-set(CPACK_NSIS_CONTACT                         "${CPACK_PACKAGE_VENDOR}"        )
 set(CPACK_NSIS_MODIFY_PATH                     ON                               )
 set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON                               )
 
