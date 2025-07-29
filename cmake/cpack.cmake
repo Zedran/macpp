@@ -36,4 +36,11 @@ set(CPACK_RPM_PACKAGE_GROUP           "Unspecified"                             
 set(CPACK_RPM_PACKAGE_LICENSE         "MIT"                                     )
 set(CPACK_RPM_PACKAGE_REQUIRES        "libcurl, sqlite"                         )
 
+set(CPACK_PACKAGE_INSTALL_DIRECTORY            "${PROJECT_NAME}"                )
+set(CPACK_NSIS_DISPLAY_NAME                    "${PROJECT_NAME}"                )
+set(CPACK_NSIS_PACKAGE_NAME                    "${PROJECT_NAME}"                )
+set(CPACK_NSIS_CONTACT                         "${CPACK_PACKAGE_VENDOR}"        )
+set(CPACK_NSIS_MODIFY_PATH                     ON                               )
+set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON                               )
+
 include(CPack)
