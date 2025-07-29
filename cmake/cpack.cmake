@@ -31,4 +31,9 @@ set(CPACK_RESOURCE_FILE_README        "${PROJECT_SOURCE_DIR}/README.md"         
 set(CPACK_DEBIAN_PACKAGE_SECTION      "utils"                                   )
 set(CPACK_DEBIAN_PACKAGE_DEPENDS      "libcurl4, libsqlite3-0"                  )
 
+set(CPACK_RPM_PACKAGE_RELEASE         "1"                                       )
+set(CPACK_RPM_PACKAGE_GROUP           "Unspecified"                             )
+set(CPACK_RPM_PACKAGE_LICENSE         "MIT"                                     )
+set(CPACK_RPM_PACKAGE_REQUIRES        "libcurl, sqlite"                         )
+
 include(CPack)
