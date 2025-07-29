@@ -17,12 +17,16 @@ target_include_directories(core PRIVATE ${INC_DIR})
 target_link_libraries(core PRIVATE CURL::libcurl)
 target_add_sqlite3(core)
 
+add_dependencies(core ${CONFIG_HPP_TARGET})
+
 if (COVER)
     add_library(core_coverage ${CORE_SOURCES})
 
     target_include_directories(core_coverage PRIVATE ${INC_DIR})
     target_link_libraries(core_coverage PRIVATE CURL::libcurl)
     target_add_sqlite3(core_coverage)
+
+    add_dependencies(core_coverage ${CONFIG_HPP_TARGET})
 
     target_compile_options(core_coverage PRIVATE -g --coverage)
     target_link_options(core_coverage PRIVATE --coverage)
