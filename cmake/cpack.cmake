@@ -28,4 +28,7 @@ set(CPACK_PACKAGE_CHECKSUM            "SHA256"                                  
 set(CPACK_RESOURCE_FILE_LICENSE       "${PROJECT_SOURCE_DIR}/LICENSE"           )
 set(CPACK_RESOURCE_FILE_README        "${PROJECT_SOURCE_DIR}/README.md"         )
 
+set(CPACK_DEBIAN_PACKAGE_SECTION      "utils"                                   )
+set(CPACK_DEBIAN_PACKAGE_DEPENDS      "libcurl4, libsqlite3-0"                  )
+
 include(CPack)
