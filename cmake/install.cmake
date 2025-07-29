@@ -1,4 +1,5 @@
 set(DOC_FILES
+    ${PROJECT_SOURCE_DIR}/LICENSE
     ${PROJECT_SOURCE_DIR}/NOTICE.md
     ${PROJECT_SOURCE_DIR}/README.md
 )
@@ -6,7 +7,7 @@ set(DOC_FILES
 set(BIN_DIR bin)
 
 if (WIN32)
-    set(DOC_DIR ${CMAKE_INSTALL_PREFIX})
+    set(DOC_DIR .)
     file(GLOB DLLS ${PROJECT_BINARY_DIR}/Release/*.dll)
     install(FILES ${DLLS} DESTINATION ${BIN_DIR})
 else()
