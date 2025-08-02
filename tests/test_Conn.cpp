@@ -14,6 +14,7 @@ TEST_CASE("ConnRW::insert") {
     const std::vector<Vendor> cases = {
         Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
         Vendor{0x004854, "", Registry::Unknown, ""},
+        Vendor{0x8C1F64FFC, "Invendis Technologies India Pvt Ltd", Registry::MA_S, "2022/07/19"},
     };
 
     ConnRW conn_rw{"file:memdb_connrw_insert?mode=memory&cache=shared", true};
@@ -141,7 +142,7 @@ TEST_CASE("ConnRW destruction") {
     }
 
     REQUIRE(stmt.step() == SQLITE_ROW);
-    REQUIRE(stmt.get_col<int>(0) == 2);
+    REQUIRE(stmt.get_col<int>(0) == 3);
     REQUIRE(stmt.reset() == SQLITE_OK);
 
     REQUIRE(conn_master.clear_table() == SQLITE_OK);

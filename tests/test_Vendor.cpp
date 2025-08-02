@@ -4,7 +4,6 @@
 
 #include "Vendor.hpp"
 #include "cache/ConnR.hpp"
-#include "cache/ConnRW.hpp"
 #include "exception.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
@@ -101,33 +100,14 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
     }
 }
 
-// Checks for integer overflow during prefix retrieval.
-//
-// Also, ensures that a NULL text value returned from the database
+// Ensures that a NULL text value returned from the database
 // is correctly handled. Although the vendors table does not
 // allow NULL text values, the check was implemented
 // for protection against a compromised cache.
 TEST_CASE("Vendor::Vendor(Stmt&)") {
-    const std::string path = "file:memdb_vendor_stmt?mode=memory&cache=shared";
-
-    ConnRW conn_rw{path, true};
-
-    std::stringstream ss;
-    ss << "Header\n8C:1F:64:FF:C,Invendis Technologies India Pvt Ltd,false,MA-S,2022/07/19";
-    REQUIRE_NOTHROW(conn_rw.insert(ss));
-
-    const int64_t expected = 0x8C1F64FFC;
-
-    ConnR conn_r{path, true};
-
-    std::vector<Vendor> results = conn_r.find_by_addr("8C:1F:64:FF:C");
-
-    REQUIRE(!results.empty());
-    REQUIRE(results.at(0).mac_prefix == expected);
-
     const ConnR conn_r2{"testdata/poisoned.db", true};
 
-    results = conn_r2.find_by_addr("00:00:0C");
+    std::vector<Vendor> results = conn_r2.find_by_addr("00:00:0C");
 
     REQUIRE(!results.empty());
     REQUIRE(results.at(0).vendor_name == "");
