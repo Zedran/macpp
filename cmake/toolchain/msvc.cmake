@@ -11,4 +11,6 @@ set(CMAKE_CXX_FLAGS_RELEASE        "/O2 /DNDEBUG ${WARN} ${HARDEN}"    )
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Ox /Zi /DNDEBUG ${WARN} ${HARDEN}")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "/O1 /DNDEBUG ${WARN} ${HARDEN}"    )
 
-set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+if (NOT CMAKE_TOOLCHAIN_FILE)
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+endif()
