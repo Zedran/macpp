@@ -8,8 +8,11 @@ set(BIN_DIR bin)
 
 if (WIN32)
     set(DOC_DIR .)
-    file(GLOB DLLS ${PROJECT_BINARY_DIR}/Release/*.dll)
-    install(FILES ${DLLS} DESTINATION ${BIN_DIR})
+    install(
+        DIRECTORY              "${CMAKE_BINARY_DIR}/$<CONFIG>/"
+        DESTINATION            ${BIN_DIR}
+        FILES_MATCHING PATTERN "*.dll"
+    )
 else()
     set(DOC_DIR share/${PROJECT_NAME})
 endif()
