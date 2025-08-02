@@ -11,7 +11,7 @@
 // vendor_name can contain a comma, therefore the CSV string needs to be
 // wrapped in quotes. Vendor constructor must account for that when gathering
 // values from line.
-TEST_CASE("Vendor::Vendor(const std::string& line)") {
+TEST_CASE("Vendor(string)") {
     struct test_case {
         std::string input;
         Vendor      expected;
@@ -104,7 +104,7 @@ TEST_CASE("Vendor::Vendor(const std::string& line)") {
 // is correctly handled. Although the vendors table does not
 // allow NULL text values, the check was implemented
 // for protection against a compromised cache.
-TEST_CASE("Vendor::Vendor(Stmt&)") {
+TEST_CASE("NULL values") {
     const ConnR conn_r2{"testdata/poisoned.db", true};
 
     std::vector<Vendor> results = conn_r2.find_by_addr("00:00:0C");
