@@ -10,6 +10,14 @@ class ConnRW : public Conn {
     // More than twice the length of the longest CSV line.
     static constexpr size_t MAX_LINE_LENGTH = 300;
 
+    static constexpr const char* CREATE_TABLE_STMT =
+        "CREATE TABLE vendors ("
+        "prefix  INTEGER PRIMARY KEY,"
+        "name    TEXT NOT NULL,"
+        "block   INTEGER NOT NULL,"
+        "updated TEXT NOT NULL"
+        ")";
+
     static constexpr const char* INSERT_STMT =
         "INSERT INTO vendors "
         "(prefix, name, block, updated) "

@@ -53,15 +53,7 @@ int ConnRW::commit() noexcept {
 }
 
 int ConnRW::create_table() const noexcept {
-    static constexpr const char* create_table_stmt =
-        "CREATE TABLE vendors ("
-        "prefix  INTEGER PRIMARY KEY,"
-        "name    TEXT NOT NULL,"
-        "block   INTEGER NOT NULL,"
-        "updated TEXT NOT NULL"
-        ")";
-
-    return sqlite3_exec(conn, create_table_stmt, nullptr, nullptr, nullptr);
+    return sqlite3_exec(conn, CREATE_TABLE_STMT, nullptr, nullptr, nullptr);
 }
 
 int ConnRW::drop_table() const noexcept {
