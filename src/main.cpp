@@ -27,7 +27,7 @@ void update(const std::string& db_path, const std::optional<std::string>& update
 
 int main(int argc, char* argv[]) {
     argparse::ArgumentParser app{"macpp", VERSION_INFO};
-    app.add_description("Tool for MAC address lookup.");
+    app.add_description("Tool for MAC address lookup.\nData source: https://maclookup.app.");
     app.set_usage_max_line_width(80);
 
     argparse::ArgumentParser sc_addr{"addr"};
