@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
 
-option(BUNDLE     "Bundle custom build of SQLite3 with the application" OFF)
 option(MAKE_TESTS "Build test and benchmark targets"                    OFF)
 option(COVER      "Generate test coverage target if MAKE_TESTS=ON"      OFF)
 option(MAKE_MAN   "Generate Linux manual"                               OFF)
@@ -37,7 +36,7 @@ set(CONFIG_HPP_TEMPLATE ${INC_DIR}/config.hpp.in)
 set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
 
 find_package(CURL REQUIRED)
-include(${SCRIPTS}/sqlite3.cmake)
+find_package(SQLite3 REQUIRED)
 include(${SCRIPTS}/argparse.cmake)
 
 include(${SCRIPTS}/manual.cmake)
@@ -56,8 +55,7 @@ add_subdirectory(core)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE core argparse CURL::libcurl)
-target_add_sqlite3(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE core argparse CURL::libcurl SQLite::SQLite3)
 
 add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 

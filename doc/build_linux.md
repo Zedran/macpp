@@ -60,7 +60,6 @@ make
 
 | Option         | Description                                    |
 |:---------------|:-----------------------------------------------|
-| `-DBUNDLE`     | Compile SQLite into the application directly   |
 | `-DMAKE_TESTS` | Build test binary                              |
 | `-DMAKE_COVER` | Generate coverage report target (`make cover`) |
 | `-DMAKE_MAN`   | Generate a manual for the application          |

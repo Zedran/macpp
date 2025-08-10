@@ -6,5 +6,4 @@ add_executable(${bench_name}
 
 set_target_properties(${bench_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 target_include_directories(${bench_name} PRIVATE ${INC_DIR})
-target_link_libraries(${bench_name} PRIVATE Catch2::Catch2WithMain core)
-target_add_sqlite3(${bench_name})
+target_link_libraries(${bench_name} PRIVATE Catch2::Catch2WithMain core SQLite::SQLite3)
