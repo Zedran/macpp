@@ -80,6 +80,13 @@ public:
         : ParsingError{"no comma found in CSV line", line} {}
 };
 
+// Thrown if prefix field ends the line.
+class PrefixTermError : public ParsingError {
+public:
+    explicit PrefixTermError(const std::string& line)
+        : ParsingError{"prefix field ends the line", line} {}
+};
+
 // Thrown if quoted vendor name field is not terminated with '",' sequence,
 // e.g. ',"Cisco Systems, Inc,false'
 class QuotedTermSeqError : public ParsingError {

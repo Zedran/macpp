@@ -21,7 +21,11 @@ Vendor::Vendor(const std::string& line) {
     mac_prefix = prefix_to_int(line.substr(0, p1));
     p1++;
 
-    if (line.at(p1) == QUOTE) {
+    if (p1 >= line.length()) {
+        throw errors::PrefixTermError{line};
+    }
+
+    if (line[p1] == QUOTE) {
         // Quoted vendor name (,"Cisco Systems, Inc",)
 
         // Find the vendor name field closure past the second escaped quote
@@ -36,7 +40,7 @@ Vendor::Vendor(const std::string& line) {
             replace_escaped_quotes(vendor_name);
         }
         p1 = p2 + 2;
-    } else if (line.at(p1) == COMMA) {
+    } else if (line[p1] == COMMA) {
         // Private block always has an empty vendor name - skip a comma
         // to reach private designator field.
         vendor_name = "";
@@ -50,17 +54,17 @@ Vendor::Vendor(const std::string& line) {
         p1          = p2 + 1;
     }
 
-    if (p1 == line.length()) {
+    if (p1 >= line.length()) {
         // Private field is empty (comma after vendor name ends the line).
         throw errors::PrivateInvalidError{line};
     }
 
-    if (line.at(p1) == 't') {
+    if (line[p1] == 't') {
         // Private entry contains no more meaningful information
         block_type  = Registry::Unknown;
         last_update = "";
         return;
-    } else if (line.at(p1) != 'f') {
+    } else if (line[p1] != 'f') {
         // Private designator field must contain either 'true' or 'false'
         throw errors::PrivateInvalidError{line};
     }

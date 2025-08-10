@@ -69,12 +69,14 @@ TEST_CASE("Vendor(string)") {
 
     const std::map<const std::string, const ParsingError> throw_cases = {
         {"", NoCommaError{""}},                                                             // Empty line
+        {"00:00:00", NoCommaError{""}},                                                     // Only the prefix field
         {"00:00:00Vendor name", NoCommaError{""}},                                          // No commas
         {R"(5C:F2:86:D,"BrightSky, LLC,false,MA-M,2019/07/02)", QuotedTermSeqError{""}},    // No closing quote after vendor name
         {R"(5C:F2:86:D,"BrightSky, LLC"false,MA-M,2019/07/02)", QuotedTermSeqError{""}},    // Closing quote after vendor name present, but no comma
         {R"(00:00:00,"IEE&E ""Black"" ops,false,MA-L,2010/07/26)", QuotedTermSeqError{""}}, // No closing quote with escaped quote present
         {R"(00:00:0C,"Cisco Systems, Inc",no,MA-L,2015/11/17)", PrivateInvalidError{""}},   // Invalid private field
         {R"(00:00:0C,"Cisco Systems, Inc",falseMA-L,2015/11/17)", PrivateTermError{""}},    // No comma between private and block type fields
+        {"00:00:00,", PrefixTermError{""}},                                                 // Comma after prefix ends the line
         {R"(00:00:0D,FIBRONICS LTD.)", UnquotedTermError{""}},                              // No comma after vendor name
         {R"(00:00:0D,FIBRONICS LTD.,)", PrivateInvalidError{""}},                           // Comma after vendor name ends the line
         {R"(00:00:0D,FIBRONICS LTD.,false,)", BlockTypeTermError{""}},                      // Comma after private field ends the line
