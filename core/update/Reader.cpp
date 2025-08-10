@@ -9,7 +9,7 @@ Reader::Reader(const std::string& path) : file{std::ifstream{path}} {
     }
 
     if (std::filesystem::file_size(path) > MAX_FSIZE) {
-        throw errors::NetworkError{"file '" + path + "' exceeds local file size limit"};
+        throw errors::UpdateError{"file '" + path + "' exceeds local file size limit"};
     }
 }
 

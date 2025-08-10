@@ -42,13 +42,13 @@ public:
 };
 
 // Exception class designed to embed information related to CURL errors.
-class NetworkError : public Error {
+class UpdateError : public Error {
 public:
-    explicit NetworkError(const std::string& msg) : Error{msg} {}
+    explicit UpdateError(const std::string& msg) : Error{msg} {}
 
     // Constructs a new NetworkError that contains error information retrieved
     // from CURLcode.
-    explicit NetworkError(const std::string& msg, const CURLcode code)
+    explicit UpdateError(const std::string& msg, const CURLcode code)
         : Error{msg + ": (" + std::to_string(static_cast<int>(code)) + ") " + curl_easy_strerror(code)} {}
 };
 

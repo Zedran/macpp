@@ -33,5 +33,5 @@ TEST_CASE("Reader") {
         large_file.write(&zero, 1);
     }
 
-    REQUIRE_THROWS_AS(Reader{large_path}, errors::NetworkError);
+    REQUIRE_THROWS_AS(Reader{large_path}, errors::UpdateError);
 }
