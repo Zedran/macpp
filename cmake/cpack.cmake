@@ -21,6 +21,17 @@ set(CPACK_PACKAGE_VENDOR              "Wojciech Głąb (github.com/Zedran)"     
 set(CPACK_PACKAGE_CONTACT             "${CPACK_PACKAGE_VENDOR}"                 )
 set(CPACK_PACKAGE_HOMEPAGE_URL        "https://github.com/Zedran/macpp"         )
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "CLI tool for MAC address lookup."        )
+set(CPACK_PACKAGE_DESCRIPTION [=[
+macpp is a tool that can lookup hardware manufacturer information by MAC address
+of a device or by vendor name. Once the application's database is created,
+the Internet connection is not required to operate it. In fact, you can create
+and update the database from a local, pre-downloaded file, so you can work
+completely offline.
+
+Data source: https://maclookup.app/downloads/csv-database
+
+Packaged with CPack (https://cmake.org).
+]=])
 
 set(CPACK_PACKAGE_FILE_NAME           "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
 set(CPACK_PACKAGE_CHECKSUM            "SHA256"                                  )
@@ -32,6 +43,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION      "utils"                                   
 set(CPACK_DEBIAN_PACKAGE_DEPENDS      "libcurl4, libsqlite3-0"                  )
 
 set(CPACK_RPM_PACKAGE_RELEASE         "1"                                       )
+set(CPACK_RPM_PACKAGE_DESCRIPTION     ${CPACK_PACKAGE_DESCRIPTION}              )
 set(CPACK_RPM_PACKAGE_GROUP           "Unspecified"                             )
 set(CPACK_RPM_PACKAGE_LICENSE         "MIT"                                     )
 set(CPACK_RPM_PACKAGE_REQUIRES        "libcurl, sqlite"                         )
