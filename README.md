@@ -1,6 +1,10 @@
 # macpp
 
-CLI tool for MAC address lookup. It uses the database provided by [MAC Address Lookup](https://maclookup.app/downloads/csv-database) as its data source.
+macpp is a tool that can lookup hardware manufacturer information by MAC address of a device or by vendor name.
+
+Once the application's database is created, the Internet connection is not required to operate it. In fact, you can create and update the database from a local, pre-downloaded file, so you can work completely offline.
+
+**Data source:** [maclookup.app](https://maclookup.app/downloads/csv-database).
 
 ## Subcommands
 
