@@ -24,7 +24,7 @@ Once the application's database is created, the Internet connection is not requi
 
 ## Installation
 
-### Release
+Download the package of your choice from the [Releases](https://github.com/Zedran/macpp/releases) page.
 
 | Package                  | Tested on              | Note                                             |
 |:-------------------------|:----------------------:|:-------------------------------------------------|
@@ -32,10 +32,33 @@ Once the application's database is created, the Internet connection is not requi
 | **RPM**                  | Fedora 41<br>Fedora 42 | Unsigned.                                        |
 | **Windows<br>installer** | Windows 10             | Unsigned. May trigger Windows Defender warnings. |
 
+### Linux
+
+#### Debian-based
+
+```bash
+apt install /path/to/macpp-<version>.deb
+```
+
+#### Fedora
+
+```bash
+dnf install /path/to/macpp-<version>.rpm
+```
+
+#### Other
+
+For other distributions, you will have to [build macpp from source](doc/build_linux.md).
+
+### Windows
+
+Run the installer. Make sure to select the option to add the installation directory to PATH.
+
 ### Building from source
 
 * [Linux](doc/build_linux.md)
 * [Windows](doc/build_windows.md)
+* macOS - not supported
 
 ## License
 
