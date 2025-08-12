@@ -24,7 +24,15 @@ Once the application's database is created, the Internet connection is not requi
 
 ## Installation
 
-**Building from source:**
+### Release
+
+| Package                  | Tested on              | Note                                             |
+|:-------------------------|:----------------------:|:-------------------------------------------------|
+| **DEB**                  | Debian 12<br>Debian 13 | Should work on all Debian derivatives.           |
+| **RPM**                  | Fedora 41<br>Fedora 42 | Unsigned.                                        |
+| **Windows<br>installer** | Windows 10             | Unsigned. May trigger Windows Defender warnings. |
+
+### Building from source
 
 * [Linux](doc/build_linux.md)
 * [Windows](doc/build_windows.md)
