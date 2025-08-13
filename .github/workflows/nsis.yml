@@ -1,0 +1,43 @@
+name: Release NSIS
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-installer:
+    name: NSIS
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Install dependencies
+        run: choco install -y git nsis
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756
+
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Mark repo directory as safe
+        run: git config --global --add safe.directory %GITHUB_WORKSPACE%
+
+      - name: Configure and build
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=NSIS ..
+          cmake --build . --config Release
+          cpack
+
+      - name: Upload artifact
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: |
+            build/*.exe
+            build/*.exe.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

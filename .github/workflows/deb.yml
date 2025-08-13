@@ -1,0 +1,50 @@
+name: Release DEB
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-package:
+    name: DEB (Debian 12)
+    runs-on: ubuntu-latest
+    container:
+      image: debian:12
+    permissions:
+      contents: write
+
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+            build-essential \
+            cmake \
+            dpkg-dev \
+            git \
+            libcurl4-openssl-dev \
+            libsqlite3-dev \
+            pandoc
+
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Mark repo directory as safe
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
+
+      - name: Configure and build
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DMAKE_MAN=ON -DCPACK_GENERATOR=DEB ..
+          make -j$(nproc)
+          cpack
+
+      - name: Upload artifact
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: |
+            build/*.deb
+            build/*.deb.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
