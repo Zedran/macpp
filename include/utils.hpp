@@ -22,6 +22,9 @@ std::vector<int64_t> construct_queries(const std::string& addr);
 // Accepts addr without separators (101010).
 std::optional<std::string> get_ieee_block(const std::string& addr, const size_t block_len);
 
+// Returns a copy of str with escaped quotes (double quotes "").
+std::string insert_escaped_quotes(const std::string& str) noexcept;
+
 // Converts MAC prefix from string to an integer. Colon separators allowed.
 int64_t prefix_to_int(const std::string& prefix);
 

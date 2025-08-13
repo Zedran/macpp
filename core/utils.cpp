@@ -47,6 +47,21 @@ std::optional<std::string> get_ieee_block(const std::string& addr, const size_t 
     return std::nullopt;
 }
 
+std::string insert_escaped_quotes(const std::string& str) noexcept {
+    static constexpr char QUOTE = '"';
+
+    std::string escaped;
+
+    for (const auto& c : str) {
+        if (c == QUOTE) {
+            escaped += QUOTE;
+        }
+        escaped += c;
+    }
+
+    return escaped;
+}
+
 int64_t prefix_to_int(const std::string& prefix) {
     std::string clean = remove_addr_separators(prefix);
 

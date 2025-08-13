@@ -136,6 +136,19 @@ TEST_CASE("get_ieee_block") {
     }
 }
 
+TEST_CASE("insert_escaped_quotes") {
+    const std::map<const std::string, const std::string> cases = {
+        {R"(IEE&E "Black" ops)", R"(IEE&E ""Black"" ops)"},
+        {R"(")", R"("")"},
+        {R"(abc)", R"(abc)"},
+    };
+
+    for (auto& [input, expected] : cases) {
+        std::string out = insert_escaped_quotes(input);
+        REQUIRE(out == expected);
+    }
+}
+
 // Ensures that prefix_to_int returns a correct numerical value.
 TEST_CASE("prefix_to_int") {
     const std::map<std::string, int64_t> cases = {
