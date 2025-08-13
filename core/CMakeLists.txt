@@ -8,6 +8,7 @@ set(CORE_SOURCES
     Registry.cpp
     Vendor.cpp
     dir.cpp
+    out.cpp
     utils.cpp
 )
 
