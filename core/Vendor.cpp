@@ -2,6 +2,7 @@
 
 #include "Vendor.hpp"
 #include "exception.hpp"
+#include "out.hpp"
 #include "utils.hpp"
 
 Vendor::Vendor(const std::string& line) {
@@ -95,14 +96,41 @@ Vendor::Vendor(
              block_type{block_type},
              last_update{last_update} {}
 
-std::ostream& operator<<(std::ostream& os, const Vendor& v) {
-    const std::string prefix     = prefix_to_string(v.mac_prefix);
-    const bool        is_private = v.vendor_name.empty();
+std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
+    os << prefix_to_string(mac_prefix) << ',';
 
-    os << "MAC prefix   " << prefix << '\n'
-       << "Vendor name  " << (is_private ? "-" : v.vendor_name) << '\n'
-       << "Private      " << (is_private ? "yes" : "no") << '\n'
-       << "Block type   " << from_registry(v.block_type) << '\n'
-       << "Last update  " << (is_private ? "-" : v.last_update);
-    return os;
+    if (vendor_name.find('"') != std::string::npos) {
+        os << '"' << insert_escaped_quotes(vendor_name) << "\",";
+    } else if (vendor_name.find(',') != std::string::npos) {
+        os << '"' << vendor_name << "\",";
+    } else {
+        os << vendor_name << ',';
+    }
+
+    const bool is_private = vendor_name.empty();
+
+    os << std::boolalpha << is_private << ',';
+
+    if (block_type != Registry::Unknown) {
+        os << from_registry(block_type);
+    }
+
+    return os << ',' << last_update;
+}
+
+std::ostream& Vendor::write_string_regular(std::ostream& os) const noexcept {
+    const bool is_private = vendor_name.empty();
+
+    return os << "MAC prefix   " << prefix_to_string(mac_prefix) << '\n'
+              << "Vendor name  " << (is_private ? "-" : vendor_name) << '\n'
+              << "Private      " << (is_private ? "yes" : "no") << '\n'
+              << "Block type   " << from_registry(block_type) << '\n'
+              << "Last update  " << (is_private ? "-" : last_update);
+}
+
+std::ostream& operator<<(std::ostream& os, const Vendor& v) {
+    switch (out::get_format(os)) {
+    case out::Format::CSV: return v.write_string_csv(os);
+    default:               return v.write_string_regular(os);
+    }
 }

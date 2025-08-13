@@ -5,6 +5,7 @@
 #include "Vendor.hpp"
 #include "cache/ConnR.hpp"
 #include "exception.hpp"
+#include "out.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
 // The main challenge is that the file is comma-separated and sometimes
@@ -115,7 +116,59 @@ TEST_CASE("NULL values") {
     REQUIRE(results.at(0).vendor_name == "");
 }
 
-TEST_CASE("Vendor::operator<<") {
+TEST_CASE("operator<< out::csv") {
+    struct test_case {
+        Vendor      input;
+        std::string expected;
+    };
+
+    const test_case cases[] = {
+        {
+            // Quoted vendor name
+            Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
+            R"(00:00:0C,"Cisco Systems, Inc",false,MA-L,2015/11/17)",
+        },
+        {
+            // Non-quoted vendor name
+            Vendor{0x00000D, "FIBRONICS LTD.", Registry::MA_L, "2015/11/17"},
+            R"(00:00:0D,FIBRONICS LTD.,false,MA-L,2015/11/17)",
+        },
+        {
+            // Quoted vendor name, longer prefix
+            Vendor{0x5CF286D, "BrightSky, LLC", Registry::MA_M, "2019/07/02"},
+            R"(5C:F2:86:D,"BrightSky, LLC",false,MA-M,2019/07/02)",
+        },
+        {
+            // Non-quoted vendor name, longer prefix
+            Vendor{0x8C1F64F5A, "Telco Antennas Pty Ltd", Registry::MA_S, "2021/10/13"},
+            R"(8C:1F:64:F5:A,Telco Antennas Pty Ltd,false,MA-S,2021/10/13)",
+        },
+        {
+            // Escaped quotes inside quoted vendor name
+            Vendor{0x2C7AFE, "IEE&E \"Black\" ops", Registry::MA_L, "2010/07/26"},
+            R"(2C:7A:FE,"IEE&E ""Black"" ops",false,MA-L,2010/07/26)",
+        },
+        {
+            // Private block
+            Vendor{0x004854, "", Registry::Unknown, ""},
+            R"(00:48:54,,true,,)",
+        },
+    };
+
+    std::ostringstream oss;
+    for (const auto& c : cases) {
+
+        oss << out::csv << c.input;
+
+        std::string out = oss.str();
+        REQUIRE(out == c.expected);
+
+        oss.str("");
+        oss.clear();
+    }
+}
+
+TEST_CASE("operator<< out::regular") {
     struct test_case {
         Vendor      input;
         std::string expected;
@@ -139,7 +192,7 @@ TEST_CASE("Vendor::operator<<") {
     std::ostringstream oss;
     for (const auto& c : cases) {
 
-        oss << c.input;
+        oss << out::regular << c.input;
 
         std::string out = oss.str();
         REQUIRE(out == c.expected);
