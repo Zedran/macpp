@@ -25,17 +25,18 @@ void display_results(const argparse::ArgumentParser& app, const std::vector<Vend
     }
 
     if (format == "csv") {
-        std::cout << "MAC Prefix,Vendor Name,Private,Block Type,Last Update\n";
+        std::cout << "MAC Prefix,Vendor Name,Private,Block Type,Last Update\n"
+                  << out::csv;
         for (const auto& v : results) {
-            std::cout << out::csv << v << '\n';
+            std::cout << v << '\n';
         }
         return;
     }
 
     if (format == "json") {
-        std::cout << '[';
+        std::cout << '[' << out::json;
         for (auto it = results.begin(); it != results.end(); it++) {
-            std::cout << out::json << *it << (std::next(it) == results.end() ? "]\n" : ",");
+            std::cout << *it << (std::next(it) == results.end() ? "]\n" : ",");
         }
         return;
     }
