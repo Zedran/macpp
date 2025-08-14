@@ -16,11 +16,18 @@ Once the application's database is created, the Internet connection is not requi
 
 ## Optional arguments
 
-| Option           | Description                            |
-|:-----------------|:---------------------------------------|
-| `-f` `--file`    | Use a local CSV file for `update`      |
-| `-h` `--help`    | Display brief usage information.       |
-| `-v` `--version` | Display version information.           |
+| Option              | Description                                                          |
+|:--------------------|:---------------------------------------------------------------------|
+| `-f` `--file`       | Use a local CSV file for `update`                                    |
+| `-h` `--help`       | Display brief usage information.                                     |
+| `-o` `--out-format` | Set display format for the results of `addr` and `name` subcommands. |
+| `-v` `--version`    | Display version information.                                         |
+
+Available display formats:
+
+* `csv` - comma separated values
+* `json` - JSON (list of dictionaries)
+* `regular` - default, human-readable format
 
 ## Installation
 

@@ -1,6 +1,6 @@
 % MACPP(1)
 %
-% July 2025
+% August 2025
 
 # NAME
 
@@ -8,7 +8,7 @@
 
 # SYNOPSIS
 
-**macpp** \[-h | \--help] \[-v | \--version] \<command> \[args]
+**macpp** \[-h | \--help] \[-v | \--version] \[-o | \--out-format FORMAT] \<command> \[args]
 
 # DESCRIPTION
 
@@ -33,6 +33,9 @@
 **-h**, **\--help**
 : Display brief usage information and exit.
 
+**-o**, **\--out-format**
+: Set display format for the results of **addr** and **name** subcommands. Available options are: **csv** - comma-separated values, **json** - JSON format (list of dictionaries) and **regular** - default, human-readable format.
+
 **-v**, **\--version**
 : Display version information and exit.
 
@@ -41,12 +44,14 @@
 ## Searching by MAC address
 
 macpp addr 000000  
-macpp addr C0:FB:F9:01:23:45
+macpp addr C0:FB:F9:01:23:45  
+macpp -o csv addr 00:00:00
 
 ## Searching by vendor name
 
 macpp name xerox  
-macpp name "xerox corporation"
+macpp name "xerox corporation"  
+macpp \--out-format name xerox
 
 ## Updating vendor database
 
