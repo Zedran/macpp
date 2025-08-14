@@ -13,6 +13,9 @@ enum class Format {
 
     // CSV line, similar to the original data source.
     CSV,
+
+    // JSON dictionary, similar to the one offered by the original data source.
+    JSON,
 };
 
 // Sets Vendor data output format to CSV.
@@ -20,6 +23,9 @@ std::ostream& csv(std::ostream& os);
 
 // Returns currently set output format for os.
 Format get_format(std::ostream& os);
+
+// Sets Vendor data output format to JSON.
+std::ostream& json(std::ostream& os);
 
 // Sets Vendor data output format to Regular.
 std::ostream& regular(std::ostream& os);
