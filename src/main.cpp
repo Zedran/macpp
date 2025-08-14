@@ -61,7 +61,8 @@ int main(int argc, char* argv[]) {
     app.add_description("Tool for MAC address lookup.\nData source: https://maclookup.app.");
     app.set_usage_max_line_width(80);
     app.add_argument("-o", "--out-format")
-        .help("display found entries in the chosen format: 'csv', 'json' or 'regular'");
+        .help("display found entries in the chosen format: 'csv', 'json' or 'regular'")
+        .metavar("FORMAT");
 
     argparse::ArgumentParser sc_addr{"addr"};
     sc_addr.add_description("Search by MAC address.");
