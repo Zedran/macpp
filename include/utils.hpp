@@ -19,11 +19,6 @@ std::string build_find_by_addr_stmt(const size_t length) noexcept;
 // of the different blocks to get match.
 std::vector<int64_t> construct_queries(const std::string& addr);
 
-// Returns a vendor identifier block of length block_len extracted from addr.
-// If length of addr is lower than block_len, nullopt is returned instead.
-// Accepts addr without separators (101010).
-std::optional<std::string> get_ieee_block(const std::string& addr, const size_t block_len);
-
 // Returns a copy of str with escaped special characters. F (Format) parameter
 // determines the characters to escape and their replacements.
 // This function cannot be used for the regular format.
@@ -54,6 +49,11 @@ std::string escape_spec_chars(const std::string& str) noexcept {
 
     return escaped;
 }
+
+// Returns a vendor identifier block of length block_len extracted from addr.
+// If length of addr is lower than block_len, nullopt is returned instead.
+// Accepts addr without separators (101010).
+std::optional<std::string> get_ieee_block(const std::string& addr, const size_t block_len);
 
 // Converts MAC prefix from string to an integer. Colon separators allowed.
 int64_t prefix_to_int(const std::string& prefix);
