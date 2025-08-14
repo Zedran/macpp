@@ -118,6 +118,26 @@ std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
     return os << ',' << last_update;
 }
 
+std::ostream& Vendor::write_string_json(std::ostream& os) const noexcept {
+    os << R"({"macPrefix":")" << prefix_to_string(mac_prefix) << R"(","vendorName":")";
+
+    if (vendor_name.find('"') != std::string::npos) {
+        os << insert_escaped_quotes<out::Format::JSON>(vendor_name);
+    } else {
+        os << vendor_name;
+    }
+
+    const bool is_private = vendor_name.empty();
+
+    os << R"(","private":)" << std::boolalpha << is_private << R"(,"blockType":")";
+
+    if (block_type != Registry::Unknown) {
+        os << from_registry(block_type);
+    }
+
+    return os << R"(","lastUpdate":")" << last_update << R"("})";
+}
+
 std::ostream& Vendor::write_string_regular(std::ostream& os) const noexcept {
     const bool is_private = vendor_name.empty();
 
@@ -130,7 +150,8 @@ std::ostream& Vendor::write_string_regular(std::ostream& os) const noexcept {
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
     switch (out::get_format(os)) {
-    case out::Format::CSV: return v.write_string_csv(os);
-    default:               return v.write_string_regular(os);
+    case out::Format::CSV:  return v.write_string_csv(os);
+    case out::Format::JSON: return v.write_string_json(os);
+    default:                return v.write_string_regular(os);
     }
 }
