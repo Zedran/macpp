@@ -198,7 +198,7 @@ TEST_CASE("operator<< out::json") {
         {
             // Escaped quotes inside quoted vendor name, ampersand
             Vendor{0x2C7AFE, "IEE&E \"Black\" ops", Registry::MA_L, "2010/07/26"},
-            R"({"macPrefix":"2C:7A:FE","vendorName":"IEE&E \"Black\" ops","private":false,"blockType":"MA-L","lastUpdate":"2010/07/26"})",
+            R"({"macPrefix":"2C:7A:FE","vendorName":"IEE\u0026E \"Black\" ops","private":false,"blockType":"MA-L","lastUpdate":"2010/07/26"})",
         },
         {
             // Private block

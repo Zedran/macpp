@@ -100,7 +100,7 @@ std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
     os << prefix_to_string(mac_prefix) << ',';
 
     if (vendor_name.find('"') != std::string::npos) {
-        os << '"' << insert_escaped_quotes<out::Format::CSV>(vendor_name) << "\",";
+        os << '"' << escape_spec_chars<out::Format::CSV>(vendor_name) << "\",";
     } else if (vendor_name.find(',') != std::string::npos) {
         os << '"' << vendor_name << "\",";
     } else {
@@ -122,7 +122,7 @@ std::ostream& Vendor::write_string_json(std::ostream& os) const noexcept {
     os << R"({"macPrefix":")" << prefix_to_string(mac_prefix) << R"(","vendorName":")";
 
     if (vendor_name.find('"') != std::string::npos) {
-        os << insert_escaped_quotes<out::Format::JSON>(vendor_name);
+        os << escape_spec_chars<out::Format::JSON>(vendor_name);
     } else {
         os << vendor_name;
     }

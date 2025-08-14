@@ -24,24 +24,32 @@ std::vector<int64_t> construct_queries(const std::string& addr);
 // Accepts addr without separators (101010).
 std::optional<std::string> get_ieee_block(const std::string& addr, const size_t block_len);
 
-// Returns a copy of str with escaped quotes. F (Format) parameter
-// determines the escape character - quote for CSV, backslash for JSON.
+// Returns a copy of str with escaped special characters. F (Format) parameter
+// determines the characters to escape and their replacements.
 // This function cannot be used for the regular format.
 template <out::Format F>
-std::string insert_escaped_quotes(const std::string& str) noexcept {
+std::string escape_spec_chars(const std::string& str) noexcept {
     static_assert(F != out::Format::Regular);
 
     std::string escaped;
 
     for (const auto& c : str) {
-        if (c == '"') {
-            if constexpr (F == out::Format::CSV) {
-                escaped += '"';
-            } else if constexpr (F == out::Format::JSON) {
-                escaped += '\\';
+        if constexpr (F == out::Format::CSV) {
+            switch (c) {
+            case '"': escaped += R"("")"; break;
+            default:  escaped += c;
+            }
+        } else if constexpr (F == out::Format::JSON) {
+            switch (c) {
+            case '"':  escaped += R"(\")"; break;
+            case '&':  escaped += R"(\u0026)"; break;
+            case '\'': escaped += R"(\u0027)"; break;
+            case '\\': escaped += R"(\\)"; break;
+            case '<':  escaped += R"(\u003c)"; break;
+            case '>':  escaped += R"(\u003e)"; break;
+            default:   escaped += c;
             }
         }
-        escaped += c;
     }
 
     return escaped;
