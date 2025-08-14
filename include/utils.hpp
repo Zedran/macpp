@@ -31,12 +31,10 @@ template <out::Format F>
 std::string insert_escaped_quotes(const std::string& str) noexcept {
     static_assert(F != out::Format::Regular);
 
-    static constexpr char QUOTE = '"';
-
     std::string escaped;
 
     for (const auto& c : str) {
-        if (c == QUOTE) {
+        if (c == '"') {
             if constexpr (F == out::Format::CSV) {
                 escaped += '"';
             } else if constexpr (F == out::Format::JSON) {
