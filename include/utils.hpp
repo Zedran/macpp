@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "out.hpp"
+
 // A helper function that appends the correct number of placeholders
 // to the sqlite statement in construction.
 std::string build_find_by_addr_stmt(const size_t length) noexcept;
@@ -22,8 +24,30 @@ std::vector<int64_t> construct_queries(const std::string& addr);
 // Accepts addr without separators (101010).
 std::optional<std::string> get_ieee_block(const std::string& addr, const size_t block_len);
 
-// Returns a copy of str with escaped quotes (double quotes "").
-std::string insert_escaped_quotes(const std::string& str) noexcept;
+// Returns a copy of str with escaped quotes. F (Format) parameter
+// determines the escape character - quote for CSV, backslash for JSON.
+// This function cannot be used for the regular format.
+template <out::Format F>
+std::string insert_escaped_quotes(const std::string& str) noexcept {
+    static_assert(F != out::Format::Regular);
+
+    static constexpr char QUOTE = '"';
+
+    std::string escaped;
+
+    for (const auto& c : str) {
+        if (c == QUOTE) {
+            if constexpr (F == out::Format::CSV) {
+                escaped += '"';
+            } else if constexpr (F == out::Format::JSON) {
+                escaped += '\\';
+            }
+        }
+        escaped += c;
+    }
+
+    return escaped;
+}
 
 // Converts MAC prefix from string to an integer. Colon separators allowed.
 int64_t prefix_to_int(const std::string& prefix);

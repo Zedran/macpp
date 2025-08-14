@@ -100,7 +100,7 @@ std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
     os << prefix_to_string(mac_prefix) << ',';
 
     if (vendor_name.find('"') != std::string::npos) {
-        os << '"' << insert_escaped_quotes(vendor_name) << "\",";
+        os << '"' << insert_escaped_quotes<out::Format::CSV>(vendor_name) << "\",";
     } else if (vendor_name.find(',') != std::string::npos) {
         os << '"' << vendor_name << "\",";
     } else {

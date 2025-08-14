@@ -137,14 +137,25 @@ TEST_CASE("get_ieee_block") {
 }
 
 TEST_CASE("insert_escaped_quotes") {
-    const std::map<const std::string, const std::string> cases = {
+    const std::map<const std::string, const std::string> csv_cases = {
         {R"(IEE&E "Black" ops)", R"(IEE&E ""Black"" ops)"},
         {R"(")", R"("")"},
         {R"(abc)", R"(abc)"},
     };
 
-    for (auto& [input, expected] : cases) {
-        std::string out = insert_escaped_quotes(input);
+    for (auto& [input, expected] : csv_cases) {
+        std::string out = insert_escaped_quotes<out::Format::CSV>(input);
+        REQUIRE(out == expected);
+    }
+
+    const std::map<const std::string, const std::string> json_cases = {
+        {R"(IEE&E "Black" ops)", R"(IEE&E \"Black\" ops)"},
+        {R"(")", R"(\")"},
+        {R"(abc)", R"(abc)"},
+    };
+
+    for (auto& [input, expected] : json_cases) {
+        std::string out = insert_escaped_quotes<out::Format::JSON>(input);
         REQUIRE(out == expected);
     }
 }
