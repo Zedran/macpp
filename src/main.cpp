@@ -90,8 +90,6 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    std::vector<Vendor> results;
-
     try {
         app.parse_args(argc, argv);
 
@@ -110,14 +108,12 @@ int main(int argc, char* argv[]) {
         const ConnR conn{cache_path};
 
         if (app.is_subcommand_used(sc_addr)) {
-            results = conn.find_by_addr(sc_addr.get<std::string>("addr"));
+            display_results(app, conn.find_by_addr(sc_addr.get<std::string>("addr")));
         } else if (app.is_subcommand_used(sc_name)) {
-            results = conn.find_by_name(sc_name.get<std::string>("name"));
+            display_results(app, conn.find_by_name(sc_name.get<std::string>("name")));
         } else {
             throw errors::Error{"no action specified"};
         }
-
-        display_results(app, results);
     } catch (const errors::Error& e) {
         std::cerr << e << '\n';
         return 1;
