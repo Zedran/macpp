@@ -201,6 +201,11 @@ TEST_CASE("operator<< out::json") {
             R"({"macPrefix":"2C:7A:FE","vendorName":"IEE\u0026E \"Black\" ops","private":false,"blockType":"MA-L","lastUpdate":"2010/07/26"})",
         },
         {
+            // Unquoted vendor name, ampersand
+            Vendor{0x0060D3, "AT&T", Registry::MA_L, "2016/10/12"},
+            R"({"macPrefix":"00:60:D3","vendorName":"AT\u0026T","private":false,"blockType":"MA-L","lastUpdate":"2016/10/12"})",
+        },
+        {
             // Private block
             Vendor{0x004854, "", Registry::Unknown, ""},
             R"({"macPrefix":"00:48:54","vendorName":"","private":true,"blockType":"","lastUpdate":""})",

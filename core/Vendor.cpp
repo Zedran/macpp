@@ -119,13 +119,8 @@ std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
 }
 
 std::ostream& Vendor::write_string_json(std::ostream& os) const noexcept {
-    os << R"({"macPrefix":")" << prefix_to_string(mac_prefix) << R"(","vendorName":")";
-
-    if (vendor_name.find('"') != std::string::npos) {
-        os << escape_spec_chars<out::Format::JSON>(vendor_name);
-    } else {
-        os << vendor_name;
-    }
+    os << R"({"macPrefix":")" << prefix_to_string(mac_prefix)
+       << R"(","vendorName":")" << escape_spec_chars<out::Format::JSON>(vendor_name);
 
     const bool is_private = vendor_name.empty();
 
