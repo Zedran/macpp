@@ -70,7 +70,8 @@ void update(const std::string& db_path, const std::optional<std::string>& update
 
 int main(int argc, char* argv[]) {
     argparse::ArgumentParser app{"macpp", VERSION_INFO};
-    app.add_description("Tool for MAC address lookup.\nData source: https://maclookup.app.");
+    app.add_description("Tool for MAC address lookup.");
+    app.add_epilog("Data source: https://maclookup.app");
     app.set_usage_max_line_width(80);
     app.add_argument("-o", "--out-format")
         .help("display found entries in the chosen format: 'csv', 'json' 'regular' or 'xml'")
