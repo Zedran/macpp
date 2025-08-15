@@ -5,8 +5,6 @@
 
 // Returns a system-dependent directory path for the application's cache file.
 static std::filesystem::path set_cache_dir_path() {
-    std::filesystem::path cache_dir{};
-
     char* env_var{};
 
 #if defined(__APPLE__)
@@ -27,7 +25,7 @@ static std::filesystem::path set_cache_dir_path() {
         throw errors::Error{"could not resolve cache path"};
     }
 
-    cache_dir = env_var;
+    std::filesystem::path cache_dir{env_var};
 
 #if defined(__APPLE__)
     cache_dir = cache_dir / "Library" / "Caches";
