@@ -84,20 +84,18 @@ std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
 std::vector<Vendor> ConnR::find_by_name(const std::string& name) const {
     constexpr const char* stmt_string =
         "SELECT * FROM vendors "
-        "WHERE name LIKE '%' || ?1 || '%' COLLATE BINARY ESCAPE '\\'";
+        "WHERE name LIKE '%' || ?1 || '%' COLLATE NOCASE ESCAPE '\\'";
 
     if (name.empty()) {
         throw errors::Error{"empty vendor name"};
     }
-
-    const std::string query = suppress_like_wildcards(name);
 
     const Stmt stmt{conn, stmt_string};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
 
-    if (int rc = stmt.bind(1, query); rc != SQLITE_OK) {
+    if (int rc = stmt.bind(1, name); rc != SQLITE_OK) {
         throw errors::CacheError{"bind", __func__, rc};
     }
 

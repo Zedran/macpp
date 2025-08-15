@@ -113,22 +113,3 @@ void replace_escaped_quotes(std::string& str) {
         pos += replacement.length();
     }
 }
-
-std::string suppress_like_wildcards(const std::string& str) noexcept {
-    constexpr char PERCENT = '%';
-    constexpr char USCORE  = '_';
-
-    if (str.find(PERCENT) == std::string::npos && str.find(USCORE) == std::string::npos) {
-        return str;
-    }
-
-    std::string suppressed{};
-
-    for (const auto& c : str) {
-        if (c == PERCENT || c == USCORE)
-            suppressed += '\\';
-        suppressed += c;
-    }
-
-    return suppressed;
-}
