@@ -143,10 +143,17 @@ std::ostream& Vendor::write_string_regular(std::ostream& os) const noexcept {
               << "Last update  " << (is_private ? "-" : last_update);
 }
 
+std::ostream& Vendor::write_string_xml(std::ostream& os) const noexcept {
+    return os << R"(<VendorMapping mac_prefix=")" << prefix_to_string(mac_prefix)
+              << R"(" vendor_name=")" << escape_spec_chars<out::Format::XML>(vendor_name)
+              << R"("></VendorMapping>)";
+}
+
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
     switch (out::get_format(os)) {
     case out::Format::CSV:  return v.write_string_csv(os);
     case out::Format::JSON: return v.write_string_json(os);
+    case out::Format::XML:  return v.write_string_xml(os);
     default:                return v.write_string_regular(os);
     }
 }

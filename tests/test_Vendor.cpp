@@ -258,3 +258,60 @@ TEST_CASE("operator<< out::regular") {
         oss.clear();
     }
 }
+
+TEST_CASE("operator<< out::xml") {
+    struct test_case {
+        Vendor      input;
+        std::string expected;
+    };
+
+    const test_case cases[] = {
+        {
+            // Quoted vendor name
+            Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
+            R"(<VendorMapping mac_prefix="00:00:0C" vendor_name="Cisco Systems, Inc"></VendorMapping>)",
+        },
+        {
+            // Non-quoted vendor name
+            Vendor{0x00000D, "FIBRONICS LTD.", Registry::MA_L, "2015/11/17"},
+            R"(<VendorMapping mac_prefix="00:00:0D" vendor_name="FIBRONICS LTD."></VendorMapping>)",
+        },
+        {
+            // Quoted vendor name, longer prefix
+            Vendor{0x5CF286D, "BrightSky, LLC", Registry::MA_M, "2019/07/02"},
+            R"(<VendorMapping mac_prefix="5C:F2:86:D" vendor_name="BrightSky, LLC"></VendorMapping>)",
+        },
+        {
+            // Non-quoted vendor name, longer prefix
+            Vendor{0x8C1F64F5A, "Telco Antennas Pty Ltd", Registry::MA_S, "2021/10/13"},
+            R"(<VendorMapping mac_prefix="8C:1F:64:F5:A" vendor_name="Telco Antennas Pty Ltd"></VendorMapping>)",
+        },
+        {
+            // Escaped quotes inside quoted vendor name, ampersand
+            Vendor{0x2C7AFE, "IEE&E \"Black\" ops", Registry::MA_L, "2010/07/26"},
+            R"(<VendorMapping mac_prefix="2C:7A:FE" vendor_name="IEE&amp;E &#34;Black&#34; ops"></VendorMapping>)",
+        },
+        {
+            // Unquoted vendor name, ampersand
+            Vendor{0x0060D3, "AT&T", Registry::MA_L, "2016/10/12"},
+            R"(<VendorMapping mac_prefix="00:60:D3" vendor_name="AT&amp;T"></VendorMapping>)",
+        },
+        {
+            // Private block
+            Vendor{0x004854, "", Registry::Unknown, ""},
+            R"(<VendorMapping mac_prefix="00:48:54" vendor_name=""></VendorMapping>)",
+        },
+    };
+
+    std::ostringstream oss;
+    for (const auto& c : cases) {
+
+        oss << out::xml << c.input;
+
+        std::string out = oss.str();
+        REQUIRE(out == c.expected);
+
+        oss.str("");
+        oss.clear();
+    }
+}

@@ -30,5 +30,8 @@ struct Vendor {
     // Formats Vendor data into JSON dictionary and writes it to os.
     std::ostream& write_string_json(std::ostream& os) const noexcept;
 
+    // Formats Vendor data into XML VendorMapping and writes it to os.
+    std::ostream& write_string_xml(std::ostream& os) const noexcept;
+
     friend std::ostream& operator<<(std::ostream& os, const Vendor& v);
 };
