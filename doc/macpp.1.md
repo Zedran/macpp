@@ -51,7 +51,7 @@ macpp -o csv addr 00:00:00
 
 macpp name xerox  
 macpp name "xerox corporation"  
-macpp \--out-format name xerox
+macpp \--out-format json name xerox
 
 ## Updating vendor database
 
