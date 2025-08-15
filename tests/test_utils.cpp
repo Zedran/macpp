@@ -143,7 +143,7 @@ TEST_CASE("escape_spec_chars") {
         {R"(abc)", R"(abc)"},
     };
 
-    for (auto& [input, expected] : csv_cases) {
+    for (const auto& [input, expected] : csv_cases) {
         std::string out = escape_spec_chars<out::Format::CSV>(input);
         REQUIRE(out == expected);
     }
@@ -155,7 +155,7 @@ TEST_CASE("escape_spec_chars") {
         {R"(abc)", R"(abc)"},
     };
 
-    for (auto& [input, expected] : json_cases) {
+    for (const auto& [input, expected] : json_cases) {
         std::string out = escape_spec_chars<out::Format::JSON>(input);
         REQUIRE(out == expected);
     }
@@ -167,7 +167,7 @@ TEST_CASE("escape_spec_chars") {
         {R"(abc)", R"(abc)"},
     };
 
-    for (auto& [input, expected] : xml_cases) {
+    for (const auto& [input, expected] : xml_cases) {
         std::string out = escape_spec_chars<out::Format::XML>(input);
         REQUIRE(out == expected);
     }
