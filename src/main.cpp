@@ -84,6 +84,10 @@ int main(int argc, char* argv[]) {
         .remaining();
     app.add_subparser(sc_addr);
 
+    argparse::ArgumentParser sc_export{"export"};
+    sc_export.add_description("Export all records from the database.");
+    app.add_subparser(sc_export);
+
     argparse::ArgumentParser sc_name{"name"};
     sc_name.add_description("Search by vendor name.");
     sc_name.add_argument("name")
@@ -125,6 +129,8 @@ int main(int argc, char* argv[]) {
             display_results(app, conn.find_by_addr(sc_addr.get<std::string>("addr")));
         } else if (app.is_subcommand_used(sc_name)) {
             display_results(app, conn.find_by_name(sc_name.get<std::string>("name")));
+        } else if (app.is_subcommand_used(sc_export)) {
+            display_results(app, conn.export_records());
         } else {
             throw errors::Error{"no action specified"};
         }
