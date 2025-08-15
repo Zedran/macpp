@@ -60,9 +60,17 @@ macpp update \--file local-file.csv
 
 # REPORTING BUGS
 
+## Public issue tracker
+
 If you experience any problems with macpp or have a suggestion, feel free to open new issue on the project's issue tracker:
 
 https://github.com/Zedran/macpp/issues
+
+## Reporting vulnerabilities
+
+To report a security issue, please visit:
+
+https://github.com/Zedran/macpp/security/advisories/new
 
 # AUTHOR
 
