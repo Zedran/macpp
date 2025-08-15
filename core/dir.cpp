@@ -37,11 +37,11 @@ static std::filesystem::path set_cache_dir_path() {
     }
 #endif
 
-    return cache_dir / "github.com" / "Zedran" / "mac";
+    return cache_dir / "github.com" / "Zedran" / "macpp";
 }
 
 std::string prepare_cache_dir() {
-    const std::string cache_fname = "mac.db";
+    const std::string cache_fname = "macpp.db";
 
     auto cache_dir = set_cache_dir_path();
 
