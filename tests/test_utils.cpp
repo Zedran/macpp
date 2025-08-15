@@ -159,6 +159,18 @@ TEST_CASE("escape_chars") {
         std::string out = escape_spec_chars<out::Format::JSON>(input);
         REQUIRE(out == expected);
     }
+
+    const std::map<const std::string, const std::string> xml_cases = {
+        {R"(IEE&E "Black" ops)", R"(IEE&amp;E &#34;Black&#34; ops)"},
+        {R"(&'<>"\)", R"(&amp;&#39;&lt;&gt;&#34;\)"},
+        {R"(")", R"(&#34;)"},
+        {R"(abc)", R"(abc)"},
+    };
+
+    for (auto& [input, expected] : xml_cases) {
+        std::string out = escape_spec_chars<out::Format::XML>(input);
+        REQUIRE(out == expected);
+    }
 }
 
 // Ensures that prefix_to_int returns a correct numerical value.

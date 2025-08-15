@@ -44,6 +44,15 @@ std::string escape_spec_chars(const std::string& str) noexcept {
             case '>':  escaped += R"(\u003e)"; break;
             default:   escaped += c;
             }
+        } else if constexpr (F == out::Format::XML) {
+            switch (c) {
+            case '"':  escaped += R"(&#34;)"; break;
+            case '&':  escaped += R"(&amp;)"; break;
+            case '\'': escaped += R"(&#39;)"; break;
+            case '<':  escaped += R"(&lt;)"; break;
+            case '>':  escaped += R"(&gt;)"; break;
+            default:   escaped += c;
+            }
         }
     }
 
