@@ -36,8 +36,9 @@ void display_results(const argparse::ArgumentParser& app, const std::vector<Vend
     if (format == "json") {
         std::cout << '[' << out::json;
         for (auto it = results.begin(); it != results.end(); it++) {
-            std::cout << *it << (std::next(it) == results.end() ? "]\n" : ",");
+            std::cout << *it << (std::next(it) == results.end() ? "" : ",");
         }
+        std::cout << "]\n";
         return;
     }
 
