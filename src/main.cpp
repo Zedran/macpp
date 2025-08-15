@@ -9,8 +9,51 @@
 #include "config.hpp"
 #include "dir.hpp"
 #include "exception.hpp"
+#include "out.hpp"
 #include "update/Downloader.hpp"
 #include "update/Reader.hpp"
+
+// Presents results in the user-specified (or default) format.
+void display_results(const argparse::ArgumentParser& app, const std::vector<Vendor>& results) {
+    const std::string format = (app.is_used("--out-format") ? app.get("--out-format") : "regular");
+
+    if (format == "regular") {
+        for (auto it = results.begin(); it != results.end(); it++) {
+            std::cout << *it << (std::next(it) == results.end() ? "\n" : "\n\n");
+        }
+        return;
+    }
+
+    if (format == "csv") {
+        std::cout << "MAC Prefix,Vendor Name,Private,Block Type,Last Update\n"
+                  << out::csv;
+        for (const auto& v : results) {
+            std::cout << v << '\n';
+        }
+        return;
+    }
+
+    if (format == "json") {
+        std::cout << '[' << out::json;
+        for (auto it = results.begin(); it != results.end(); it++) {
+            std::cout << *it << (std::next(it) == results.end() ? "" : ",");
+        }
+        std::cout << "]\n";
+        return;
+    }
+
+    if (format == "xml") {
+        std::cout << R"(<MacAddressVendorMappings xmlns="http://www.cisco.com/server/spt">)"
+                  << out::xml;
+        for (const auto& v : results) {
+            std::cout << "\n\t" << v;
+        }
+        std::cout << "\n</MacAddressVendorMappings>\n";
+        return;
+    }
+
+    throw errors::Error{"unknown output format '" + format + '\''};
+}
 
 // Updates cache at the specified db_path. If update_path holds string, the function
 // will update the database from local file instead of downloading data.
@@ -29,6 +72,9 @@ int main(int argc, char* argv[]) {
     argparse::ArgumentParser app{"macpp", VERSION_INFO};
     app.add_description("Tool for MAC address lookup.\nData source: https://maclookup.app.");
     app.set_usage_max_line_width(80);
+    app.add_argument("-o", "--out-format")
+        .help("display found entries in the chosen format: 'csv', 'json' 'regular' or 'xml'")
+        .metavar("FORMAT");
 
     argparse::ArgumentParser sc_addr{"addr"};
     sc_addr.add_description("Search by MAC address.");
@@ -57,8 +103,6 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    std::vector<Vendor> results;
-
     try {
         app.parse_args(argc, argv);
 
@@ -77,9 +121,9 @@ int main(int argc, char* argv[]) {
         const ConnR conn{cache_path};
 
         if (app.is_subcommand_used(sc_addr)) {
-            results = conn.find_by_addr(sc_addr.get<std::string>("addr"));
+            display_results(app, conn.find_by_addr(sc_addr.get<std::string>("addr")));
         } else if (app.is_subcommand_used(sc_name)) {
-            results = conn.find_by_name(sc_name.get<std::string>("name"));
+            display_results(app, conn.find_by_name(sc_name.get<std::string>("name")));
         } else {
             throw errors::Error{"no action specified"};
         }
@@ -97,15 +141,6 @@ int main(int argc, char* argv[]) {
     } catch (const std::exception& e) {
         std::cerr << "unexpected error: " << e.what() << '\n';
         return 1;
-    }
-
-    if (results.empty()) {
-        std::cout << "no matches found\n";
-        return 0;
-    }
-
-    for (auto it = results.begin(); it != results.end(); it++) {
-        std::cout << *it << (std::next(it) == results.end() ? "\n" : "\n\n");
     }
 
     return 0;

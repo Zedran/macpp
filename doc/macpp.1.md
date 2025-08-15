@@ -1,6 +1,6 @@
 % MACPP(1)
 %
-% July 2025
+% August 2025
 
 # NAME
 
@@ -8,7 +8,7 @@
 
 # SYNOPSIS
 
-**macpp** \[-h | \--help] \[-v | \--version] \<command> \[args]
+**macpp** \[-h | \--help] \[-v | \--version] \[-o | \--out-format FORMAT] \<command> \[args]
 
 # DESCRIPTION
 
@@ -23,7 +23,7 @@
 : Search by vendor name. Case insensitive.
 
 **update**
-: Update vendor database and exit. By itself, it performs the online update, but a path to a local file may be provided with **--file**. The update option is provided for convenience, but it is not recommended to generate unnecessary traffic with frequent updates. Database created initially should be sufficient for most users.
+: Update vendor database and exit. By itself, it performs the online update, but a path to a local file may be provided with **\--file**.
 
 ## OPTIONAL ARGUMENTS
 
@@ -33,6 +33,9 @@
 **-h**, **\--help**
 : Display brief usage information and exit.
 
+**-o**, **\--out-format**
+: Set display format for the results of **addr** and **name** subcommands. Available options are: **csv** (comma-separated values), **json** - (list of JSON dictionaries), **regular** (default, human-readable format) and **xml** (Cisco PI vendorMacs.xml).
+
 **-v**, **\--version**
 : Display version information and exit.
 
@@ -41,12 +44,14 @@
 ## Searching by MAC address
 
 macpp addr 000000  
-macpp addr C0:FB:F9:01:23:45
+macpp addr C0:FB:F9:01:23:45  
+macpp -o csv addr 00:00:00
 
 ## Searching by vendor name
 
 macpp name xerox  
-macpp name "xerox corporation"
+macpp name "xerox corporation"  
+macpp \--out-format name xerox
 
 ## Updating vendor database
 

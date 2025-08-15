@@ -5,6 +5,7 @@
 #include "Vendor.hpp"
 #include "cache/ConnR.hpp"
 #include "exception.hpp"
+#include "out.hpp"
 
 // Tests whether the CSV lines are correctly parsed into a Vendor struct.
 // The main challenge is that the file is comma-separated and sometimes
@@ -115,7 +116,116 @@ TEST_CASE("NULL values") {
     REQUIRE(results.at(0).vendor_name == "");
 }
 
-TEST_CASE("Vendor::operator<<") {
+TEST_CASE("operator<< out::csv") {
+    struct test_case {
+        Vendor      input;
+        std::string expected;
+    };
+
+    const test_case cases[] = {
+        {
+            // Quoted vendor name
+            Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
+            R"(00:00:0C,"Cisco Systems, Inc",false,MA-L,2015/11/17)",
+        },
+        {
+            // Non-quoted vendor name
+            Vendor{0x00000D, "FIBRONICS LTD.", Registry::MA_L, "2015/11/17"},
+            R"(00:00:0D,FIBRONICS LTD.,false,MA-L,2015/11/17)",
+        },
+        {
+            // Quoted vendor name, longer prefix
+            Vendor{0x5CF286D, "BrightSky, LLC", Registry::MA_M, "2019/07/02"},
+            R"(5C:F2:86:D,"BrightSky, LLC",false,MA-M,2019/07/02)",
+        },
+        {
+            // Non-quoted vendor name, longer prefix
+            Vendor{0x8C1F64F5A, "Telco Antennas Pty Ltd", Registry::MA_S, "2021/10/13"},
+            R"(8C:1F:64:F5:A,Telco Antennas Pty Ltd,false,MA-S,2021/10/13)",
+        },
+        {
+            // Escaped quotes inside quoted vendor name
+            Vendor{0x2C7AFE, "IEE&E \"Black\" ops", Registry::MA_L, "2010/07/26"},
+            R"(2C:7A:FE,"IEE&E ""Black"" ops",false,MA-L,2010/07/26)",
+        },
+        {
+            // Private block
+            Vendor{0x004854, "", Registry::Unknown, ""},
+            R"(00:48:54,,true,,)",
+        },
+    };
+
+    std::ostringstream oss;
+    for (const auto& c : cases) {
+
+        oss << out::csv << c.input;
+
+        std::string out = oss.str();
+        REQUIRE(out == c.expected);
+
+        oss.str("");
+        oss.clear();
+    }
+}
+
+TEST_CASE("operator<< out::json") {
+    struct test_case {
+        Vendor      input;
+        std::string expected;
+    };
+
+    const test_case cases[] = {
+        {
+            // Quoted vendor name
+            Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
+            R"({"macPrefix":"00:00:0C","vendorName":"Cisco Systems, Inc","private":false,"blockType":"MA-L","lastUpdate":"2015/11/17"})",
+        },
+        {
+            // Non-quoted vendor name
+            Vendor{0x00000D, "FIBRONICS LTD.", Registry::MA_L, "2015/11/17"},
+            R"({"macPrefix":"00:00:0D","vendorName":"FIBRONICS LTD.","private":false,"blockType":"MA-L","lastUpdate":"2015/11/17"})",
+        },
+        {
+            // Quoted vendor name, longer prefix
+            Vendor{0x5CF286D, "BrightSky, LLC", Registry::MA_M, "2019/07/02"},
+            R"({"macPrefix":"5C:F2:86:D","vendorName":"BrightSky, LLC","private":false,"blockType":"MA-M","lastUpdate":"2019/07/02"})",
+        },
+        {
+            // Non-quoted vendor name, longer prefix
+            Vendor{0x8C1F64F5A, "Telco Antennas Pty Ltd", Registry::MA_S, "2021/10/13"},
+            R"({"macPrefix":"8C:1F:64:F5:A","vendorName":"Telco Antennas Pty Ltd","private":false,"blockType":"MA-S","lastUpdate":"2021/10/13"})",
+        },
+        {
+            // Escaped quotes inside quoted vendor name, ampersand
+            Vendor{0x2C7AFE, "IEE&E \"Black\" ops", Registry::MA_L, "2010/07/26"},
+            R"({"macPrefix":"2C:7A:FE","vendorName":"IEE\u0026E \"Black\" ops","private":false,"blockType":"MA-L","lastUpdate":"2010/07/26"})",
+        },
+        {
+            // Unquoted vendor name, ampersand
+            Vendor{0x0060D3, "AT&T", Registry::MA_L, "2016/10/12"},
+            R"({"macPrefix":"00:60:D3","vendorName":"AT\u0026T","private":false,"blockType":"MA-L","lastUpdate":"2016/10/12"})",
+        },
+        {
+            // Private block
+            Vendor{0x004854, "", Registry::Unknown, ""},
+            R"({"macPrefix":"00:48:54","vendorName":"","private":true,"blockType":"","lastUpdate":""})",
+        },
+    };
+
+    std::ostringstream oss;
+    for (const auto& c : cases) {
+
+        oss << out::json << c.input;
+
+        std::string out = oss.str();
+        REQUIRE(out == c.expected);
+
+        oss.str("");
+        oss.clear();
+    }
+}
+
+TEST_CASE("operator<< out::regular") {
     struct test_case {
         Vendor      input;
         std::string expected;
@@ -139,7 +249,64 @@ TEST_CASE("Vendor::operator<<") {
     std::ostringstream oss;
     for (const auto& c : cases) {
 
-        oss << c.input;
+        oss << out::regular << c.input;
+
+        std::string out = oss.str();
+        REQUIRE(out == c.expected);
+
+        oss.str("");
+        oss.clear();
+    }
+}
+
+TEST_CASE("operator<< out::xml") {
+    struct test_case {
+        Vendor      input;
+        std::string expected;
+    };
+
+    const test_case cases[] = {
+        {
+            // Quoted vendor name
+            Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
+            R"(<VendorMapping mac_prefix="00:00:0C" vendor_name="Cisco Systems, Inc"></VendorMapping>)",
+        },
+        {
+            // Non-quoted vendor name
+            Vendor{0x00000D, "FIBRONICS LTD.", Registry::MA_L, "2015/11/17"},
+            R"(<VendorMapping mac_prefix="00:00:0D" vendor_name="FIBRONICS LTD."></VendorMapping>)",
+        },
+        {
+            // Quoted vendor name, longer prefix
+            Vendor{0x5CF286D, "BrightSky, LLC", Registry::MA_M, "2019/07/02"},
+            R"(<VendorMapping mac_prefix="5C:F2:86:D" vendor_name="BrightSky, LLC"></VendorMapping>)",
+        },
+        {
+            // Non-quoted vendor name, longer prefix
+            Vendor{0x8C1F64F5A, "Telco Antennas Pty Ltd", Registry::MA_S, "2021/10/13"},
+            R"(<VendorMapping mac_prefix="8C:1F:64:F5:A" vendor_name="Telco Antennas Pty Ltd"></VendorMapping>)",
+        },
+        {
+            // Escaped quotes inside quoted vendor name, ampersand
+            Vendor{0x2C7AFE, "IEE&E \"Black\" ops", Registry::MA_L, "2010/07/26"},
+            R"(<VendorMapping mac_prefix="2C:7A:FE" vendor_name="IEE&amp;E &#34;Black&#34; ops"></VendorMapping>)",
+        },
+        {
+            // Unquoted vendor name, ampersand
+            Vendor{0x0060D3, "AT&T", Registry::MA_L, "2016/10/12"},
+            R"(<VendorMapping mac_prefix="00:60:D3" vendor_name="AT&amp;T"></VendorMapping>)",
+        },
+        {
+            // Private block
+            Vendor{0x004854, "", Registry::Unknown, ""},
+            R"(<VendorMapping mac_prefix="00:48:54" vendor_name=""></VendorMapping>)",
+        },
+    };
+
+    std::ostringstream oss;
+    for (const auto& c : cases) {
+
+        oss << out::xml << c.input;
 
         std::string out = oss.str();
         REQUIRE(out == c.expected);

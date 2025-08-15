@@ -136,6 +136,43 @@ TEST_CASE("get_ieee_block") {
     }
 }
 
+TEST_CASE("escape_spec_chars") {
+    const std::map<const std::string, const std::string> csv_cases = {
+        {R"(IEE&E "Black" ops)", R"(IEE&E ""Black"" ops)"},
+        {R"(")", R"("")"},
+        {R"(abc)", R"(abc)"},
+    };
+
+    for (const auto& [input, expected] : csv_cases) {
+        std::string out = escape_spec_chars<out::Format::CSV>(input);
+        REQUIRE(out == expected);
+    }
+
+    const std::map<const std::string, const std::string> json_cases = {
+        {R"(IEE&E "Black" ops)", R"(IEE\u0026E \"Black\" ops)"},
+        {R"(&<>"\/)", R"(\u0026\u003c\u003e\"\\\/)"},
+        {R"(")", R"(\")"},
+        {R"(abc)", R"(abc)"},
+    };
+
+    for (const auto& [input, expected] : json_cases) {
+        std::string out = escape_spec_chars<out::Format::JSON>(input);
+        REQUIRE(out == expected);
+    }
+
+    const std::map<const std::string, const std::string> xml_cases = {
+        {R"(IEE&E "Black" ops)", R"(IEE&amp;E &#34;Black&#34; ops)"},
+        {R"(&'<>"\)", R"(&amp;&#39;&lt;&gt;&#34;\)"},
+        {R"(")", R"(&#34;)"},
+        {R"(abc)", R"(abc)"},
+    };
+
+    for (const auto& [input, expected] : xml_cases) {
+        std::string out = escape_spec_chars<out::Format::XML>(input);
+        REQUIRE(out == expected);
+    }
+}
+
 // Ensures that prefix_to_int returns a correct numerical value.
 TEST_CASE("prefix_to_int") {
     const std::map<std::string, int64_t> cases = {
