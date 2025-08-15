@@ -39,6 +39,9 @@ public:
 
     ~ConnR();
 
+    // Returns a vector containing every record in the database.
+    std::vector<Vendor> export_records() const;
+
     // Searches for records with given MAC address.
     std::vector<Vendor> find_by_addr(const std::string& addr) const;
 

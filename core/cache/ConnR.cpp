@@ -50,6 +50,21 @@ int64_t ConnR::count_records() const {
     return stmt.get_col<int64_t>(0);
 }
 
+std::vector<Vendor> ConnR::export_records() const {
+    const Stmt stmt{conn, "SELECT * FROM vendors"};
+    if (!stmt) {
+        throw errors::CacheError{"prepare", __func__, stmt.rc()};
+    }
+
+    std::vector<Vendor> results;
+
+    while (stmt.step() == SQLITE_ROW) {
+        results.emplace_back(stmt.get_row());
+    }
+
+    return results;
+}
+
 std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
     const std::string stripped_address = remove_addr_separators(addr);
 

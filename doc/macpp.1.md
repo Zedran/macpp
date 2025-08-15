@@ -19,6 +19,9 @@
 **addr**
 : Search by MAC address. Specifying a complete address is not required, but it cannot be shorter than 6 characters. Colon separators are allowed, but not required.
 
+**export**
+: Export all records from the database.
+
 **name**
 : Search by vendor name. Case insensitive.
 
@@ -34,7 +37,7 @@
 : Display brief usage information and exit.
 
 **-o**, **\--out-format**
-: Set display format for the results of **addr** and **name** subcommands. Available options are: **csv** (comma-separated values), **json** - (list of JSON dictionaries), **regular** (default, human-readable format) and **xml** (Cisco PI vendorMacs.xml).
+: Set display format for the results of **addr**, **export** and **name** subcommands. Available options are: **csv** (comma-separated values), **json** - (list of JSON dictionaries), **regular** (default, human-readable format) and **xml** (Cisco PI vendorMacs.xml).
 
 **-v**, **\--version**
 : Display version information and exit.
@@ -52,6 +55,10 @@ macpp -o csv addr 00:00:00
 macpp name xerox  
 macpp name "xerox corporation"  
 macpp \--out-format json name xerox
+
+## Exporting records
+
+macpp -o json export > vendors.json
 
 ## Updating vendor database
 

@@ -11,6 +11,7 @@ Once the application's database is created, the Internet connection is not requi
 | Subcommand       | Description                            |
 |:-----------------|:---------------------------------------|
 | `addr`           | Search by MAC address                  |
+| `export`         | Export all records from the database   |
 | `name`           | Search by vendor name                  |
 | `update`         | Update / initialize vendor database    |
 
@@ -18,12 +19,12 @@ Make sure to run `update` after installation to create vendor database.
 
 ## Optional arguments
 
-| Option              | Description                                                          |
-|:--------------------|:---------------------------------------------------------------------|
-| `-f` `--file`       | Use a local CSV file for `update`                                    |
-| `-h` `--help`       | Display brief usage information.                                     |
-| `-o` `--out-format` | Set display format for the results of `addr` and `name` subcommands. |
-| `-v` `--version`    | Display version information.                                         |
+| Option              | Description                                                                    |
+|:--------------------|:-------------------------------------------------------------------------------|
+| `-f` `--file`       | Use a local CSV file for `update`                                              |
+| `-h` `--help`       | Display brief usage information.                                               |
+| `-o` `--out-format` | Set display format for the results of `addr`, `export` and `name` subcommands. |
+| `-v` `--version`    | Display version information.                                                   |
 
 Available display formats:
 
@@ -58,6 +59,13 @@ macpp name "xerox corporation"
 
 # Display results in JSON format
 macpp --out-format json name xerox
+```
+
+### Exporting records
+
+```bash
+# Export records to a JSON file.
+macpp -o json export > vendors.json
 ```
 
 ### Updating vendor database
