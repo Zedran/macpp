@@ -23,7 +23,7 @@
 : Search by vendor name. Case insensitive.
 
 **update**
-: Update vendor database and exit. By itself, it performs the online update, but a path to a local file may be provided with **\--file**.
+: Update vendor database and exit. By itself, it performs the online update, but a path to a local file may be provided with **\--file**. This file must conform to the CSV format provided by maclookup.app. Make sure to run **update** after installation to create a database.
 
 ## OPTIONAL ARGUMENTS
 
