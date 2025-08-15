@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "out.hpp"
@@ -63,6 +64,41 @@ std::string escape_spec_chars(const std::string& str) noexcept {
 // If length of addr is lower than block_len, nullopt is returned instead.
 // Accepts addr without separators (101010).
 std::optional<std::string> get_ieee_block(const std::string& addr, const size_t block_len);
+
+// Helper function for has_spec_chars that returns a string_view containing
+// special characters for the specified F template parameter. This function
+// cannot be used for the regular format.
+template <out::Format F>
+consteval std::string_view get_spec_chars() {
+    static_assert(F != out::Format::Regular);
+
+    if constexpr (F == out::Format::CSV) {
+        return R"(")";
+    }
+
+    if constexpr (F == out::Format::JSON) {
+        return R"("&\<>)";
+    }
+
+    if constexpr (F == out::Format::XML) {
+        return R"("&\<>)";
+    }
+}
+
+// Returns true of str contains special characters, depending on the specified
+// F template parameter. This function cannot be used for the regular format.
+template <out::Format F>
+bool has_spec_chars(const std::string& str) {
+    static_assert(F != out::Format::Regular);
+
+    for (const auto& c : get_spec_chars<F>()) {
+        if (str.find(c) != std::string::npos) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 // Converts MAC prefix from string to an integer. Colon separators allowed.
 int64_t prefix_to_int(const std::string& prefix);

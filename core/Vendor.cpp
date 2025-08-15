@@ -99,7 +99,7 @@ Vendor::Vendor(
 std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
     os << prefix_to_string(mac_prefix) << ',';
 
-    if (vendor_name.find('"') != std::string::npos) {
+    if (has_spec_chars<out::Format::CSV>(vendor_name)) {
         os << '"' << escape_spec_chars<out::Format::CSV>(vendor_name) << "\",";
     } else if (vendor_name.find(',') != std::string::npos) {
         os << '"' << vendor_name << "\",";
@@ -120,7 +120,13 @@ std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
 
 std::ostream& Vendor::write_string_json(std::ostream& os) const noexcept {
     os << R"({"macPrefix":")" << prefix_to_string(mac_prefix)
-       << R"(","vendorName":")" << escape_spec_chars<out::Format::JSON>(vendor_name);
+       << R"(","vendorName":")";
+
+    if (has_spec_chars<out::Format::JSON>(vendor_name)) {
+        os << escape_spec_chars<out::Format::JSON>(vendor_name);
+    } else {
+        os << vendor_name;
+    }
 
     const bool is_private = vendor_name.empty();
 
@@ -144,9 +150,16 @@ std::ostream& Vendor::write_string_regular(std::ostream& os) const noexcept {
 }
 
 std::ostream& Vendor::write_string_xml(std::ostream& os) const noexcept {
-    return os << R"(<VendorMapping mac_prefix=")" << prefix_to_string(mac_prefix)
-              << R"(" vendor_name=")" << escape_spec_chars<out::Format::XML>(vendor_name)
-              << R"("></VendorMapping>)";
+    os << R"(<VendorMapping mac_prefix=")" << prefix_to_string(mac_prefix)
+       << R"(" vendor_name=")";
+
+    if (has_spec_chars<out::Format::XML>(vendor_name)) {
+        os << escape_spec_chars<out::Format::XML>(vendor_name);
+    } else {
+        os << vendor_name;
+    }
+
+    return os << R"("></VendorMapping>)";
 }
 
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
