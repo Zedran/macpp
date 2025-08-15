@@ -39,7 +39,7 @@ std::string escape_spec_chars(const std::string& str) noexcept {
             switch (c) {
             case '"':  escaped += R"(\")"; break;
             case '&':  escaped += R"(\u0026)"; break;
-            case '\'': escaped += R"(\u0027)"; break;
+            case '/':  escaped += R"(\/)"; break;
             case '\\': escaped += R"(\\)"; break;
             case '<':  escaped += R"(\u003c)"; break;
             case '>':  escaped += R"(\u003e)"; break;
@@ -77,7 +77,7 @@ consteval std::string_view get_spec_chars() {
     }
 
     if constexpr (F == out::Format::JSON) {
-        return R"("&\<>)";
+        return R"("&/\<>)";
     }
 
     if constexpr (F == out::Format::XML) {

@@ -150,7 +150,7 @@ TEST_CASE("escape_chars") {
 
     const std::map<const std::string, const std::string> json_cases = {
         {R"(IEE&E "Black" ops)", R"(IEE\u0026E \"Black\" ops)"},
-        {R"(&'<>"\)", R"(\u0026\u0027\u003c\u003e\"\\)"},
+        {R"(&<>"\/)", R"(\u0026\u003c\u003e\"\\\/)"},
         {R"(")", R"(\")"},
         {R"(abc)", R"(abc)"},
     };
