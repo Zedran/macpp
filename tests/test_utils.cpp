@@ -136,7 +136,7 @@ TEST_CASE("get_ieee_block") {
     }
 }
 
-TEST_CASE("escape_chars") {
+TEST_CASE("escape_spec_chars") {
     const std::map<const std::string, const std::string> csv_cases = {
         {R"(IEE&E "Black" ops)", R"(IEE&E ""Black"" ops)"},
         {R"(")", R"("")"},
