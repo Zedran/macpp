@@ -195,6 +195,12 @@ TEST_CASE("injections") {
     }
 }
 
+TEST_CASE("ConnR::export_records") {
+    const ConnR conn{"testdata/sample.db", true};
+    std::vector<Vendor> out = conn.export_records();
+    REQUIRE(out.size() == 3);
+}
+
 TEST_CASE("ConnR::find_by_addr") {
     const ConnR conn{"testdata/sample.db", true};
 
