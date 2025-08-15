@@ -12,7 +12,9 @@ Once the application's database is created, the Internet connection is not requi
 |:-----------------|:---------------------------------------|
 | `addr`           | Search by MAC address                  |
 | `name`           | Search by vendor name                  |
-| `update`         | Update / initialize cache              |
+| `update`         | Update / initialize vendor database    |
+
+Make sure to run `update` after installation to create vendor database.
 
 ## Optional arguments
 
@@ -29,6 +31,44 @@ Available display formats:
 * `json` - JSON (list of dictionaries)
 * `regular` - default, human-readable format
 * `xml` - Cisco PI vendorMacs.xml
+
+## Examples
+
+### Searching by address
+
+```bash
+# Search by prefix
+macpp addr 000000
+
+# Search by full MAC address (separators are optional)
+macpp addr C0:FB:F9:01:23:45
+
+# Display results in CSV format
+macpp -o csv addr 00:00:00
+```
+
+### Searching by name
+
+```bash
+macpp name xerox
+
+# If vendor name contains space or special characters,
+# wrap it in quotes
+macpp name "xerox corporation"
+
+# Display results in JSON format
+macpp --out-format json name xerox
+```
+
+### Updating vendor database
+
+```bash
+# Perform online update
+macpp update
+
+# Use a local CSV file for update
+macpp update --file local-file.csv
+```
 
 ## Installation
 
