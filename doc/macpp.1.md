@@ -23,7 +23,7 @@
 : Search by vendor name. Case insensitive.
 
 **update**
-: Update vendor database and exit. By itself, it performs the online update, but a path to a local file may be provided with **--file**. The update option is provided for convenience, but it is not recommended to generate unnecessary traffic with frequent updates. Database created initially should be sufficient for most users.
+: Update vendor database and exit. By itself, it performs the online update, but a path to a local file may be provided with **\--file**.
 
 ## OPTIONAL ARGUMENTS
 
@@ -34,7 +34,7 @@
 : Display brief usage information and exit.
 
 **-o**, **\--out-format**
-: Set display format for the results of **addr** and **name** subcommands. Available options are: **csv** - comma-separated values, **json** - JSON format (list of dictionaries) and **regular** - default, human-readable format.
+: Set display format for the results of **addr** and **name** subcommands. Available options are: **csv** (comma-separated values), **json** - (list of JSON dictionaries), **regular** (default, human-readable format) and **xml** (Cisco PI vendorMacs.xml).
 
 **-v**, **\--version**
 : Display version information and exit.

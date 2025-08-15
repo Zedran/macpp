@@ -28,6 +28,7 @@ Available display formats:
 * `csv` - comma separated values
 * `json` - JSON (list of dictionaries)
 * `regular` - default, human-readable format
+* `xml` - Cisco PI vendorMacs.xml
 
 ## Installation
 
