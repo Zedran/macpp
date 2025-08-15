@@ -14,12 +14,15 @@ struct Vendor {
     // Creates a Vendor struct from a comma-separated CSV line.
     Vendor(const std::string& line);
 
-    Vendor(
+    constexpr Vendor(
         const int64_t      mac_prefix,
         const std::string& vendor_name,
         const Registry     block_type,
         const std::string& last_update
-    ) noexcept;
+    ) noexcept : mac_prefix{mac_prefix},
+                 vendor_name{vendor_name},
+                 block_type{block_type},
+                 last_update{last_update} {}
 
     // Formats Vendor data into CSV line and writes it to os.
     std::ostream& write_string_csv(std::ostream& os) const noexcept;

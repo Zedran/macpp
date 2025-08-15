@@ -86,16 +86,6 @@ Vendor::Vendor(const std::string& line) {
     last_update = line.substr(p2 + 1);
 }
 
-Vendor::Vendor(
-    const int64_t      mac_prefix,
-    const std::string& vendor_name,
-    const Registry     block_type,
-    const std::string& last_update
-) noexcept : mac_prefix{mac_prefix},
-             vendor_name{vendor_name},
-             block_type{block_type},
-             last_update{last_update} {}
-
 std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
     os << prefix_to_string(mac_prefix) << ',';
 
