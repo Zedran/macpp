@@ -41,6 +41,16 @@ void display_results(const argparse::ArgumentParser& app, const std::vector<Vend
         return;
     }
 
+    if (format == "xml") {
+        std::cout << R"(<MacAddressVendorMappings xmlns="http://www.cisco.com/server/spt">)"
+                  << out::xml;
+        for (const auto& v : results) {
+            std::cout << "\n\t" << v;
+        }
+        std::cout << "\n</MacAddressVendorMappings>\n";
+        return;
+    }
+
     throw errors::Error{"unknown output format '" + format + '\''};
 }
 
