@@ -16,6 +16,9 @@ enum class Format {
 
     // JSON dictionary, similar to the one offered by the original data source.
     JSON,
+
+    // XML, compliant with Cisco PI vendorMacs.
+    XML,
 };
 
 // Sets Vendor data output format to CSV.
@@ -29,5 +32,8 @@ std::ostream& json(std::ostream& os);
 
 // Sets Vendor data output format to Regular.
 std::ostream& regular(std::ostream& os);
+
+// Sets Vendor data output format to XML.
+std::ostream& xml(std::ostream& os);
 
 } // namespace out

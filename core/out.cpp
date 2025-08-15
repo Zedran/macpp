@@ -21,4 +21,9 @@ std::ostream& regular(std::ostream& os) {
     return os;
 }
 
+std::ostream& xml(std::ostream& os) {
+    os.iword(xindex) = static_cast<long>(Format::XML);
+    return os;
+}
+
 } // namespace out
