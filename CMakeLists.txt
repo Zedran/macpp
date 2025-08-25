@@ -36,7 +36,7 @@ include(${SCRIPTS}/MakeManual.cmake)
 
 set(CONFIG_HPP_TEMPLATE ${INC_DIR}/config.hpp.in)
 set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
-include(${SCRIPTS}/config_hpp.cmake)
+include(${SCRIPTS}/ConfigHPP.cmake)
 
 add_subdirectory(core)
 
