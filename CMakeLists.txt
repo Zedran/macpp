@@ -13,9 +13,9 @@ set(CMAKE_CXX_EXTENSIONS        OFF)
 set(SCRIPTS ${CMAKE_SOURCE_DIR}/cmake)
 
 if (LINUX)
-    include(${SCRIPTS}/toolchain/gcc.cmake)
+    include(${SCRIPTS}/TC_GCC.cmake)
 elseif (WIN32)
-    include(${SCRIPTS}/toolchain/msvc.cmake)
+    include(${SCRIPTS}/TC_MSVC.cmake)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
