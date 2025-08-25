@@ -16,8 +16,6 @@ if (LINUX)
     include(${SCRIPTS}/toolchain/gcc.cmake)
 elseif (WIN32)
     include(${SCRIPTS}/toolchain/msvc.cmake)
-else()
-    message(FATAL_ERROR "Unsupported platform")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
