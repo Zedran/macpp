@@ -2,12 +2,12 @@
 
 if(NOT TARGET uninstall)
     configure_file(
-        "${CMAKE_CURRENT_LIST_DIR}/uninstall.cmake.in"
-        "${CMAKE_CURRENT_LIST_DIR}/uninstall.cmake"
+        "${CMAKE_CURRENT_LIST_DIR}/Uninstall.cmake.in"
+        "${CMAKE_CURRENT_LIST_DIR}/Uninstall.cmake"
         IMMEDIATE
         @ONLY
     )
     add_custom_target(uninstall
-        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/uninstall.cmake
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/Uninstall.cmake
     )
 endif()

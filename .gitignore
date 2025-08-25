@@ -1,7 +1,7 @@
 .cache/
 build/
 
-cmake/uninstall.cmake
+cmake/Uninstall.cmake
 include/config.hpp
 tests/testdata/poisoned.sql
 tests/testdata/sample.sql

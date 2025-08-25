@@ -1,4 +1,4 @@
-include(${CMAKE_CURRENT_LIST_DIR}/config_uninstall.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ConfigUninstall.cmake)
 
 set(DOC_FILES
     ${PROJECT_SOURCE_DIR}/LICENSE
