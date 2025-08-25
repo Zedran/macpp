@@ -35,7 +35,7 @@ set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
 
 find_package(CURL REQUIRED)
 find_package(SQLite3 REQUIRED)
-include(${SCRIPTS}/argparse.cmake)
+include(${SCRIPTS}/FetchArgparse.cmake)
 
 include(${SCRIPTS}/manual.cmake)
 
@@ -64,7 +64,7 @@ if (CPACK_GENERATOR)
 endif()
 
 if (MAKE_TESTS)
-    include(${SCRIPTS}/catch2.cmake)
+    include(${SCRIPTS}/FetchCatch2.cmake)
 
     enable_testing()
     add_subdirectory(tests)
