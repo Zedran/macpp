@@ -60,7 +60,7 @@ add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 include(${SCRIPTS}/InstallArtifacts.cmake)
 
 if (CPACK_GENERATOR)
-    include(cmake/cpack.cmake)
+    include(cmake/GeneratePackages.cmake)
 endif()
 
 if (MAKE_TESTS)
