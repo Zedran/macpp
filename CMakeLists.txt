@@ -37,7 +37,7 @@ find_package(CURL REQUIRED)
 find_package(SQLite3 REQUIRED)
 include(${SCRIPTS}/FetchArgparse.cmake)
 
-include(${SCRIPTS}/manual.cmake)
+include(${SCRIPTS}/MakeManual.cmake)
 
 add_custom_target(${CONFIG_HPP_TARGET}
     COMMAND ${CMAKE_COMMAND}
