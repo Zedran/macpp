@@ -1,3 +1,5 @@
+include(${CMAKE_CURRENT_LIST_DIR}/config_uninstall.cmake)
+
 set(DOC_FILES
     ${PROJECT_SOURCE_DIR}/LICENSE
     ${PROJECT_SOURCE_DIR}/NOTICE.md

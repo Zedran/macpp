@@ -58,7 +58,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE core argparse CURL::libcurl SQLite
 add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 
 include(${SCRIPTS}/install.cmake)
-include(${SCRIPTS}/config_uninstall.cmake)
 
 if (CPACK_GENERATOR)
     include(cmake/cpack.cmake)
