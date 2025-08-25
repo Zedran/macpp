@@ -34,8 +34,6 @@ include(FetchArgparse)
 
 include(MakeManual)
 
-set(CONFIG_HPP_TEMPLATE ${INC_DIR}/config.hpp.in)
-set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
 include(ConfigHPP)
 
 add_subdirectory(core)
