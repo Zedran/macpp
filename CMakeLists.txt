@@ -28,34 +28,21 @@ set(MACPP_CACHE_VERSION 4)
 
 set(INC_DIR ${PROJECT_SOURCE_DIR}/include)
 
-set(CONFIG_HPP_TARGET   config_hpp)
-set(CONFIG_HPP_SCRIPT   ${SCRIPTS}/config_hpp.cmake)
-set(CONFIG_HPP_TEMPLATE ${INC_DIR}/config.hpp.in)
-set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
-
 find_package(CURL REQUIRED)
 find_package(SQLite3 REQUIRED)
 include(${SCRIPTS}/FetchArgparse.cmake)
 
 include(${SCRIPTS}/MakeManual.cmake)
 
-add_custom_target(${CONFIG_HPP_TARGET}
-    COMMAND ${CMAKE_COMMAND}
-        -DPROJECT_NAME=${PROJECT_NAME}
-        -DMACPP_CACHE_VERSION=${MACPP_CACHE_VERSION}
-        -DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
-        -DCONFIG_HPP_TEMPLATE=${CONFIG_HPP_TEMPLATE}
-        -DCONFIG_HPP_OUT=${CONFIG_HPP_OUT}
-        -P ${CONFIG_HPP_SCRIPT}
-)
+set(CONFIG_HPP_TEMPLATE ${INC_DIR}/config.hpp.in)
+set(CONFIG_HPP_OUT      ${INC_DIR}/config.hpp)
+include(${SCRIPTS}/config_hpp.cmake)
 
 add_subdirectory(core)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE core argparse CURL::libcurl SQLite::SQLite3)
-
-add_dependencies(${PROJECT_NAME} ${CONFIG_HPP_TARGET})
 
 include(${SCRIPTS}/InstallArtifacts.cmake)
 
