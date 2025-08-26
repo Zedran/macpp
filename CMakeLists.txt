@@ -32,7 +32,9 @@ find_package(CURL REQUIRED)
 find_package(SQLite3 REQUIRED)
 include(FetchArgparse)
 
-include(MakeManual)
+if (MAKE_MAN)
+    include(MakeManual)
+endif()
 
 add_custom_target(config_hpp
     COMMAND ${CMAKE_COMMAND}
