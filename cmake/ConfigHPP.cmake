@@ -16,7 +16,7 @@ else()
 endif()
 
 configure_file(
-    ${CONFIG_HPP_TEMPLATE}
-    ${CONFIG_HPP_OUT}
+    ${INC_DIR}/config.hpp.in
+    ${INC_DIR}/config.hpp
     @ONLY
 )
