@@ -34,13 +34,22 @@ include(FetchArgparse)
 
 include(MakeManual)
 
-include(ConfigHPP)
+add_custom_target(config_hpp
+    COMMAND ${CMAKE_COMMAND}
+        -DPROJECT_NAME=${PROJECT_NAME}
+        -DMACPP_CACHE_VERSION=${MACPP_CACHE_VERSION}
+        -DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+        -DINC_DIR=${INC_DIR}
+        -P "${CMAKE_SOURCE_DIR}/cmake/ConfigHPP.cmake"
+)
 
 add_subdirectory(core)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE core argparse CURL::libcurl SQLite::SQLite3)
+
+add_dependencies(${PROJECT_NAME} config_hpp)
 
 include(InstallArtifacts)
 
