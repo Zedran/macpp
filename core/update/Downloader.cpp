@@ -33,6 +33,21 @@ Downloader::Downloader(const std::string& url) {
     }
 }
 
+Downloader::Downloader(Downloader&& other) : curl{other.curl}, data{std::move(other.data)} {
+    other.curl = nullptr;
+}
+
+Downloader& Downloader::operator=(Downloader&& other) {
+    if (this != &other) {
+        curl_easy_cleanup(curl);
+        curl       = other.curl;
+        other.curl = nullptr;
+
+        data = std::move(other.data);
+    }
+    return *this;
+}
+
 Downloader::~Downloader() {
     if (curl) {
         curl_easy_cleanup(curl);

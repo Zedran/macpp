@@ -15,6 +15,9 @@ public:
     Reader(const Reader&)            = delete;
     Reader& operator=(const Reader&) = delete;
 
+    Reader(Reader&& other)            = default;
+    Reader& operator=(Reader&& other) = default;
+
     // Returns a reference to the wrapped stream.
     std::istream& get() noexcept override final;
 };

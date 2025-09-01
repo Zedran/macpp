@@ -27,6 +27,9 @@ public:
     Downloader(const Downloader&)            = delete;
     Downloader& operator=(const Downloader&) = delete;
 
+    Downloader(Downloader&& other);
+    Downloader& operator=(Downloader&& other);
+
     ~Downloader();
 
     // Returns a reference to the wrapped stream.
