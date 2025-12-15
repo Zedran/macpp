@@ -129,7 +129,7 @@ std::ostream& Vendor::write_string_json(std::ostream& os) const noexcept {
 
 std::ostream& Vendor::write_string_regular(std::ostream& os) const noexcept {
     return os << "MAC prefix   " << prefix_to_string(mac_prefix) << '\n'
-              << "Vendor name  " << (is_private ? "-" : vendor_name) << '\n'
+              << "Vendor name  " << (vendor_name.empty() ? "-" : vendor_name) << '\n'
               << "Private      " << (is_private ? "yes" : "no") << '\n'
               << "Block type   " << from_registry(block_type) << '\n'
               << "Last update  " << (is_private ? "-" : last_update);

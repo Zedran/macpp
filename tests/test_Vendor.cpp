@@ -50,6 +50,11 @@ TEST_CASE("Vendor(string)") {
             Vendor{0x004854, "", true, Registry::Unknown, ""},
         },
         test_case{
+            // Private block with non-empty name
+            R"(00:48:54,non-empty,true,,0001/01/01)",
+            Vendor{0x004854, "non-empty", true, Registry::Unknown, ""},
+        },
+        test_case{
             // The last update field is empty, but valid (comma present)
             R"(00:00:0D,FIBRONICS LTD.,false,MA-L,)",
             Vendor{0x00000D, "FIBRONICS LTD.", false, Registry::MA_L, ""},
@@ -241,6 +246,12 @@ TEST_CASE("operator<< out::regular") {
         {Vendor{0x004854, "", true, Registry::Unknown, ""},
          "MAC prefix   00:48:54\n"
          "Vendor name  -\n"
+         "Private      yes\n"
+         "Block type   -\n"
+         "Last update  -"},
+        {Vendor{0x004854, "non-empty", true, Registry::Unknown, ""},
+         "MAC prefix   00:48:54\n"
+         "Vendor name  non-empty\n"
          "Private      yes\n"
          "Block type   -\n"
          "Last update  -"},
