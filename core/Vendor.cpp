@@ -99,8 +99,6 @@ std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
         os << vendor_name << ',';
     }
 
-    const bool is_private = vendor_name.empty();
-
     os << std::boolalpha << is_private << ',';
 
     if (block_type != Registry::Unknown) {
@@ -120,8 +118,6 @@ std::ostream& Vendor::write_string_json(std::ostream& os) const noexcept {
         os << vendor_name;
     }
 
-    const bool is_private = vendor_name.empty();
-
     os << R"(","private":)" << std::boolalpha << is_private << R"(,"blockType":")";
 
     if (block_type != Registry::Unknown) {
@@ -132,8 +128,6 @@ std::ostream& Vendor::write_string_json(std::ostream& os) const noexcept {
 }
 
 std::ostream& Vendor::write_string_regular(std::ostream& os) const noexcept {
-    const bool is_private = vendor_name.empty();
-
     return os << "MAC prefix   " << prefix_to_string(mac_prefix) << '\n'
               << "Vendor name  " << (is_private ? "-" : vendor_name) << '\n'
               << "Private      " << (is_private ? "yes" : "no") << '\n'
