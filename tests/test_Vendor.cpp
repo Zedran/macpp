@@ -238,7 +238,7 @@ TEST_CASE("operator<< out::regular") {
          "Private      no\n"
          "Block type   MA-L\n"
          "Last update  2015/11/17"},
-        {Vendor{0x004854, "", Registry::Unknown, "0001/01/01"},
+        {Vendor{0x004854, "", Registry::Unknown, ""},
          "MAC prefix   00:48:54\n"
          "Vendor name  -\n"
          "Private      yes\n"
