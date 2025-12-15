@@ -12,9 +12,9 @@
 // using a local file.
 TEST_CASE("ConnRW::insert") {
     const std::vector<Vendor> cases = {
-        Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
-        Vendor{0x004854, "", Registry::Unknown, ""},
-        Vendor{0x8C1F64FFC, "Invendis Technologies India Pvt Ltd", Registry::MA_S, "2022/07/19"},
+        Vendor{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"},
+        Vendor{0x004854, "", true, Registry::Unknown, ""},
+        Vendor{0x8C1F64FFC, "Invendis Technologies India Pvt Ltd", false, Registry::MA_S, "2022/07/19"},
     };
 
     ConnRW conn_rw{"file:memdb_connrw_insert?mode=memory&cache=shared", true};
@@ -204,7 +204,7 @@ TEST_CASE("ConnR::export_records") {
 TEST_CASE("ConnR::find_by_addr") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"};
+    const Vendor expected{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
 
     const std::string cases[] = {
         "00:00:0C",          // with separators, short
@@ -274,7 +274,7 @@ TEST_CASE("ConnR::find_by_addr") {
 TEST_CASE("ConnR::find_by_name") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"};
+    const Vendor expected{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
 
     const std::string cases[] = {
         "Cisco Systems, Inc",

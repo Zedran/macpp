@@ -5,10 +5,11 @@ DROP TABLE IF EXISTS vendors;
 CREATE TABLE vendors (
     prefix  INTEGER PRIMARY KEY,
     name    TEXT NOT NULL,
+    private BOOLEAN,
     block   INTEGER NOT NULL,
     updated TEXT NOT NULL
 );
-INSERT INTO vendors VALUES(12,'Cisco Systems, Inc',3,'2015/11/17');
-INSERT INTO vendors VALUES(18516,'',0,'');
-INSERT INTO vendors VALUES(12876445,'DIG_LINK',4,'2024/10/28');
+INSERT INTO vendors VALUES(12,'Cisco Systems, Inc',0,3,'2015/11/17');
+INSERT INTO vendors VALUES(18516,'',1,0,'');
+INSERT INTO vendors VALUES(12876445,'DIG_LINK',0,4,'2024/10/28');
 COMMIT;

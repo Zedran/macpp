@@ -52,6 +52,7 @@ public:
         requires(
             std::same_as<T, std::string> ||
             std::same_as<T, Registry> ||
+            std::same_as<T, bool> ||
             std::same_as<T, int32_t> ||
             std::same_as<T, int64_t>
         )
@@ -68,6 +69,10 @@ public:
 
         if constexpr (std::is_same_v<T, Registry>) {
             return static_cast<Registry>(sqlite3_column_int(stmt, coln));
+        }
+
+        if constexpr (std::is_same_v<T, bool>) {
+            return sqlite3_column_int(stmt, coln) == 1 ? true : false;
         }
 
         if constexpr (std::is_same_v<T, int32_t>) {

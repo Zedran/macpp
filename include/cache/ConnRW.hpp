@@ -14,14 +14,15 @@ class ConnRW : public Conn {
         "CREATE TABLE vendors ("
         "prefix  INTEGER PRIMARY KEY,"
         "name    TEXT NOT NULL,"
+        "private BOOLEAN,"
         "block   INTEGER NOT NULL,"
         "updated TEXT NOT NULL"
         ")";
 
     static constexpr const char* INSERT_STMT =
         "INSERT INTO vendors "
-        "(prefix, name, block, updated) "
-        "VALUES (?1, ?2, ?3, ?4)";
+        "(prefix, name, private, block, updated) "
+        "VALUES (?1, ?2, ?3, ?4, ?5)";
 
     // Signals whether prepare_database has been called.
     static std::once_flag db_prepared;

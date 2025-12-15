@@ -35,8 +35,9 @@ Vendor Stmt::get_row() noexcept {
     return Vendor{
         get_col<int64_t>(0),
         get_col<std::string>(1),
-        get_col<Registry>(2),
-        get_col<std::string>(3),
+        get_col<bool>(2),
+        get_col<Registry>(3),
+        get_col<std::string>(4),
     };
 }
 
@@ -53,11 +54,14 @@ void Stmt::insert_row(const Vendor& v) {
     if (rc = bind(2, v.vendor_name); rc != SQLITE_OK) {
         throw errors::CacheError{"col2", __func__, rc};
     }
-    if (rc = bind(3, v.block_type); rc != SQLITE_OK) {
+    if (rc = bind(3, v.is_private); rc != SQLITE_OK) {
         throw errors::CacheError{"col3", __func__, rc};
     }
-    if (rc = bind(4, v.last_update); rc != SQLITE_OK) {
+    if (rc = bind(4, v.block_type); rc != SQLITE_OK) {
         throw errors::CacheError{"col4", __func__, rc};
+    }
+    if (rc = bind(5, v.last_update); rc != SQLITE_OK) {
+        throw errors::CacheError{"col5", __func__, rc};
     }
 
     if (rc = step(); rc != SQLITE_DONE) {

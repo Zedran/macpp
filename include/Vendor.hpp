@@ -8,6 +8,7 @@
 struct Vendor {
     int64_t     mac_prefix;
     std::string vendor_name;
+    bool        is_private;
     Registry    block_type;
     std::string last_update;
 
@@ -17,10 +18,12 @@ struct Vendor {
     constexpr Vendor(
         const int64_t      mac_prefix,
         const std::string& vendor_name,
+        const bool         is_private,
         const Registry     block_type,
         const std::string& last_update
     ) noexcept : mac_prefix{mac_prefix},
                  vendor_name{vendor_name},
+                 is_private{is_private},
                  block_type{block_type},
                  last_update{last_update} {}
 

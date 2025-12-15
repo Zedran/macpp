@@ -62,6 +62,7 @@ Vendor::Vendor(const std::string& line) {
 
     if (line[p1] == 't') {
         // Private entry contains no more meaningful information
+        is_private  = true;
         block_type  = Registry::Unknown;
         last_update = "";
         return;
@@ -69,6 +70,7 @@ Vendor::Vendor(const std::string& line) {
         // Private designator field must contain either 'true' or 'false'
         throw errors::PrivateInvalidError{line};
     }
+    is_private = false;
 
     // Skip past 'alse,' to the next field
     p1 += 5;
