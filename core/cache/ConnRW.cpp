@@ -5,7 +5,6 @@
 #include "cache/Stmt.hpp"
 #include "exception.hpp"
 
-std::once_flag ConnRW::cleared_before_insert{};
 std::once_flag ConnRW::db_prepared{};
 
 ConnRW::ConnRW() noexcept : Conn{} {}
@@ -60,13 +59,13 @@ int ConnRW::drop_table() const noexcept {
     return sqlite3_exec(conn, "DROP TABLE IF EXISTS vendors", nullptr, nullptr, nullptr);
 }
 
-void ConnRW::insert(std::istream& is) {
+void ConnRW::insert(std::istream& is, const bool with_clear) {
     if (int rc = begin(); rc != SQLITE_OK) {
         throw errors::CacheError{"begin", __func__, rc};
     }
 
-    if (!override_once_flags) [[likely]] {
-        std::call_once(cleared_before_insert, [&] { clear_table(); });
+    if (with_clear) {
+        clear_table();
     }
 
     const Stmt stmt{conn, INSERT_STMT};
