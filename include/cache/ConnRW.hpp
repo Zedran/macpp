@@ -70,12 +70,12 @@ public:
     // Commits database transaction.
     int commit() noexcept;
 
-    // Opens a new transaction, if with_clear is true, deletes all records
+    // Opens a new transaction, if update is true, deletes all records
     // from the vendors table, then parses CSV lines contained in is and
     // inserts them into the database. The function expects the first line
     // to be the header line - it is discarded. If no exception is thrown,
     // the transaction is committed.
-    void insert(std::istream& is, const bool with_clear);
+    void insert(std::istream& is, const bool update);
 
     // Reverts uncommitted database transaction.
     int rollback() noexcept;

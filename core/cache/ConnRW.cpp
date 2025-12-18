@@ -61,12 +61,12 @@ int ConnRW::drop_table() noexcept {
     return sqlite3_exec(conn, "DROP TABLE IF EXISTS vendors", nullptr, nullptr, nullptr);
 }
 
-void ConnRW::insert(std::istream& is, const bool with_clear) {
+void ConnRW::insert(std::istream& is, const bool update) {
     if (int rc = begin(); rc != SQLITE_OK) {
         throw errors::CacheError{"begin", __func__, rc};
     }
 
-    if (with_clear) {
+    if (update) {
         clear_table();
     }
 
