@@ -70,7 +70,7 @@ void ConnRW::insert(std::istream& is, const bool with_clear) {
         clear_table();
     }
 
-    const Stmt stmt{conn, INSERT_STMT};
+    Stmt stmt{conn, INSERT_STMT};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};
     }

@@ -26,14 +26,14 @@ public:
     ~Stmt();
 
     // Binds an int64 to coln of the statement. Returns SQLite result code.
-    int bind(const int coln, const int64_t value) const noexcept;
+    int bind(const int coln, const int64_t value) noexcept;
 
     // Binds a Registry enum class value to coln of the statement.
     // Returns SQLite result code.
-    int bind(const int coln, const Registry value) const noexcept;
+    int bind(const int coln, const Registry value) noexcept;
 
     // Binds a string to coln of the statement. Returns SQLite result code.
-    int bind(const int coln, const std::string& value) const noexcept;
+    int bind(const int coln, const std::string& value) noexcept;
 
     // Returns pointer to the wrapped sqlite3_stmt object.
     sqlite3_stmt* get() const noexcept;
@@ -80,22 +80,22 @@ public:
     }
 
     // Retrieves Vendor instance from SQLite row.
-    Vendor get_row() const noexcept;
+    Vendor get_row() noexcept;
 
     // Returns true if statement has been prepared correctly.
     bool good() const noexcept;
 
     // Binds Vendor instance to the statement.
-    void insert_row(const Vendor& v) const;
+    void insert_row(const Vendor& v);
 
     // Returns result code returned by sqlite3_prepare function.
     int rc() const noexcept;
 
     // Resets the statement.
-    int reset() const noexcept;
+    int reset() noexcept;
 
     // Steps the statement.
-    int step() const noexcept;
+    int step() noexcept;
 
     // Returns true if statement has been prepared correctly.
     explicit operator bool() const noexcept;

@@ -15,15 +15,15 @@ Stmt::~Stmt() {
     assert(rc == SQLITE_OK || rc == SQLITE_NOTADB);
 }
 
-int Stmt::bind(const int coln, const int64_t value) const noexcept {
+int Stmt::bind(const int coln, const int64_t value) noexcept {
     return sqlite3_bind_int64(stmt, coln, value);
 }
 
-int Stmt::bind(const int coln, const std::string& value) const noexcept {
+int Stmt::bind(const int coln, const std::string& value) noexcept {
     return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
 }
 
-int Stmt::bind(const int coln, const Registry value) const noexcept {
+int Stmt::bind(const int coln, const Registry value) noexcept {
     return sqlite3_bind_int(stmt, coln, static_cast<int>(value));
 }
 
@@ -31,7 +31,7 @@ sqlite3_stmt* Stmt::get() const noexcept {
     return stmt;
 }
 
-Vendor Stmt::get_row() const noexcept {
+Vendor Stmt::get_row() noexcept {
     return Vendor{
         get_col<int64_t>(0),
         get_col<std::string>(1),
@@ -44,7 +44,7 @@ bool Stmt::good() const noexcept {
     return prepare_rc == SQLITE_OK;
 }
 
-void Stmt::insert_row(const Vendor& v) const {
+void Stmt::insert_row(const Vendor& v) {
     int rc;
 
     if (rc = bind(1, v.mac_prefix); rc != SQLITE_OK) {
@@ -72,11 +72,11 @@ int Stmt::rc() const noexcept {
     return prepare_rc;
 }
 
-int Stmt::reset() const noexcept {
+int Stmt::reset() noexcept {
     return sqlite3_reset(stmt);
 }
 
-int Stmt::step() const noexcept {
+int Stmt::step() noexcept {
     return sqlite3_step(stmt);
 }
 

@@ -23,7 +23,7 @@ TEST_CASE("ConnRW::insert") {
 
     REQUIRE_NOTHROW(conn_rw.insert(good_file, true));
 
-    const Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
+    Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
     REQUIRE(stmt.rc() == SQLITE_OK);
 
     std::vector<Vendor> out;
@@ -85,7 +85,7 @@ TEST_CASE("ConnR construction") {
     // Throws, because there are no records in the table
     REQUIRE_THROWS(ConnR{db_path, true});
 
-    const Stmt stmt{conn_rw.get(), "DROP TABLE vendors"};
+    Stmt stmt{conn_rw.get(), "DROP TABLE vendors"};
     REQUIRE(stmt.good());
     REQUIRE(stmt.step() == SQLITE_DONE);
 
@@ -126,7 +126,7 @@ TEST_CASE("ConnRW destruction") {
     // Keeps the database alive across scopes.
     ConnRW conn_master{db_path, true};
 
-    const Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors"};
+    Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors"};
     REQUIRE(stmt.rc() == SQLITE_OK);
 
     REQUIRE(stmt.step() == SQLITE_ROW);
