@@ -124,7 +124,7 @@ TEST_CASE("ConnRW destruction") {
     const std::string db_path = "file:conn_rw_rollback?mode=memory&cache=shared";
 
     // Keeps the database alive across scopes.
-    const ConnRW conn_master{db_path, true};
+    ConnRW conn_master{db_path, true};
 
     const Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors"};
     REQUIRE(stmt.rc() == SQLITE_OK);

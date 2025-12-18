@@ -34,14 +34,14 @@ class ConnRW : public Conn {
 
     // Creates table vendors in the database. Returns the result code
     // by sqlite3_exec.
-    int create_table() const noexcept;
+    int create_table() noexcept;
 
     // Drops table vendors. Returns the result code reported by sqlite3_exec.
-    int drop_table() const noexcept;
+    int drop_table() noexcept;
 
     // Handles the initial preparation stage. Ensures the database exists
     // and has been correctly formatted.
-    void prepare_db() const;
+    void prepare_db();
 
 public:
     ConnRW() noexcept;
@@ -64,7 +64,7 @@ public:
     int begin() noexcept;
 
     // Deletes all records from the vendors table.
-    int clear_table() const noexcept;
+    int clear_table() noexcept;
 
     // Commits database transaction.
     int commit() noexcept;
@@ -81,5 +81,5 @@ public:
 
     // Assigns the user_version value as specifed. Returns the result code
     // reported by sqlite3_exec.
-    int set_version(const int version) const noexcept;
+    int set_version(const int version) noexcept;
 };

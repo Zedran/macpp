@@ -41,7 +41,7 @@ int ConnRW::begin() noexcept {
     return rc;
 }
 
-int ConnRW::clear_table() const noexcept {
+int ConnRW::clear_table() noexcept {
     return sqlite3_exec(conn, "DELETE FROM vendors", nullptr, nullptr, nullptr);
 }
 
@@ -53,11 +53,11 @@ int ConnRW::commit() noexcept {
     return rc;
 }
 
-int ConnRW::create_table() const noexcept {
+int ConnRW::create_table() noexcept {
     return sqlite3_exec(conn, CREATE_TABLE_STMT, nullptr, nullptr, nullptr);
 }
 
-int ConnRW::drop_table() const noexcept {
+int ConnRW::drop_table() noexcept {
     return sqlite3_exec(conn, "DROP TABLE IF EXISTS vendors", nullptr, nullptr, nullptr);
 }
 
@@ -91,7 +91,7 @@ void ConnRW::insert(std::istream& is, const bool with_clear) {
     }
 }
 
-void ConnRW::prepare_db() const {
+void ConnRW::prepare_db() {
     bool needs_table;
 
     if (version() != EXPECTED_CACHE_VERSION) {
@@ -121,7 +121,7 @@ int ConnRW::rollback() noexcept {
     return rc;
 }
 
-int ConnRW::set_version(const int version) const noexcept {
+int ConnRW::set_version(const int version) noexcept {
     return sqlite3_exec(
         conn,
         ("PRAGMA user_version = " + std::to_string(version)).c_str(),
