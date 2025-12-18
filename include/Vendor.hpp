@@ -17,15 +17,15 @@ struct Vendor {
 
     constexpr Vendor(
         const int64_t      mac_prefix,
-        const std::string& vendor_name,
+        std::string vendor_name,
         const bool         is_private,
         const Registry     block_type,
-        const std::string& last_update
+        std::string last_update
     ) noexcept : mac_prefix{mac_prefix},
-                 vendor_name{vendor_name},
+                 vendor_name{std::move(vendor_name)},
                  is_private{is_private},
                  block_type{block_type},
-                 last_update{last_update} {}
+                 last_update{std::move(last_update)} {}
 
     // Formats Vendor data into CSV line and writes it to os.
     std::ostream& write_string_csv(std::ostream& os) const noexcept;
