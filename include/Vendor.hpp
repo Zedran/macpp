@@ -16,11 +16,11 @@ struct Vendor {
     Vendor(const std::string& line);
 
     constexpr Vendor(
-        const int64_t      mac_prefix,
-        std::string vendor_name,
-        const bool         is_private,
-        const Registry     block_type,
-        std::string last_update
+        const int64_t  mac_prefix,
+        std::string    vendor_name,
+        const bool     is_private,
+        const Registry block_type,
+        std::string    last_update
     ) noexcept : mac_prefix{mac_prefix},
                  vendor_name{std::move(vendor_name)},
                  is_private{is_private},
