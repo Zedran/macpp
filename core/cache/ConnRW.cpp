@@ -32,6 +32,8 @@ ConnRW::~ConnRW() {
 }
 
 int ConnRW::begin() noexcept {
+    assert(!transaction_open && "transaction already open");
+
     int rc = sqlite3_exec(conn, "BEGIN", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = true;
@@ -110,6 +112,8 @@ void ConnRW::prepare_db() const {
 }
 
 int ConnRW::rollback() noexcept {
+    assert(transaction_open && "transaction has already been comitted");
+
     int rc = sqlite3_exec(conn, "ROLLBACK", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = false;
