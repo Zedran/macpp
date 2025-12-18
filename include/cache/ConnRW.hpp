@@ -23,9 +23,6 @@ class ConnRW : public Conn {
         "(prefix, name, block, updated) "
         "VALUES (?1, ?2, ?3, ?4)";
 
-    // Signals whether table records were dropped before insertions.
-    static std::once_flag cleared_before_insert;
-
     // Signals whether prepare_database has been called.
     static std::once_flag db_prepared;
 
@@ -37,14 +34,14 @@ class ConnRW : public Conn {
 
     // Creates table vendors in the database. Returns the result code
     // by sqlite3_exec.
-    int create_table() const noexcept;
+    int create_table() noexcept;
 
     // Drops table vendors. Returns the result code reported by sqlite3_exec.
-    int drop_table() const noexcept;
+    int drop_table() noexcept;
 
     // Handles the initial preparation stage. Ensures the database exists
     // and has been correctly formatted.
-    void prepare_db() const;
+    void prepare_db();
 
 public:
     ConnRW() noexcept;
@@ -52,9 +49,9 @@ public:
     // Constructs new read-write database connection given the database path.
     // If the file is not present, it is created.
     // If override_once_flags is set to true, the constructor ignores static
-    // once_flag class members that prevent doing extra work during
-    // instantiation in multithreaded context. This boolean switch should
-    // only be set to true for testing purposes.
+    // once_flag db_prepared that prevents doing extra work during
+    // instantiation. This boolean switch should only be set to true
+    // for testing purposes.
     ConnRW(const std::string& path, const bool override_once_flags = false);
 
     ConnRW(const ConnRW&)            = delete;
@@ -67,24 +64,22 @@ public:
     int begin() noexcept;
 
     // Deletes all records from the vendors table.
-    int clear_table() const noexcept;
+    int clear_table() noexcept;
 
     // Commits database transaction.
     int commit() noexcept;
 
-    // Opens a new transaction, deletes all records from the vendors table
-    // (call_once), then parses CSV lines contained in is and inserts them
-    // into the database. The function expects the first line to be
-    // the header line - it is discarded. If no exception is thrown,
-    // the transaction is committed. If the exceptional path does not
-    // result in ConnRW's destruction, it is the caller's responsibility
-    // to rollback the transaction.
-    void insert(std::istream& is);
+    // Opens a new transaction, if with_clear is true, deletes all records
+    // from the vendors table, then parses CSV lines contained in is and
+    // inserts them into the database. The function expects the first line
+    // to be the header line - it is discarded. If no exception is thrown,
+    // the transaction is committed.
+    void insert(std::istream& is, const bool with_clear);
 
     // Reverts uncommitted database transaction.
     int rollback() noexcept;
 
     // Assigns the user_version value as specifed. Returns the result code
     // reported by sqlite3_exec.
-    int set_version(const int version) const noexcept;
+    int set_version(const int version) noexcept;
 };

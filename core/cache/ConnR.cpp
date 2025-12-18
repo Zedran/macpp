@@ -38,7 +38,7 @@ void ConnR::check() const {
 }
 
 int64_t ConnR::count_records() const {
-    const Stmt stmt{conn, "SELECT COUNT(*) FROM vendors"};
+    Stmt stmt{conn, "SELECT COUNT(*) FROM vendors"};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};
     }
@@ -51,7 +51,7 @@ int64_t ConnR::count_records() const {
 }
 
 std::vector<Vendor> ConnR::export_records() const {
-    const Stmt stmt{conn, "SELECT * FROM vendors"};
+    Stmt stmt{conn, "SELECT * FROM vendors"};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};
     }
@@ -75,7 +75,7 @@ std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
     const std::vector<int64_t> queries     = construct_queries(stripped_address);
     const std::string          stmt_string = build_find_by_addr_stmt(queries.size());
 
-    const Stmt stmt{conn, stmt_string};
+    Stmt stmt{conn, stmt_string};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }
@@ -105,7 +105,7 @@ std::vector<Vendor> ConnR::find_by_name(const std::string& name) const {
         throw errors::Error{"empty vendor name"};
     }
 
-    const Stmt stmt{conn, stmt_string};
+    Stmt stmt{conn, stmt_string};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, conn};
     }

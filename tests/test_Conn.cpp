@@ -21,9 +21,9 @@ TEST_CASE("ConnRW::insert") {
 
     std::ifstream good_file{"testdata/update.csv"};
 
-    REQUIRE_NOTHROW(conn_rw.insert(good_file));
+    REQUIRE_NOTHROW(conn_rw.insert(good_file, true));
 
-    const Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
+    Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
     REQUIRE(stmt.rc() == SQLITE_OK);
 
     std::vector<Vendor> out;
@@ -59,7 +59,7 @@ TEST_CASE("ConnRW::insert") {
 
     std::ifstream poisoned_file{"testdata/poisoned.csv"};
 
-    REQUIRE_NOTHROW(conn_rw.insert(poisoned_file));
+    REQUIRE_NOTHROW(conn_rw.insert(poisoned_file, false));
 
     while (stmt.step() == SQLITE_ROW) {
         out.emplace_back(stmt.get_row());
@@ -85,7 +85,7 @@ TEST_CASE("ConnR construction") {
     // Throws, because there are no records in the table
     REQUIRE_THROWS(ConnR{db_path, true});
 
-    const Stmt stmt{conn_rw.get(), "DROP TABLE vendors"};
+    Stmt stmt{conn_rw.get(), "DROP TABLE vendors"};
     REQUIRE(stmt.good());
     REQUIRE(stmt.step() == SQLITE_DONE);
 
@@ -124,9 +124,9 @@ TEST_CASE("ConnRW destruction") {
     const std::string db_path = "file:conn_rw_rollback?mode=memory&cache=shared";
 
     // Keeps the database alive across scopes.
-    const ConnRW conn_master{db_path, true};
+    ConnRW conn_master{db_path, true};
 
-    const Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors"};
+    Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors"};
     REQUIRE(stmt.rc() == SQLITE_OK);
 
     REQUIRE(stmt.step() == SQLITE_ROW);
@@ -138,7 +138,7 @@ TEST_CASE("ConnRW destruction") {
         // into the database.
         ConnRW        conn_rw_good{db_path, true};
         std::ifstream good_file{"testdata/update.csv"};
-        REQUIRE_NOTHROW(conn_rw_good.insert(good_file));
+        REQUIRE_NOTHROW(conn_rw_good.insert(good_file, false));
     }
 
     REQUIRE(stmt.step() == SQLITE_ROW);
@@ -152,7 +152,7 @@ TEST_CASE("ConnRW destruction") {
         // rolled back as the object is destroyed.
         ConnRW        conn_rw_failing{db_path, true};
         std::ifstream malformed_file{"testdata/malformed.csv"};
-        REQUIRE_THROWS_AS(conn_rw_failing.insert(malformed_file), errors::QuotedTermSeqError);
+        REQUIRE_THROWS_AS(conn_rw_failing.insert(malformed_file, false), errors::QuotedTermSeqError);
     }
 
     REQUIRE(stmt.step() == SQLITE_ROW);

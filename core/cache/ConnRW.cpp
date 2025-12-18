@@ -5,7 +5,6 @@
 #include "cache/Stmt.hpp"
 #include "exception.hpp"
 
-std::once_flag ConnRW::cleared_before_insert{};
 std::once_flag ConnRW::db_prepared{};
 
 ConnRW::ConnRW() noexcept : Conn{} {}
@@ -33,6 +32,8 @@ ConnRW::~ConnRW() {
 }
 
 int ConnRW::begin() noexcept {
+    assert(!transaction_open && "transaction already open");
+
     int rc = sqlite3_exec(conn, "BEGIN", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = true;
@@ -40,7 +41,7 @@ int ConnRW::begin() noexcept {
     return rc;
 }
 
-int ConnRW::clear_table() const noexcept {
+int ConnRW::clear_table() noexcept {
     return sqlite3_exec(conn, "DELETE FROM vendors", nullptr, nullptr, nullptr);
 }
 
@@ -52,24 +53,24 @@ int ConnRW::commit() noexcept {
     return rc;
 }
 
-int ConnRW::create_table() const noexcept {
+int ConnRW::create_table() noexcept {
     return sqlite3_exec(conn, CREATE_TABLE_STMT, nullptr, nullptr, nullptr);
 }
 
-int ConnRW::drop_table() const noexcept {
+int ConnRW::drop_table() noexcept {
     return sqlite3_exec(conn, "DROP TABLE IF EXISTS vendors", nullptr, nullptr, nullptr);
 }
 
-void ConnRW::insert(std::istream& is) {
+void ConnRW::insert(std::istream& is, const bool with_clear) {
     if (int rc = begin(); rc != SQLITE_OK) {
         throw errors::CacheError{"begin", __func__, rc};
     }
 
-    if (!override_once_flags) [[likely]] {
-        std::call_once(cleared_before_insert, [&] { clear_table(); });
+    if (with_clear) {
+        clear_table();
     }
 
-    const Stmt stmt{conn, INSERT_STMT};
+    Stmt stmt{conn, INSERT_STMT};
     if (!stmt) {
         throw errors::CacheError{"prepare", __func__, stmt.rc()};
     }
@@ -90,7 +91,7 @@ void ConnRW::insert(std::istream& is) {
     }
 }
 
-void ConnRW::prepare_db() const {
+void ConnRW::prepare_db() {
     bool needs_table;
 
     if (version() != EXPECTED_CACHE_VERSION) {
@@ -111,6 +112,8 @@ void ConnRW::prepare_db() const {
 }
 
 int ConnRW::rollback() noexcept {
+    assert(transaction_open && "transaction has already been comitted");
+
     int rc = sqlite3_exec(conn, "ROLLBACK", nullptr, nullptr, nullptr);
     if (rc == SQLITE_OK) {
         transaction_open = false;
@@ -118,7 +121,7 @@ int ConnRW::rollback() noexcept {
     return rc;
 }
 
-int ConnRW::set_version(const int version) const noexcept {
+int ConnRW::set_version(const int version) noexcept {
     return sqlite3_exec(
         conn,
         ("PRAGMA user_version = " + std::to_string(version)).c_str(),

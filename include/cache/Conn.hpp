@@ -48,7 +48,7 @@ public:
     int rc() const noexcept;
 
     // Returns user_version value for the database. Not to be confused
-    // with Conn::CACHE_VERSION, which indicates cache version used by
+    // with Conn::EXPECTED_CACHE_VERSION, which indicates cache version used by
     // the application.
     int version() const;
 };

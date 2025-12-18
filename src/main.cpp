@@ -62,9 +62,9 @@ void update(const std::string& db_path, const std::optional<std::string>& update
 
     if (!update_fpath) {
         const auto cleanup = finally([] { curl_global_cleanup(); });
-        conn.insert(Downloader{"https://maclookup.app/downloads/csv-database/get-db"}.get());
+        conn.insert(Downloader{"https://maclookup.app/downloads/csv-database/get-db"}.get(), true);
     } else {
-        conn.insert(Reader{*update_fpath}.get());
+        conn.insert(Reader{*update_fpath}.get(), true);
     }
 }
 
