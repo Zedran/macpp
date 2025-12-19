@@ -83,7 +83,7 @@ void ConnRW::customize_db(std::ostream& err) {
     }
 
     try {
-        ins.insert_row(Vendor{0x024200, "Docker Container Interface (02:42)", true, Registry::Unknown, ""});
+        ins.insert_row(Vendor{0x024200, "Docker container interface (02:42)", true, Registry::Unknown, ""});
     } catch (const errors::CacheError& e) {
         err << e << '\n';
         ins.reset();

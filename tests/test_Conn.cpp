@@ -104,7 +104,7 @@ TEST_CASE("ConnRW::customize_db: success") {
     CAPTURE(out);
     REQUIRE(out.size() == 3);
 
-    cases.emplace("inserted entry", Vendor{0x024200, "Docker Container Interface (02:42)", true, Registry::Unknown, ""});
+    cases.emplace("inserted entry", Vendor{0x024200, "Docker container interface (02:42)", true, Registry::Unknown, ""});
 
     for (const auto& [_, c] : cases) {
         bool found = std::ranges::find(out, c) != out.end();
