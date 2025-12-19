@@ -39,5 +39,7 @@ struct Vendor {
     // Formats Vendor data into XML VendorMapping and writes it to os.
     std::ostream& write_string_xml(std::ostream& os) const noexcept;
 
+    bool operator==(const Vendor& other) const = default;
+
     friend std::ostream& operator<<(std::ostream& os, const Vendor& v);
 };

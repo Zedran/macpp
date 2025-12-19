@@ -65,10 +65,7 @@ TEST_CASE("Vendor(string)") {
         CAPTURE(c.input);
         Vendor out = Vendor(c.input);
 
-        REQUIRE(out.mac_prefix == c.expected.mac_prefix);
-        REQUIRE(out.vendor_name == c.expected.vendor_name);
-        REQUIRE(out.block_type == c.expected.block_type);
-        REQUIRE(out.last_update == c.expected.last_update);
+        REQUIRE(out == c.expected);
     }
 
     using namespace errors;

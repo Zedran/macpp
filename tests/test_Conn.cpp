@@ -38,13 +38,8 @@ TEST_CASE("ConnRW::insert") {
         bool found = false;
 
         for (const auto& c : cases) {
-            if (o.mac_prefix == c.mac_prefix) {
+            if (o == c) {
                 found = true;
-
-                REQUIRE(o.vendor_name == c.vendor_name);
-                REQUIRE(o.block_type == c.block_type);
-                REQUIRE(o.last_update == c.last_update);
-
                 break;
             }
         }
@@ -119,13 +114,7 @@ TEST_CASE("ConnRW::customize_db: success") {
         bool found = false;
 
         for (const auto& o : out) {
-            if (
-                o.mac_prefix == c.mac_prefix &&
-                o.vendor_name == c.vendor_name &&
-                o.is_private == c.is_private &&
-                o.block_type == c.block_type &&
-                o.last_update == c.last_update
-            ) {
+            if (o == c) {
                 found = true;
                 break;
             }
@@ -326,10 +315,7 @@ TEST_CASE("ConnR::find_by_addr") {
 
         Vendor& out = results.at(0);
 
-        REQUIRE(out.mac_prefix == expected.mac_prefix);
-        REQUIRE(out.vendor_name == expected.vendor_name);
-        REQUIRE(out.block_type == expected.block_type);
-        REQUIRE(out.last_update == expected.last_update);
+        REQUIRE(out == expected);
 
         results.pop_back();
     }
@@ -395,10 +381,7 @@ TEST_CASE("ConnR::find_by_name") {
 
         Vendor& out = results.at(0);
 
-        REQUIRE(out.mac_prefix == expected.mac_prefix);
-        REQUIRE(out.vendor_name == expected.vendor_name);
-        REQUIRE(out.block_type == expected.block_type);
-        REQUIRE(out.last_update == expected.last_update);
+        REQUIRE(out == expected);
 
         results.pop_back();
     }
