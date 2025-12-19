@@ -58,16 +58,17 @@ public:
         )
     T get_col(const int coln) const noexcept {
         if constexpr (std::is_same_v<T, std::string>) {
-            const unsigned char* text = sqlite3_column_text(stmt, coln);
-
-            if (text) [[likely]] {
-                return std::string{reinterpret_cast<const char*>(text)};
-            } else {
+            if (sqlite3_column_type(stmt, coln) == SQLITE_NULL) {
                 return "";
             }
+            const unsigned char* text = sqlite3_column_text(stmt, coln);
+            return std::string{reinterpret_cast<const char*>(text)};
         }
 
         if constexpr (std::is_same_v<T, Registry>) {
+            if (sqlite3_column_type(stmt, coln) == SQLITE_NULL) {
+                return Registry::Unknown;
+            }
             return static_cast<Registry>(sqlite3_column_int(stmt, coln));
         }
 
