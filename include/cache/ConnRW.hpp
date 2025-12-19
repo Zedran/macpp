@@ -14,10 +14,10 @@ class ConnRW : public Conn {
     static constexpr const char* CREATE_TABLE_STMT =
         "CREATE TABLE vendors ("
         "prefix  INTEGER PRIMARY KEY,"
-        "name    TEXT NOT NULL,"
-        "private BOOLEAN,"
-        "block   INTEGER NOT NULL,"
-        "updated TEXT NOT NULL"
+        "name    TEXT,"
+        "private BOOLEAN NOT NULL,"
+        "block   INTEGER,"
+        "updated TEXT"
         ")";
 
     static constexpr const char* INSERT_STMT =
