@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <mutex>
 #include <string>
 
@@ -14,14 +15,15 @@ class ConnRW : public Conn {
         "CREATE TABLE vendors ("
         "prefix  INTEGER PRIMARY KEY,"
         "name    TEXT NOT NULL,"
+        "private BOOLEAN,"
         "block   INTEGER NOT NULL,"
         "updated TEXT NOT NULL"
         ")";
 
     static constexpr const char* INSERT_STMT =
         "INSERT INTO vendors "
-        "(prefix, name, block, updated) "
-        "VALUES (?1, ?2, ?3, ?4)";
+        "(prefix, name, private, block, updated) "
+        "VALUES (?1, ?2, ?3, ?4, ?5)";
 
     // Signals whether prepare_database has been called.
     static std::once_flag db_prepared;
@@ -35,6 +37,11 @@ class ConnRW : public Conn {
     // Creates table vendors in the database. Returns the result code
     // by sqlite3_exec.
     int create_table() noexcept;
+
+    // Performs database modifications on update. Inserts custom entries
+    // and modifies a few existing ones. Data is hard-coded for simplicity.
+    // Parameter err is used to redirect warnings for testing.
+    void customize_db(std::ostream& err);
 
     // Drops table vendors. Returns the result code reported by sqlite3_exec.
     int drop_table() noexcept;
@@ -69,12 +76,15 @@ public:
     // Commits database transaction.
     int commit() noexcept;
 
-    // Opens a new transaction, if with_clear is true, deletes all records
-    // from the vendors table, then parses CSV lines contained in is and
+    // Opens a new transaction, parses CSV lines contained in is and
     // inserts them into the database. The function expects the first line
     // to be the header line - it is discarded. If no exception is thrown,
     // the transaction is committed.
-    void insert(std::istream& is, const bool with_clear);
+    // If update is true, the function deletes all records from the vendors
+    // table before inserting new ones and calls the customize_db member
+    // function after all the records from is are transfered to the database.
+    // Optional parameter err is used to redirect warnings for testing.
+    void insert(std::istream& is, const bool update, std::ostream& err = std::cerr);
 
     // Reverts uncommitted database transaction.
     int rollback() noexcept;

@@ -62,6 +62,7 @@ Vendor::Vendor(const std::string& line) {
 
     if (line[p1] == 't') {
         // Private entry contains no more meaningful information
+        is_private  = true;
         block_type  = Registry::Unknown;
         last_update = "";
         return;
@@ -69,6 +70,7 @@ Vendor::Vendor(const std::string& line) {
         // Private designator field must contain either 'true' or 'false'
         throw errors::PrivateInvalidError{line};
     }
+    is_private = false;
 
     // Skip past 'alse,' to the next field
     p1 += 5;
@@ -97,8 +99,6 @@ std::ostream& Vendor::write_string_csv(std::ostream& os) const noexcept {
         os << vendor_name << ',';
     }
 
-    const bool is_private = vendor_name.empty();
-
     os << std::boolalpha << is_private << ',';
 
     if (block_type != Registry::Unknown) {
@@ -118,8 +118,6 @@ std::ostream& Vendor::write_string_json(std::ostream& os) const noexcept {
         os << vendor_name;
     }
 
-    const bool is_private = vendor_name.empty();
-
     os << R"(","private":)" << std::boolalpha << is_private << R"(,"blockType":")";
 
     if (block_type != Registry::Unknown) {
@@ -130,10 +128,8 @@ std::ostream& Vendor::write_string_json(std::ostream& os) const noexcept {
 }
 
 std::ostream& Vendor::write_string_regular(std::ostream& os) const noexcept {
-    const bool is_private = vendor_name.empty();
-
     return os << "MAC prefix   " << prefix_to_string(mac_prefix) << '\n'
-              << "Vendor name  " << (is_private ? "-" : vendor_name) << '\n'
+              << "Vendor name  " << (vendor_name.empty() ? "-" : vendor_name) << '\n'
               << "Private      " << (is_private ? "yes" : "no") << '\n'
               << "Block type   " << from_registry(block_type) << '\n'
               << "Last update  " << (is_private ? "-" : last_update);

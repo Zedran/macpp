@@ -21,7 +21,7 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     constexpr size_t VENDOR_BLOCK_LENGTHS[3] = {6, 7, 9};
 
     std::vector<int64_t> queries;
-    queries.reserve(3);
+    queries.reserve(4);
 
     std::optional<std::string> ieee_block;
 
@@ -30,6 +30,13 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
 
         if (ieee_block) {
             queries.push_back(prefix_to_int(*ieee_block));
+        }
+    }
+
+    // Edge case: check for Docker's prefix (02:42)
+    if (addr.starts_with("0242")) {
+        if (std::ranges::find(queries, 0x024200) == queries.end()) {
+            queries.emplace_back(0x024200);
         }
     }
 

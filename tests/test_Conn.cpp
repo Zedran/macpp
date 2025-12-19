@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <array>
 #include <catch2/catch_test_macros.hpp>
 #include <fstream>
 #include <map>
@@ -12,16 +14,16 @@
 // using a local file.
 TEST_CASE("ConnRW::insert") {
     const std::vector<Vendor> cases = {
-        Vendor{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"},
-        Vendor{0x004854, "", Registry::Unknown, ""},
-        Vendor{0x8C1F64FFC, "Invendis Technologies India Pvt Ltd", Registry::MA_S, "2022/07/19"},
+        Vendor{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"},
+        Vendor{0x004854, "", true, Registry::Unknown, ""},
+        Vendor{0x8C1F64FFC, "Invendis Technologies India Pvt Ltd", false, Registry::MA_S, "2022/07/19"},
     };
 
     ConnRW conn_rw{"file:memdb_connrw_insert?mode=memory&cache=shared", true};
 
     std::ifstream good_file{"testdata/update.csv"};
 
-    REQUIRE_NOTHROW(conn_rw.insert(good_file, true));
+    REQUIRE_NOTHROW(conn_rw.insert(good_file, false));
 
     Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
     REQUIRE(stmt.rc() == SQLITE_OK);
@@ -35,20 +37,9 @@ TEST_CASE("ConnRW::insert") {
     REQUIRE(cases.size() == out.size());
 
     for (const auto& o : out) {
-        bool found = false;
-
-        for (const auto& c : cases) {
-            if (o.mac_prefix == c.mac_prefix) {
-                found = true;
-
-                REQUIRE(o.vendor_name == c.vendor_name);
-                REQUIRE(o.block_type == c.block_type);
-                REQUIRE(o.last_update == c.last_update);
-
-                break;
-            }
-        }
-        REQUIRE(found == true);
+        bool found = std::ranges::find(cases, o) != cases.end();
+        CAPTURE(o);
+        REQUIRE(found);
     }
 
     REQUIRE(conn_rw.clear_table() == SQLITE_OK);
@@ -68,6 +59,83 @@ TEST_CASE("ConnRW::insert") {
     REQUIRE(out.size() == 1);
     CAPTURE(out[0]);
     REQUIRE(out[0].vendor_name == "Cisco Systems, Inc");
+}
+
+TEST_CASE("ConnRW::customize_db: success") {
+    const std::string db_path = "file:connrw_customize_db_success?mode=memory&cache=shared";
+
+    ConnRW conn{db_path, true};
+
+    // <input, entry after database modifications>
+    std::map<std::string, Vendor> cases = {
+        {"52:54:00,,true,,0001/01/01\n", Vendor{"52:54:00,QEMU/KVM,true,,0001/01/01"}},
+        {"08:00:27,PCS Systemtechnik GmbH,false,MA-L,2016/10/30\n", Vendor{"08:00:27,PCS Systemtechnik GmbH (VirtualBox),false,MA-L,2016/10/30"}},
+    };
+
+    std::stringstream ss;
+    ss << "Header\n";
+    for (const auto& [c, _] : cases) {
+        ss << c;
+    }
+
+    std::stringstream cerr_capture;
+    REQUIRE_NOTHROW(conn.insert(ss, true, cerr_capture));
+
+    std::string line;
+
+    std::vector<std::string> err_messages;
+
+    while (std::getline(cerr_capture, line)) {
+        err_messages.push_back(line);
+    }
+
+    CAPTURE(err_messages);
+    REQUIRE(err_messages.empty());
+
+    Stmt stmt{conn.get(), "SELECT * FROM vendors"};
+    REQUIRE(stmt.rc() == SQLITE_OK);
+
+    std::vector<Vendor> out;
+
+    while (stmt.step() == SQLITE_ROW) {
+        out.emplace_back(stmt.get_row());
+    }
+
+    CAPTURE(out);
+    REQUIRE(out.size() == 3);
+
+    cases.emplace("inserted entry", Vendor{0x024200, "Docker container interface (02:42)", true, Registry::Unknown, ""});
+
+    for (const auto& [_, c] : cases) {
+        bool found = std::ranges::find(out, c) != out.end();
+        CAPTURE(c);
+        REQUIRE(found);
+    }
+}
+
+TEST_CASE("ConnRW::customize_db: warnings") {
+    const std::string db_path = "file:connrw_customize_db_warnings?mode=memory&cache=shared";
+
+    ConnRW conn{db_path, true};
+
+    std::stringstream ss;
+    ss << "Header\n02:42:00,Placeholder,true,,";
+
+    std::stringstream cerr_capture;
+    REQUIRE_NOTHROW(conn.insert(ss, true, cerr_capture));
+
+    const std::array<std::string, 3> expected = {
+        "[ customize_db ] UPDATE vendors SET name = 'QEMU/KVM' WHERE prefix = 0x525400: unexpected number of changes (0)",
+        "[ customize_db ] UPDATE vendors SET name = name || ' (VirtualBox)' WHERE prefix = 0x080027: unexpected number of changes (0)",
+        "[ insert_row ] step: (19) constraint failed",
+    };
+
+    std::string line;
+    while (std::getline(cerr_capture, line)) {
+        bool found = std::ranges::find(expected, line) != expected.end();
+        CAPTURE(line);
+        REQUIRE(found);
+    }
 }
 
 TEST_CASE("ConnR construction") {
@@ -204,7 +272,7 @@ TEST_CASE("ConnR::export_records") {
 TEST_CASE("ConnR::find_by_addr") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"};
+    const Vendor expected{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
 
     const std::string cases[] = {
         "00:00:0C",          // with separators, short
@@ -229,10 +297,7 @@ TEST_CASE("ConnR::find_by_addr") {
 
         Vendor& out = results.at(0);
 
-        REQUIRE(out.mac_prefix == expected.mac_prefix);
-        REQUIRE(out.vendor_name == expected.vendor_name);
-        REQUIRE(out.block_type == expected.block_type);
-        REQUIRE(out.last_update == expected.last_update);
+        REQUIRE(out == expected);
 
         results.pop_back();
     }
@@ -274,7 +339,7 @@ TEST_CASE("ConnR::find_by_addr") {
 TEST_CASE("ConnR::find_by_name") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{0x00000C, "Cisco Systems, Inc", Registry::MA_L, "2015/11/17"};
+    const Vendor expected{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
 
     const std::string cases[] = {
         "Cisco Systems, Inc",
@@ -298,10 +363,7 @@ TEST_CASE("ConnR::find_by_name") {
 
         Vendor& out = results.at(0);
 
-        REQUIRE(out.mac_prefix == expected.mac_prefix);
-        REQUIRE(out.vendor_name == expected.vendor_name);
-        REQUIRE(out.block_type == expected.block_type);
-        REQUIRE(out.last_update == expected.last_update);
+        REQUIRE(out == expected);
 
         results.pop_back();
     }
