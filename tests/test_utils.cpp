@@ -13,9 +13,9 @@ TEST_CASE("build_query_by_id_stmt") {
     };
 
     const test_case cases[] = {
-        test_case{1, "SELECT * FROM vendors WHERE prefix IN (?)"},
-        test_case{2, "SELECT * FROM vendors WHERE prefix IN (?,?)"},
-        test_case{3, "SELECT * FROM vendors WHERE prefix IN (?,?,?)"},
+        {1, "SELECT * FROM vendors WHERE prefix IN (?)"},
+        {2, "SELECT * FROM vendors WHERE prefix IN (?,?)"},
+        {3, "SELECT * FROM vendors WHERE prefix IN (?,?,?)"},
     };
 
     for (auto& c : cases) {
@@ -36,16 +36,16 @@ TEST_CASE("construct_queries") {
     };
 
     const test_case cases[] = {
-        test_case{"000000", {0x000000}},
-        test_case{"5CF286D", {0x5CF286, 0x5CF286D}},
-        test_case{"8C1F64F5A", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
-        test_case{"8C1F64F5A000", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
-        test_case{"000222", {0x000222}},
-        test_case{"0242", {0x024200}},                                           // 02:42 received
-        test_case{"024200", {0x024200}},                                         // 02:42:00 received, which is how Docker is represented in cache
-        test_case{"000242", {0x000242}},                                         // Videoframe Systems - conflict if Docker was represented by 0x0242
-        test_case{"024256789012", {0x024256, 0x0242567, 0x024256789, 0x024200}}, // Full Docker container's MAC address
-        test_case{"02421", {0x024200}}                                           // Allow shorter query for Docker prefix
+        {"000000", {0x000000}},
+        {"5CF286D", {0x5CF286, 0x5CF286D}},
+        {"8C1F64F5A", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
+        {"8C1F64F5A000", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
+        {"000222", {0x000222}},
+        {"0242", {0x024200}},                                                    // 02:42 received
+        {"024200", {0x024200}},                                                  // 02:42:00 received, which is how Docker is represented in cache
+        {"000242", {0x000242}},                                                  // Videoframe Systems - conflict if Docker was represented by 0x0242
+        {"024256789012", {0x024256, 0x0242567, 0x024256789, 0x024200}},          // Full Docker container's MAC address
+        {"02421", {0x024200}}                                                    // Allow shorter query for Docker prefix
     };
 
     for (const auto& c : cases) {
@@ -92,12 +92,12 @@ TEST_CASE("get_ieee_block") {
     };
 
     const test_case cases[] = {
-        test_case{6, "000000", "000000"},
-        test_case{6, "5CF286D", "5CF286"},
-        test_case{7, "5CF286D", "5CF286D"},
-        test_case{6, "8C1F64F5A", "8C1F64"},
-        test_case{9, "8C1F64F5A", "8C1F64F5A"},
-        test_case{9, "8C1F64F5A000", "8C1F64F5A"},
+        {6, "000000", "000000"},
+        {6, "5CF286D", "5CF286"},
+        {7, "5CF286D", "5CF286D"},
+        {6, "8C1F64F5A", "8C1F64"},
+        {9, "8C1F64F5A", "8C1F64F5A"},
+        {9, "8C1F64F5A000", "8C1F64F5A"},
     };
 
     std::optional<std::string> out;
