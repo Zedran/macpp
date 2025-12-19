@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <array>
 #include <catch2/catch_test_macros.hpp>
 #include <fstream>
 #include <map>
@@ -35,15 +37,9 @@ TEST_CASE("ConnRW::insert") {
     REQUIRE(cases.size() == out.size());
 
     for (const auto& o : out) {
-        bool found = false;
-
-        for (const auto& c : cases) {
-            if (o == c) {
-                found = true;
-                break;
-            }
-        }
-        REQUIRE(found == true);
+        bool found = std::ranges::find(cases, o) != cases.end();
+        CAPTURE(o);
+        REQUIRE(found);
     }
 
     REQUIRE(conn_rw.clear_table() == SQLITE_OK);
@@ -111,14 +107,7 @@ TEST_CASE("ConnRW::customize_db: success") {
     cases.emplace("inserted entry", Vendor{0x024200, "Docker Container Interface (02:42)", true, Registry::Unknown, ""});
 
     for (const auto& [_, c] : cases) {
-        bool found = false;
-
-        for (const auto& o : out) {
-            if (o == c) {
-                found = true;
-                break;
-            }
-        }
+        bool found = std::ranges::find(out, c) != out.end();
         CAPTURE(c);
         REQUIRE(found);
     }
@@ -135,7 +124,7 @@ TEST_CASE("ConnRW::customize_db: warnings") {
     std::stringstream cerr_capture;
     REQUIRE_NOTHROW(conn.insert(ss, true, cerr_capture));
 
-    std::string expected[] = {
+    const std::array<std::string, 3> expected = {
         "[ customize_db ] UPDATE vendors SET name = 'QEMU/KVM' WHERE prefix = 0x525400: unexpected number of changes (0)",
         "[ customize_db ] UPDATE vendors SET name = name || ' (VirtualBox)' WHERE prefix = 0x080027: unexpected number of changes (0)",
         "[ insert_row ] step: (19) constraint failed",
@@ -143,14 +132,7 @@ TEST_CASE("ConnRW::customize_db: warnings") {
 
     std::string line;
     while (std::getline(cerr_capture, line)) {
-        bool found = false;
-
-        for (const auto& e : expected) {
-            if (line == e) {
-                found = true;
-                break;
-            }
-        }
+        bool found = std::ranges::find(expected, line) != expected.end();
         CAPTURE(line);
         REQUIRE(found);
     }
