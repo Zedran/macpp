@@ -1,5 +1,7 @@
+#include <array>
 #include <cassert>
 
+#include "Registry.hpp"
 #include "Vendor.hpp"
 #include "cache/ConnRW.hpp"
 #include "cache/Stmt.hpp"
@@ -57,11 +59,42 @@ int ConnRW::create_table() noexcept {
     return sqlite3_exec(conn, CREATE_TABLE_STMT, nullptr, nullptr, nullptr);
 }
 
+void ConnRW::customize_db(std::ostream& err) {
+    static constexpr std::array<std::string_view, 2> mods{
+        "UPDATE vendors SET name = 'QEMU/KVM' WHERE prefix = 0x525400",
+        "UPDATE vendors SET name = name || ' (VirtualBox)' WHERE prefix = 0x080027",
+    };
+
+    for (const auto& stmt : mods) {
+        int rc = sqlite3_exec(conn, stmt.data(), nullptr, nullptr, nullptr);
+        if (rc != SQLITE_OK) {
+            throw errors::CacheError(stmt.data(), __func__, rc);
+        }
+
+        int changes = sqlite3_changes(conn);
+        if (changes != 1) {
+            err << "[ " << __func__ << " ] " << stmt << ": unexpected number of changes (" << changes << ")\n";
+        }
+    }
+
+    Stmt ins{conn, INSERT_STMT};
+    if (!ins.good()) {
+        throw errors::CacheError{"prepare", __func__, ins.rc()};
+    }
+
+    try {
+        ins.insert_row(Vendor{0x024200, "Docker Container Interface (02:42)", true, Registry::Unknown, ""});
+    } catch (const errors::CacheError& e) {
+        err << e << '\n';
+        ins.reset();
+    }
+}
+
 int ConnRW::drop_table() noexcept {
     return sqlite3_exec(conn, "DROP TABLE IF EXISTS vendors", nullptr, nullptr, nullptr);
 }
 
-void ConnRW::insert(std::istream& is, const bool update) {
+void ConnRW::insert(std::istream& is, const bool update, std::ostream& err) {
     if (int rc = begin(); rc != SQLITE_OK) {
         throw errors::CacheError{"begin", __func__, rc};
     }
@@ -84,6 +117,10 @@ void ConnRW::insert(std::istream& is, const bool update) {
         if (!line.empty() && line.length() <= MAX_LINE_LENGTH) {
             stmt.insert_row(Vendor{line});
         }
+    }
+
+    if (update) {
+        customize_db(err);
     }
 
     if (int rc = commit(); rc != SQLITE_OK) {

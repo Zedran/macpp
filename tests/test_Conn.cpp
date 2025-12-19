@@ -21,7 +21,7 @@ TEST_CASE("ConnRW::insert") {
 
     std::ifstream good_file{"testdata/update.csv"};
 
-    REQUIRE_NOTHROW(conn_rw.insert(good_file, true));
+    REQUIRE_NOTHROW(conn_rw.insert(good_file, false));
 
     Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
     REQUIRE(stmt.rc() == SQLITE_OK);
@@ -68,6 +68,103 @@ TEST_CASE("ConnRW::insert") {
     REQUIRE(out.size() == 1);
     CAPTURE(out[0]);
     REQUIRE(out[0].vendor_name == "Cisco Systems, Inc");
+}
+
+TEST_CASE("ConnRW::customize_db: success") {
+    const std::string db_path = "file:connrw_customize_db_success?mode=memory&cache=shared";
+
+    ConnRW conn{db_path, true};
+
+    // <input, entry after database modifications>
+    std::map<std::string, Vendor> cases = {
+        {"52:54:00,,true,,0001/01/01\n", Vendor{"52:54:00,QEMU/KVM,true,,0001/01/01"}},
+        {"08:00:27,PCS Systemtechnik GmbH,false,MA-L,2016/10/30\n", Vendor{"08:00:27,PCS Systemtechnik GmbH (VirtualBox),false,MA-L,2016/10/30"}},
+    };
+
+    std::stringstream ss;
+    ss << "Header\n";
+    for (const auto& [c, _] : cases) {
+        ss << c;
+    }
+
+    std::stringstream cerr_capture;
+    REQUIRE_NOTHROW(conn.insert(ss, true, cerr_capture));
+
+    std::string line;
+
+    std::vector<std::string> err_messages;
+
+    while (std::getline(cerr_capture, line)) {
+        err_messages.push_back(line);
+    }
+
+    CAPTURE(err_messages);
+    REQUIRE(err_messages.empty());
+
+    Stmt stmt{conn.get(), "SELECT * FROM vendors"};
+    REQUIRE(stmt.rc() == SQLITE_OK);
+
+    std::vector<Vendor> out;
+
+    while (stmt.step() == SQLITE_ROW) {
+        out.emplace_back(stmt.get_row());
+    }
+
+    CAPTURE(out);
+    REQUIRE(out.size() == 3);
+
+    cases.emplace("inserted entry", Vendor{0x024200, "Docker Container Interface (02:42)", true, Registry::Unknown, ""});
+
+    for (const auto& [_, c] : cases) {
+        bool found = false;
+
+        for (const auto& o : out) {
+            if (
+                o.mac_prefix == c.mac_prefix &&
+                o.vendor_name == c.vendor_name &&
+                o.is_private == c.is_private &&
+                o.block_type == c.block_type &&
+                o.last_update == c.last_update
+            ) {
+                found = true;
+                break;
+            }
+        }
+        CAPTURE(c);
+        REQUIRE(found);
+    }
+}
+
+TEST_CASE("ConnRW::customize_db: warnings") {
+    const std::string db_path = "file:connrw_customize_db_warnings?mode=memory&cache=shared";
+
+    ConnRW conn{db_path, true};
+
+    std::stringstream ss;
+    ss << "Header\n02:42:00,Placeholder,true,,";
+
+    std::stringstream cerr_capture;
+    REQUIRE_NOTHROW(conn.insert(ss, true, cerr_capture));
+
+    std::string expected[] = {
+        "[ customize_db ] UPDATE vendors SET name = 'QEMU/KVM' WHERE prefix = 0x525400: unexpected number of changes (0)",
+        "[ customize_db ] UPDATE vendors SET name = name || ' (VirtualBox)' WHERE prefix = 0x080027: unexpected number of changes (0)",
+        "[ insert_row ] step: (19) constraint failed",
+    };
+
+    std::string line;
+    while (std::getline(cerr_capture, line)) {
+        bool found = false;
+
+        for (const auto& e : expected) {
+            if (line == e) {
+                found = true;
+                break;
+            }
+        }
+        CAPTURE(line);
+        REQUIRE(found);
+    }
 }
 
 TEST_CASE("ConnR construction") {
