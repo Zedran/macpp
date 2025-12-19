@@ -41,6 +41,10 @@ TEST_CASE("construct_queries") {
         test_case{"8C1F64F5A", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
         test_case{"8C1F64F5A000", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
         test_case{"000222", {0x000222}},
+        test_case{"0242", {0x024200}},                                           // 02:42 received
+        test_case{"024200", {0x024200}},                                         // 02:42:00 received, which is how Docker is represented in cache
+        test_case{"000242", {0x000242}},                                         // Videoframe Systems - conflict if Docker was represented by 0x0242
+        test_case{"024256789012", {0x024256, 0x0242567, 0x024256789, 0x024200}}, // Full Docker container's MAC address
     };
 
     for (const auto& c : cases) {
