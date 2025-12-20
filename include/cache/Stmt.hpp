@@ -69,7 +69,12 @@ public:
             if (sqlite3_column_type(stmt, coln) == SQLITE_NULL) {
                 return Registry::Unknown;
             }
-            return static_cast<Registry>(sqlite3_column_int(stmt, coln));
+
+            int value = sqlite3_column_int(stmt, coln);
+            if (value < static_cast<int>(Registry::Unknown) || value > static_cast<int>(Registry::MA_S)) {
+                return Registry::Unknown;
+            }
+            return static_cast<Registry>(value);
         }
 
         if constexpr (std::is_same_v<T, bool>) {
