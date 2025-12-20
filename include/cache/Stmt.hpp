@@ -73,7 +73,7 @@ public:
                 return Registry::Unknown;
             }
 
-            int value = sqlite3_column_int(stmt, coln);
+            const int value = sqlite3_column_int(stmt, coln);
             if (value < static_cast<int>(Registry::Unknown) || value > static_cast<int>(Registry::MA_S)) {
                 return Registry::Unknown;
             }
