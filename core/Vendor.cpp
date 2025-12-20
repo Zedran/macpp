@@ -139,7 +139,9 @@ std::ostream& Vendor::write_string_xml(std::ostream& os) const noexcept {
     os << R"(<VendorMapping mac_prefix=")" << prefix_to_string(mac_prefix)
        << R"(" vendor_name=")";
 
-    if (has_spec_chars<out::Format::XML>(vendor_name)) {
+    if (vendor_name.empty()) {
+        os << "Private";
+    } else if (has_spec_chars<out::Format::XML>(vendor_name)) {
         os << escape_spec_chars<out::Format::XML>(vendor_name);
     } else {
         os << vendor_name;

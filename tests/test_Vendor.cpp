@@ -307,7 +307,7 @@ TEST_CASE("operator<< out::xml") {
         {
             // Private block
             Vendor{0x004854, "", true, Registry::Unknown, ""},
-            R"(<VendorMapping mac_prefix="00:48:54" vendor_name=""></VendorMapping>)",
+            R"(<VendorMapping mac_prefix="00:48:54" vendor_name="Private"></VendorMapping>)",
         },
     };
 
