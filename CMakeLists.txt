@@ -24,7 +24,7 @@ endif()
 
 project(macpp)
 
-set(MACPP_CACHE_VERSION 5)
+set(MACPP_CACHE_VERSION 6)
 
 set(INC_DIR ${PROJECT_SOURCE_DIR}/include)
 

@@ -263,6 +263,20 @@ TEST_CASE("injections") {
     }
 }
 
+TEST_CASE("undefined Registry values") {
+    const std::vector<Vendor> expected = {
+        {0x000000, "", true, Registry::Unknown, ""},
+        {0x00000C, "", true, Registry::Unknown, ""},
+    };
+
+    const ConnR conn{"testdata/poisoned.db", true};
+
+    std::vector<Vendor> out;
+
+    REQUIRE_NOTHROW(out = conn.export_records());
+    REQUIRE(out == expected);
+}
+
 TEST_CASE("ConnR::export_records") {
     const ConnR         conn{"testdata/sample.db", true};
     std::vector<Vendor> out = conn.export_records();

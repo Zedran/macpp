@@ -29,10 +29,12 @@ public:
     int bind(const int coln, const int64_t value) noexcept;
 
     // Binds a Registry enum class value to coln of the statement.
+    // Registry::Unknown is bound as NULL.
     // Returns SQLite result code.
     int bind(const int coln, const Registry value) noexcept;
 
     // Binds a string to coln of the statement. Returns SQLite result code.
+    // Empty string is bound as NULL.
     int bind(const int coln, const std::string& value) noexcept;
 
     // Returns pointer to the wrapped sqlite3_stmt object.
@@ -46,8 +48,9 @@ public:
     //   - int64
     //   - Registry enum class
     //
-    // For strings, if column value is NULL, an empty string is returned.
-    // This should never happen unless the cache has been tampered with.
+    // For strings, if a column value is NULL, an empty string is returned.
+    // For Registry values, encountering NULL or a value outside of the defined
+    // enum class range causes Registry::Unknown to be returned.
     template <typename T>
         requires(
             std::same_as<T, std::string> ||
@@ -58,17 +61,23 @@ public:
         )
     T get_col(const int coln) const noexcept {
         if constexpr (std::is_same_v<T, std::string>) {
-            const unsigned char* text = sqlite3_column_text(stmt, coln);
-
-            if (text) [[likely]] {
-                return std::string{reinterpret_cast<const char*>(text)};
-            } else {
+            if (sqlite3_column_type(stmt, coln) == SQLITE_NULL) {
                 return "";
             }
+            const unsigned char* text = sqlite3_column_text(stmt, coln);
+            return std::string{reinterpret_cast<const char*>(text)};
         }
 
         if constexpr (std::is_same_v<T, Registry>) {
-            return static_cast<Registry>(sqlite3_column_int(stmt, coln));
+            if (sqlite3_column_type(stmt, coln) == SQLITE_NULL) {
+                return Registry::Unknown;
+            }
+
+            const int value = sqlite3_column_int(stmt, coln);
+            if (value < static_cast<int>(Registry::Unknown) || value > static_cast<int>(Registry::MA_S)) {
+                return Registry::Unknown;
+            }
+            return static_cast<Registry>(value);
         }
 
         if constexpr (std::is_same_v<T, bool>) {

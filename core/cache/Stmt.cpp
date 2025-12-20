@@ -19,12 +19,18 @@ int Stmt::bind(const int coln, const int64_t value) noexcept {
     return sqlite3_bind_int64(stmt, coln, value);
 }
 
-int Stmt::bind(const int coln, const std::string& value) noexcept {
-    return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
+int Stmt::bind(const int coln, const Registry value) noexcept {
+    if (value == Registry::Unknown) {
+        return sqlite3_bind_null(stmt, coln);
+    }
+    return sqlite3_bind_int(stmt, coln, static_cast<int>(value));
 }
 
-int Stmt::bind(const int coln, const Registry value) noexcept {
-    return sqlite3_bind_int(stmt, coln, static_cast<int>(value));
+int Stmt::bind(const int coln, const std::string& value) noexcept {
+    if (value.empty()) {
+        return sqlite3_bind_null(stmt, coln);
+    }
+    return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
 }
 
 sqlite3_stmt* Stmt::get() const noexcept {
