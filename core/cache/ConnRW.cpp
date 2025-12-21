@@ -60,7 +60,7 @@ int ConnRW::create_table() noexcept {
 }
 
 void ConnRW::customize_db(std::ostream& err) {
-    static constexpr std::array<std::string_view, 2> mods{
+    constexpr std::array<std::string_view, 2> mods{
         "UPDATE vendors SET name = 'QEMU/KVM' WHERE prefix = 0x525400",
         "UPDATE vendors SET name = name || ' (VirtualBox)' WHERE prefix = 0x080027",
     };

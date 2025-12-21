@@ -79,7 +79,7 @@ int64_t prefix_to_int(const std::string& prefix) {
 }
 
 std::string prefix_to_string(const int64_t prefix) {
-    static constexpr size_t MIN_PREFIX_LEN = 6;
+    constexpr size_t MIN_PREFIX_LEN = 6;
 
     std::ostringstream ss;
     ss << std::uppercase << std::hex << prefix;
