@@ -36,7 +36,7 @@ std::vector<int64_t> construct_queries(const std::string& addr) {
     // Edge case: check for Docker's prefix (02:42)
     if (addr.starts_with("0242")) {
         if (std::ranges::find(queries, 0x024200) == queries.end()) {
-            queries.emplace_back(0x024200);
+            queries.push_back(0x024200);
         }
     }
 
