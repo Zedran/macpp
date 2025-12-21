@@ -15,7 +15,7 @@ public:
     explicit Error(const std::string& msg) : std::runtime_error{msg} {}
 
     // Constructs a new Error and adds the origin function name to the message.
-    explicit Error(const std::string& msg, const std::string& func)
+    Error(const std::string& msg, const std::string& func)
         : std::runtime_error{"[ " + func + " ] " + msg} {}
 
     friend std::ostream& operator<<(std::ostream& os, const Error& e) {
@@ -31,13 +31,13 @@ public:
     // Constructs a new CacheError that contains SQLite error information
     // retrieved from sqlite3 object. Adds the origin function name
     // to the message.
-    explicit CacheError(const std::string& msg, const std::string& func, sqlite3* const conn)
+    CacheError(const std::string& msg, const std::string& func, sqlite3* const conn)
         : Error{msg + ": (" + std::to_string(sqlite3_errcode(conn)) + ") " + sqlite3_errmsg(conn), func} {}
 
     // Constructs a new CacheError that contains SQLite error information
     // retrieved from SQLite response code. Adds the origin function name
     // to the message.
-    explicit CacheError(const std::string& msg, const std::string& func, const int code)
+    CacheError(const std::string& msg, const std::string& func, const int code)
         : Error{msg + ": (" + std::to_string(code) + ") " + sqlite3_errstr(code), func} {}
 };
 
@@ -48,7 +48,7 @@ public:
 
     // Constructs a new NetworkError that contains error information retrieved
     // from CURLcode.
-    explicit UpdateError(const std::string& msg, const CURLcode code)
+    UpdateError(const std::string& msg, const CURLcode code)
         : Error{msg + ": (" + std::to_string(static_cast<int>(code)) + ") " + curl_easy_strerror(code)} {}
 };
 
@@ -61,7 +61,7 @@ class ParsingError : public Error {
     std::string line;
 
 protected:
-    explicit ParsingError(const std::string& msg, const std::string& line)
+    ParsingError(const std::string& msg, const std::string& line)
         : Error{msg}, line{line} {}
 
 public:
