@@ -96,13 +96,13 @@ std::vector<Vendor> ConnR::find_by_addr(const std::string& addr) const {
     return results;
 }
 
-std::vector<Vendor> ConnR::find_by_name(const std::string& name) const {
+std::set<Vendor> ConnR::find_by_name(std::span<const std::string> names) const {
     constexpr const char* stmt_string =
         "SELECT * FROM vendors "
         "WHERE name LIKE '%' || ?1 || '%' COLLATE NOCASE ESCAPE '\\'";
 
-    if (name.empty()) {
-        throw errors::Error{"empty vendor name"};
+    if (names.empty()) {
+        throw errors::Error{"no vendor names provided"};
     }
 
     Stmt stmt{conn, stmt_string};
@@ -110,14 +110,28 @@ std::vector<Vendor> ConnR::find_by_name(const std::string& name) const {
         throw errors::CacheError{"prepare", __func__, conn};
     }
 
-    if (int rc = stmt.bind(1, name); rc != SQLITE_OK) {
-        throw errors::CacheError{"bind", __func__, rc};
-    }
+    std::set<Vendor> results;
 
-    std::vector<Vendor> results;
+    for (const auto& vn : names) {
+        if (vn.empty()) {
+            throw errors::Error{"empty vendor name encountered"};
+        }
 
-    while (stmt.step() == SQLITE_ROW) {
-        results.emplace_back(stmt.get_row());
+        if (int rc = stmt.bind(1, vn); rc != SQLITE_OK) {
+            throw errors::CacheError{"bind", __func__, rc};
+        }
+
+        while (stmt.step() == SQLITE_ROW) {
+            results.emplace(stmt.get_row());
+        }
+
+        if (int rc = stmt.clear_bindings(); rc != SQLITE_OK) {
+            throw errors::CacheError{"clear_bindings", __func__, rc};
+        }
+
+        if (int rc = stmt.reset(); rc != SQLITE_OK) {
+            throw errors::CacheError{"reset", __func__, rc};
+        }
     }
 
     return results;

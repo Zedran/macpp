@@ -41,5 +41,7 @@ struct Vendor {
 
     bool operator==(const Vendor& other) const = default;
 
+    bool operator<(const Vendor& other) const;
+
     friend std::ostream& operator<<(std::ostream& os, const Vendor& v);
 };

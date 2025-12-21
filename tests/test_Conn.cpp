@@ -3,6 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <fstream>
 #include <map>
+#include <set>
 #include <sqlite3.h>
 
 #include "cache/ConnR.hpp"
@@ -318,41 +319,41 @@ TEST_CASE("ConnR::find_by_addr") {
 TEST_CASE("ConnR::find_by_name") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
+    const Vendor cisco{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
+    const Vendor xerox{0x0000AA, "XEROX CORPORATION", false, Registry::MA_L, "2015/11/17"};
 
-    const std::string cases[] = {
-        "Cisco Systems, Inc",
-        "cisco systems, inc",
-        "cisco sys",
-        "Cisco",
-        "cisco",
-        "Systems",
-        "systems",
-        "CiScO SYS",
+    // <input, expected>
+    const std::map<std::vector<std::string>, std::set<Vendor>> cases = {
+        {{"Cisco Systems, Inc"}, {cisco}},
+        {{"cisco systems, inc"}, {cisco}},
+        {{"cisco sys"}, {cisco}},
+        {{"Cisco"}, {cisco}},
+        {{"cisco"}, {cisco}},
+        {{"Systems"}, {cisco}},
+        {{"systems"}, {cisco}},
+        {{"CiScO SYS"}, {cisco}},
+        {{"cisco", "xerox"}, {cisco, xerox}},
+        {{"Cisco Systems, Inc", "XEROX CORPORATION"}, {cisco, xerox}},
+        {{"xerox", "unknown"}, {xerox}},
+        {{"cisco", "cisco"}, {cisco}}, // Duplicate search terms
+        {{"non-existent"}, {}},        // Valid, not found
     };
 
-    std::vector<Vendor> results;
+    for (auto [input, expected] : cases) {
+        CAPTURE(input.size());
+        CAPTURE(expected.size());
 
-    for (auto c : cases) {
-        CAPTURE(c);
+        std::set<Vendor> results = conn.find_by_name(input);
 
-        results = conn.find_by_name(c);
+        CAPTURE(results.size());
 
-        REQUIRE(results.size() == 1);
-
-        Vendor& out = results.at(0);
-
-        REQUIRE(out == expected);
-
-        results.pop_back();
+        REQUIRE(results == expected);
     }
 
-    // Valid, not found
-    results = conn.find_by_name("non-existent");
-    REQUIRE(results.empty());
-
-    const std::map<const std::string, const errors::Error> throw_cases = {
-        {"", errors::Error{"empty vendor name"}},
+    const std::map<const std::vector<std::string>, const errors::Error> throw_cases = {
+        {{}, errors::Error{"no vendor names provided"}},
+        {{""}, errors::Error{"empty vendor name encountered"}},
+        {{"cisco", "", "xerox"}, errors::Error{"empty vendor name encountered"}},
     };
 
     for (const auto& [input, expected_error] : throw_cases) {

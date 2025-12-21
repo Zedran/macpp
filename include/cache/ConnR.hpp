@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <mutex>
+#include <set>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -45,6 +47,6 @@ public:
     // Searches for records with given MAC address.
     std::vector<Vendor> find_by_addr(const std::string& addr) const;
 
-    // Searches for records with given vendor name name.
-    std::vector<Vendor> find_by_name(const std::string& name) const;
+    // Searches for records with given vendor names.
+    std::set<Vendor> find_by_name(std::span<const std::string> names) const;
 };
