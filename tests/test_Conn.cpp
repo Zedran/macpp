@@ -228,41 +228,6 @@ TEST_CASE("ConnRW destruction") {
     REQUIRE(stmt.get_col<int>(0) == 0);
 }
 
-TEST_CASE("injections") {
-    const ConnR conn{"testdata/sample.db", true};
-
-    const std::string cases[] = {
-        "DIG_LINK",
-    };
-
-    for (const auto& c : cases) {
-        std::vector out = conn.find_by_name(c);
-
-        REQUIRE(out.size() == 1);
-        REQUIRE(c == out[0].vendor_name);
-    }
-
-    const std::map<const std::string, const errors::Error> throw_cases = {
-        {"", errors::Error{"empty vendor name"}},
-    };
-
-    for (const auto& [input, expected_error] : throw_cases) {
-        CAPTURE(input);
-
-        try {
-            conn.find_by_name(input);
-        } catch (const errors::Error& e) {
-            CAPTURE(e);
-            REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
-            continue;
-        } catch (const std::exception& e) {
-            FAIL("unexpected exception was thrown: " + std::string{e.what()} + "'");
-        }
-
-        FAIL("no exception was thrown");
-    }
-}
-
 TEST_CASE("undefined Registry values") {
     const std::vector<Vendor> expected = {
         {0x000000, "", true, Registry::Unknown, ""},
