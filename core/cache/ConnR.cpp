@@ -25,7 +25,7 @@ ConnR::~ConnR() = default;
 
 void ConnR::check() const {
     if (version() != EXPECTED_CACHE_VERSION) {
-        throw errors::CacheError{"database version missmatch, update required"};
+        throw errors::CacheError{"database version mismatch, update required"};
     }
 
     if (!has_table()) {
