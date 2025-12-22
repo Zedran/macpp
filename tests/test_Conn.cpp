@@ -337,7 +337,7 @@ TEST_CASE("ConnR::find_by_name") {
         {{"non-existent"}, {}},        // Valid, not found
     };
 
-    for (auto [input, expected] : cases) {
+    for (const auto& [input, expected] : cases) {
         CAPTURE(input.size());
         CAPTURE(expected.size());
 
