@@ -87,9 +87,8 @@ std::set<Vendor> ConnR::find_by_addr(std::span<const std::string> addresses) con
             throw errors::CacheError{"prepare", __func__, conn};
         }
 
-        int rc;
         for (size_t i = 0; i < queries.size(); i++) {
-            if (rc = stmt.bind(static_cast<int>(i + 1), queries[i]); rc != SQLITE_OK) {
+            if (int rc = stmt.bind(static_cast<int>(i + 1), queries[i]); rc != SQLITE_OK) {
                 throw errors::CacheError{"bind", __func__, rc};
             }
         }
