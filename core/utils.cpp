@@ -110,8 +110,8 @@ std::string remove_addr_separators(const std::string& addr) {
 }
 
 void replace_escaped_quotes(std::string& str) {
-    const std::string target      = "\"\"";
-    const std::string replacement = "\"";
+    constexpr std::string_view target      = "\"\"";
+    constexpr std::string_view replacement = "\"";
 
     size_t pos = 0;
 
