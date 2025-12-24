@@ -3,12 +3,19 @@
 #include "Registry.hpp"
 #include "cache/Stmt.hpp"
 #include "exception.hpp"
+#include "utils.hpp"
 
-Stmt::Stmt(sqlite3* const conn, const char* str_stmt) noexcept
-    : prepare_rc{sqlite3_prepare_v2(conn, str_stmt, -1, &stmt, nullptr)} {}
+Stmt::Stmt(sqlite3* const conn, const char* str_stmt, const std::source_location loc) {
+    if (const int rc = sqlite3_prepare_v2(conn, str_stmt, -1, &stmt, nullptr); rc != SQLITE_OK) {
+        throw errors::CacheError{"prepare", fmt_loc(loc), rc};
+    }
+}
 
-Stmt::Stmt(sqlite3* const conn, const std::string& str_stmt) noexcept
-    : prepare_rc{sqlite3_prepare_v2(conn, str_stmt.c_str(), -1, &stmt, nullptr)} {}
+Stmt::Stmt(sqlite3* const conn, const std::string& str_stmt, const std::source_location loc) {
+    if (const int rc = sqlite3_prepare_v2(conn, str_stmt.c_str(), -1, &stmt, nullptr); rc != SQLITE_OK) {
+        throw errors::CacheError{"prepare", fmt_loc(loc), rc};
+    }
+}
 
 Stmt::~Stmt() {
     [[maybe_unused]] const int rc = sqlite3_finalize(stmt);
@@ -51,10 +58,6 @@ Vendor Stmt::get_row() noexcept {
     };
 }
 
-bool Stmt::good() const noexcept {
-    return prepare_rc == SQLITE_OK;
-}
-
 void Stmt::insert_row(const Vendor& v) {
     int rc;
 
@@ -82,18 +85,10 @@ void Stmt::insert_row(const Vendor& v) {
     }
 }
 
-int Stmt::rc() const noexcept {
-    return prepare_rc;
-}
-
 int Stmt::reset() noexcept {
     return sqlite3_reset(stmt);
 }
 
 int Stmt::step() noexcept {
     return sqlite3_step(stmt);
-}
-
-Stmt::operator bool() const noexcept {
-    return good();
 }

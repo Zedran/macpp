@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <source_location>
 #include <sqlite3.h>
 #include <string>
 
@@ -9,16 +10,13 @@
 
 // A RAII wrapper for sqlite3_stmt object.
 class Stmt {
-    // Result code returned by sqlite3_prepare function.
-    int prepare_rc;
-
     // Pointer to SQLite statement object.
     sqlite3_stmt* stmt;
 
 public:
-    Stmt(sqlite3* const conn, const char* str_stmt) noexcept;
+    Stmt(sqlite3* const conn, const char* str_stmt, const std::source_location loc = std::source_location::current());
 
-    Stmt(sqlite3* const conn, const std::string& str_stmt) noexcept;
+    Stmt(sqlite3* const conn, const std::string& str_stmt, const std::source_location loc = std::source_location::current());
 
     Stmt(const Stmt&)            = delete;
     Stmt& operator=(const Stmt&) = delete;
@@ -99,21 +97,12 @@ public:
     // Retrieves Vendor instance from SQLite row.
     Vendor get_row() noexcept;
 
-    // Returns true if statement has been prepared correctly.
-    bool good() const noexcept;
-
     // Binds Vendor instance to the statement.
     void insert_row(const Vendor& v);
-
-    // Returns result code returned by sqlite3_prepare function.
-    int rc() const noexcept;
 
     // Resets the statement.
     int reset() noexcept;
 
     // Steps the statement.
     int step() noexcept;
-
-    // Returns true if statement has been prepared correctly.
-    explicit operator bool() const noexcept;
 };

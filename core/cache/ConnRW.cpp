@@ -78,9 +78,6 @@ void ConnRW::customize_db(std::ostream& err) {
     }
 
     Stmt ins{conn, INSERT_STMT};
-    if (!ins.good()) {
-        throw errors::CacheError{"prepare", __func__, ins.rc()};
-    }
 
     try {
         ins.insert_row(Vendor{0x024200, "Docker container interface (02:42)", true, Registry::Unknown, ""});
@@ -104,9 +101,6 @@ void ConnRW::insert(std::istream& is, const bool update, std::ostream& err) {
     }
 
     Stmt stmt{conn, INSERT_STMT};
-    if (!stmt) {
-        throw errors::CacheError{"prepare", __func__, stmt.rc()};
-    }
 
     std::string line;
 

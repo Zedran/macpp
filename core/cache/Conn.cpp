@@ -32,9 +32,6 @@ sqlite3* Conn::get() const noexcept {
 
 bool Conn::has_table() const {
     Stmt stmt{conn, "SELECT 1 FROM sqlite_master WHERE type='table' AND name='vendors'"};
-    if (!stmt) {
-        throw errors::CacheError{"prepare", __func__, stmt.rc()};
-    }
 
     const int rc = stmt.step();
 
@@ -53,9 +50,6 @@ int Conn::rc() const noexcept {
 
 int Conn::version() const {
     Stmt stmt{conn, "PRAGMA user_version"};
-    if (!stmt) {
-        throw errors::CacheError{"prepare", __func__, stmt.rc()};
-    }
 
     if (int rc = stmt.step(); rc == SQLITE_NOTADB) {
         // File is not a database and is not empty
