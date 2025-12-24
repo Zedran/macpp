@@ -3,6 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <fstream>
 #include <map>
+#include <set>
 #include <sqlite3.h>
 
 #include "cache/ConnR.hpp"
@@ -251,51 +252,49 @@ TEST_CASE("ConnR::export_records") {
 TEST_CASE("ConnR::find_by_addr") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
+    const Vendor cisco{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
+    const Vendor xerox{0x0000AA, "XEROX CORPORATION", false, Registry::MA_L, "2015/11/17"};
 
-    const std::string cases[] = {
-        "00:00:0C",          // with separators, short
-        "00:00:0C:12:3",     // with separators, partial
-        "00:00:0C:12:34:56", // with separators, full
-        "00000C",            // no separators, short
-        "00000C123",         // no separators, partial
-        "00000C123456",      // no separators, full
-        "00:::00::::0C",     // many separators in row
-        "00000c",            // lower-case hex, no separators
-        "00:00:0c:12:34:56", // lower case hex, separators
+    // <input, expected>
+    const std::map<std::vector<std::string>, std::set<Vendor>> cases = {
+        {{"00:00:0C"}, {cisco}},             // with separators, short
+        {{"00:00:0C:12:3"}, {cisco}},        // with separators, partial
+        {{"00:00:0C:12:34:56"}, {cisco}},    // with separators, full
+        {{"00000C"}, {cisco}},               // no separators, short
+        {{"00000C123"}, {cisco}},            // no separators, partial
+        {{"00000C123456"}, {cisco}},         // no separators, full
+        {{"00:::00::::0C"}, {cisco}},        // many separators in row
+        {{"00000c"}, {cisco}},               // lower-case hex, no separators
+        {{"00:00:aa:12:34:56"}, {xerox}},    // lower case hex, separators
+        {{"00:00:0C", "00:00:0C"}, {cisco}}, // duplicate search terms
+        {{"00:00:0C", "12:34:56"}, {cisco}}, // one unknown
+        {{"012345"}, {}},                    // valid, not found
     };
 
-    std::vector<Vendor> results;
+    for (const auto& [input, expected] : cases) {
+        CAPTURE(input.size());
+        CAPTURE(expected.size());
 
-    for (auto c : cases) {
-        CAPTURE(c);
+        const std::set<Vendor> results = conn.find_by_addr(input);
 
-        results = conn.find_by_addr(c);
-
-        REQUIRE(results.size() == 1);
-
-        Vendor& out = results.at(0);
-
-        REQUIRE(out == expected);
-
-        results.pop_back();
+        CAPTURE(results.size());
+        REQUIRE(results == expected);
     }
 
-    // Valid, not found
-    results = conn.find_by_addr("012345");
-    REQUIRE(results.empty());
+    const auto empty_vec  = errors::Error{"no MAC address provided"};
+    const auto empty_addr = errors::Error{"empty MAC address encountered"};
+    const auto too_short  = errors::Error{"specified MAC address is too short"};
+    const auto invalid    = errors::Error{"specified MAC address contains invalid characters"};
 
-    const auto empty     = errors::Error{"empty MAC address"};
-    const auto too_short = errors::Error{"specified MAC address is too short"};
-    const auto invalid   = errors::Error{"specified MAC address contains invalid characters"};
-
-    const std::map<const std::string, const errors::Error&> throw_cases = {
-        {"", empty},             // empty
-        {"0000c", too_short},    // too short
-        {"0c", too_short},       // too short
-        {"c", too_short},        // too short
-        {"::::::::::::", empty}, // separators do not count
-        {"01234x", invalid},     // non-number
+    const std::map<const std::vector<std::string>, const errors::Error&> throw_cases = {
+        {{}, empty_vec},                          // empty input
+        {{""}, empty_addr},                       // empty MAC address
+        {{"00000C", "", "00:00:AA"}, empty_addr}, // empty MAC address among valid input
+        {{"0000c"}, too_short},                   // too short
+        {{"0c"}, too_short},                      // too short
+        {{"c"}, too_short},                       // too short
+        {{"::::::::::::"}, empty_addr},           // separators do not count
+        {{"01234x"}, invalid},                    // non-number
     };
 
     for (const auto& [input, expected_error] : throw_cases) {
@@ -318,41 +317,41 @@ TEST_CASE("ConnR::find_by_addr") {
 TEST_CASE("ConnR::find_by_name") {
     const ConnR conn{"testdata/sample.db", true};
 
-    const Vendor expected{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
+    const Vendor cisco{0x00000C, "Cisco Systems, Inc", false, Registry::MA_L, "2015/11/17"};
+    const Vendor xerox{0x0000AA, "XEROX CORPORATION", false, Registry::MA_L, "2015/11/17"};
 
-    const std::string cases[] = {
-        "Cisco Systems, Inc",
-        "cisco systems, inc",
-        "cisco sys",
-        "Cisco",
-        "cisco",
-        "Systems",
-        "systems",
-        "CiScO SYS",
+    // <input, expected>
+    const std::map<std::vector<std::string>, std::set<Vendor>> cases = {
+        {{"Cisco Systems, Inc"}, {cisco}},
+        {{"cisco systems, inc"}, {cisco}},
+        {{"cisco sys"}, {cisco}},
+        {{"Cisco"}, {cisco}},
+        {{"cisco"}, {cisco}},
+        {{"Systems"}, {cisco}},
+        {{"systems"}, {cisco}},
+        {{"CiScO SYS"}, {cisco}},
+        {{"cisco", "xerox"}, {cisco, xerox}},
+        {{"Cisco Systems, Inc", "XEROX CORPORATION"}, {cisco, xerox}},
+        {{"xerox", "unknown"}, {xerox}},
+        {{"cisco", "cisco"}, {cisco}}, // Duplicate search terms
+        {{"non-existent"}, {}},        // Valid, not found
     };
 
-    std::vector<Vendor> results;
+    for (const auto& [input, expected] : cases) {
+        CAPTURE(input.size());
+        CAPTURE(expected.size());
 
-    for (auto c : cases) {
-        CAPTURE(c);
+        std::set<Vendor> results = conn.find_by_name(input);
 
-        results = conn.find_by_name(c);
+        CAPTURE(results.size());
 
-        REQUIRE(results.size() == 1);
-
-        Vendor& out = results.at(0);
-
-        REQUIRE(out == expected);
-
-        results.pop_back();
+        REQUIRE(results == expected);
     }
 
-    // Valid, not found
-    results = conn.find_by_name("non-existent");
-    REQUIRE(results.empty());
-
-    const std::map<const std::string, const errors::Error> throw_cases = {
-        {"", errors::Error{"empty vendor name"}},
+    const std::map<const std::vector<std::string>, const errors::Error> throw_cases = {
+        {{}, errors::Error{"no vendor names provided"}},
+        {{""}, errors::Error{"empty vendor name encountered"}},
+        {{"cisco", "", "xerox"}, errors::Error{"empty vendor name encountered"}},
     };
 
     for (const auto& [input, expected_error] : throw_cases) {

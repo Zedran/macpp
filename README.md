@@ -46,6 +46,9 @@ macpp addr C0:FB:F9:01:23:45
 
 # Display results in CSV format
 macpp -o csv addr 00:00:00
+
+# You can provide multiple search terms
+macpp addr 00:00:0C 00:00:00
 ```
 
 ### Searching by name
@@ -59,6 +62,9 @@ macpp name "xerox corporation"
 
 # Display results in JSON format
 macpp --out-format json name xerox
+
+# Quotes rule applies when specifying multiple terms as well
+macpp name cisco "xerox corporation"
 ```
 
 ### Exporting records

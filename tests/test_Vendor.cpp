@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <map>
+#include <span>
 #include <sstream>
 
 #include "Vendor.hpp"
@@ -112,10 +113,12 @@ TEST_CASE("Vendor(string)") {
 TEST_CASE("NULL values") {
     const ConnR conn_r2{"testdata/poisoned.db", true};
 
-    std::vector<Vendor> results = conn_r2.find_by_addr("00:00:0C");
+    const std::string search_term = "00:00:0C";
+
+    std::set<Vendor> results = conn_r2.find_by_addr({&search_term, 1});
 
     REQUIRE(!results.empty());
-    REQUIRE(results.at(0).vendor_name == "");
+    REQUIRE(results.begin()->vendor_name == "");
 }
 
 TEST_CASE("operator<< out::csv") {

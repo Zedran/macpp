@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <mutex>
+#include <set>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -42,9 +44,9 @@ public:
     // Returns a vector containing every record in the database.
     std::vector<Vendor> export_records() const;
 
-    // Searches for records with given MAC address.
-    std::vector<Vendor> find_by_addr(const std::string& addr) const;
+    // Searches for records using given MAC addresses.
+    std::set<Vendor> find_by_addr(std::span<const std::string> addresses) const;
 
-    // Searches for records with given vendor name name.
-    std::vector<Vendor> find_by_name(const std::string& name) const;
+    // Searches for records with given vendor names.
+    std::set<Vendor> find_by_name(std::span<const std::string> names) const;
 };

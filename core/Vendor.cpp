@@ -150,6 +150,10 @@ std::ostream& Vendor::write_string_xml(std::ostream& os) const noexcept {
     return os << R"("></VendorMapping>)";
 }
 
+bool Vendor::operator<(const Vendor& other) const {
+    return mac_prefix < other.mac_prefix;
+}
+
 std::ostream& operator<<(std::ostream& os, const Vendor& v) {
     switch (out::get_format(os)) {
     case out::Format::CSV:  return v.write_string_csv(os);

@@ -1,6 +1,7 @@
 #include <curl/curl.h>
 #include <iostream>
 #include <optional>
+#include <ranges>
 
 #include "FinalAction.hpp"
 #include "argparse/argparse.hpp"
@@ -14,7 +15,7 @@
 #include "update/Reader.hpp"
 
 // Presents results in the user-specified (or default) format.
-void display_results(const argparse::ArgumentParser& app, const std::vector<Vendor>& results) {
+void display_results(const argparse::ArgumentParser& app, const std::ranges::input_range auto& results) {
     const std::string format = (app.is_used("--out-format") ? app.get("--out-format") : "regular");
 
     if (format == "regular") {
@@ -126,9 +127,9 @@ int main(int argc, char* argv[]) {
         const ConnR conn{cache_path};
 
         if (app.is_subcommand_used(sc_addr)) {
-            display_results(app, conn.find_by_addr(sc_addr.get<std::string>("addr")));
+            display_results(app, conn.find_by_addr(sc_addr.get<std::vector<std::string>>("addr")));
         } else if (app.is_subcommand_used(sc_name)) {
-            display_results(app, conn.find_by_name(sc_name.get<std::string>("name")));
+            display_results(app, conn.find_by_name(sc_name.get<std::vector<std::string>>("name")));
         } else if (app.is_subcommand_used(sc_export)) {
             display_results(app, conn.export_records());
         } else {

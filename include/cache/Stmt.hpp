@@ -37,6 +37,9 @@ public:
     // Empty string is bound as NULL.
     int bind(const int coln, const std::string& value) noexcept;
 
+    // Clears parameters that were bound to the statement.
+    int clear_bindings() noexcept;
+
     // Returns pointer to the wrapped sqlite3_stmt object.
     sqlite3_stmt* get() const noexcept;
 

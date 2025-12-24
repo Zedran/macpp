@@ -33,6 +33,10 @@ int Stmt::bind(const int coln, const std::string& value) noexcept {
     return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
 }
 
+int Stmt::clear_bindings() noexcept {
+    return sqlite3_clear_bindings(stmt);
+}
+
 sqlite3_stmt* Stmt::get() const noexcept {
     return stmt;
 }
