@@ -79,9 +79,7 @@ std::set<Vendor> ConnR::find_by_addr(std::span<const std::string> addresses) con
         Stmt stmt{conn, stmt_string};
 
         for (size_t i = 0; i < queries.size(); i++) {
-            if (int rc = stmt.bind(static_cast<int>(i + 1), queries[i]); rc != SQLITE_OK) {
-                throw errors::CacheError{"bind", __func__, rc};
-            }
+            stmt.bind(static_cast<int>(i + 1), queries[i]);
         }
 
         while (stmt.step() == SQLITE_ROW) {
@@ -110,9 +108,7 @@ std::set<Vendor> ConnR::find_by_name(std::span<const std::string> names) const {
             throw errors::Error{"empty vendor name encountered"};
         }
 
-        if (int rc = stmt.bind(1, vn); rc != SQLITE_OK) {
-            throw errors::CacheError{"bind", __func__, rc};
-        }
+        stmt.bind(1, vn);
 
         while (stmt.step() == SQLITE_ROW) {
             results.emplace(stmt.get_row());

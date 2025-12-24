@@ -23,17 +23,19 @@ public:
 
     ~Stmt();
 
-    // Binds an int64 to coln of the statement. Returns SQLite result code.
-    int bind(const int coln, const int64_t value) noexcept;
+    // Binds an int64 to coln of the statement. Throws CacheError if SQLite
+    // error is encountered.
+    void bind(const int coln, const int64_t value, const std::source_location loc = std::source_location::current());
 
     // Binds a Registry enum class value to coln of the statement.
     // Registry::Unknown is bound as NULL.
-    // Returns SQLite result code.
-    int bind(const int coln, const Registry value) noexcept;
+    // Throws CacheError if SQLite error is encountered.
+    void bind(const int coln, const Registry value, const std::source_location loc = std::source_location::current());
 
     // Binds a string to coln of the statement. Returns SQLite result code.
     // Empty string is bound as NULL.
-    int bind(const int coln, const std::string& value) noexcept;
+    // Throws CacheError if SQLite error is encountered.
+    void bind(const int coln, const std::string& value, const std::source_location loc = std::source_location::current());
 
     // Clears parameters that were bound to the statement.
     int clear_bindings() noexcept;
@@ -98,7 +100,7 @@ public:
     Vendor get_row() noexcept;
 
     // Binds Vendor instance to the statement.
-    void insert_row(const Vendor& v);
+    void insert_row(const Vendor& v, const std::source_location loc = std::source_location::current());
 
     // Resets the statement.
     int reset() noexcept;
