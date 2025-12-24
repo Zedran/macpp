@@ -43,7 +43,7 @@ TEST_CASE("ConnRW::insert") {
     }
 
     REQUIRE(conn_rw.clear_table() == SQLITE_OK);
-    REQUIRE(stmt.reset() == SQLITE_OK);
+    REQUIRE_NOTHROW(stmt.reset());
     out.clear();
 
     // Line length limits
@@ -196,7 +196,7 @@ TEST_CASE("ConnRW destruction") {
 
     REQUIRE(stmt.step() == SQLITE_ROW);
     REQUIRE(stmt.get_col<int>(0) == 0);
-    REQUIRE(stmt.reset() == SQLITE_OK);
+    REQUIRE_NOTHROW(stmt.reset());
 
     {
         // Correctly structured file causes transaction to be committed
@@ -208,7 +208,7 @@ TEST_CASE("ConnRW destruction") {
 
     REQUIRE(stmt.step() == SQLITE_ROW);
     REQUIRE(stmt.get_col<int>(0) == 3);
-    REQUIRE(stmt.reset() == SQLITE_OK);
+    REQUIRE_NOTHROW(stmt.reset());
 
     REQUIRE(conn_master.clear_table() == SQLITE_OK);
 

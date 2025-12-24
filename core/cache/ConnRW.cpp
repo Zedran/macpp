@@ -83,7 +83,13 @@ void ConnRW::customize_db(std::ostream& err) {
         ins.insert_row(Vendor{0x024200, "Docker container interface (02:42)", true, Registry::Unknown, ""});
     } catch (const errors::CacheError& e) {
         err << e << '\n';
-        ins.reset();
+        try {
+            ins.reset();
+        } catch (const errors::CacheError&) {
+            // Ignore exception.
+            // At this point, reset can throw due to (19) constraint failed,
+            // which is expected if a record is already present.
+        }
     }
 }
 

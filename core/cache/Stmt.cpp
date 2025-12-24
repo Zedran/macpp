@@ -85,13 +85,13 @@ void Stmt::insert_row(const Vendor& v, const std::source_location loc) {
     if (const int rc = step(); rc != SQLITE_DONE) {
         throw errors::CacheError{"step", __func__, rc};
     }
-    if (const int rc = reset(); rc != SQLITE_OK) {
-        throw errors::CacheError{"reset", __func__, rc};
-    }
+    reset();
 }
 
-int Stmt::reset() noexcept {
-    return sqlite3_reset(stmt);
+void Stmt::reset(const std::source_location loc) {
+    if (const int rc = sqlite3_reset(stmt); rc != SQLITE_OK) {
+        throw errors::CacheError{"reset", fmt_loc(loc), rc};
+    }
 }
 
 int Stmt::step() noexcept {

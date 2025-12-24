@@ -118,9 +118,7 @@ std::set<Vendor> ConnR::find_by_name(std::span<const std::string> names) const {
             throw errors::CacheError{"clear_bindings", __func__, rc};
         }
 
-        if (int rc = stmt.reset(); rc != SQLITE_OK) {
-            throw errors::CacheError{"reset", __func__, rc};
-        }
+        stmt.reset();
     }
 
     return results;
