@@ -57,8 +57,10 @@ void Stmt::bind(const int coln, const std::string& value, const std::source_loca
     }
 }
 
-int Stmt::clear_bindings() noexcept {
-    return sqlite3_clear_bindings(stmt);
+void Stmt::clear_bindings(const std::source_location loc) {
+    if (const int rc = sqlite3_clear_bindings(stmt); rc != SQLITE_OK) {
+        throw errors::CacheError{"clear_bindings", fmt_loc(loc), rc};
+    }
 }
 
 sqlite3_stmt* Stmt::get() const noexcept {

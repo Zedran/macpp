@@ -37,8 +37,9 @@ public:
     // Throws CacheError if SQLite error is encountered.
     void bind(const int coln, const std::string& value, const std::source_location loc = std::source_location::current());
 
-    // Clears parameters that were bound to the statement.
-    int clear_bindings() noexcept;
+    // Clears parameters that were bound to the statement. Throws CacheError
+    // if SQLite error is encountered.
+    void clear_bindings(const std::source_location loc = std::source_location::current());
 
     // Returns pointer to the wrapped sqlite3_stmt object.
     sqlite3_stmt* get() const noexcept;
