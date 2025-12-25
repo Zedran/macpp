@@ -100,12 +100,13 @@ public:
     // Retrieves Vendor instance from SQLite row.
     Vendor get_row() noexcept;
 
-    // Binds Vendor instance to the statement.
+    // Binds Vendor instance to the statement. Throws CacheError if any SQLite
+    // operation fails.
     void insert_row(const Vendor& v);
 
-    // Resets the statement. Throws if SQLite error is encountered.
+    // Resets the statement. Throws CacheError if SQLite error is encountered.
     void reset(const std::source_location loc = std::source_location::current());
 
-    // Steps the statement.
+    // Steps the statement. Returns SQLite response code.
     int step() noexcept;
 };
