@@ -77,12 +77,12 @@ Vendor Stmt::get_row() noexcept {
     };
 }
 
-void Stmt::insert_row(const Vendor& v, const std::source_location loc) {
-    bind(1, v.mac_prefix, loc);
-    bind(2, v.vendor_name, loc);
-    bind(3, v.is_private, loc);
-    bind(4, v.block_type, loc);
-    bind(5, v.last_update, loc);
+void Stmt::insert_row(const Vendor& v) {
+    bind(1, v.mac_prefix);
+    bind(2, v.vendor_name);
+    bind(3, v.is_private);
+    bind(4, v.block_type);
+    bind(5, v.last_update);
 
     if (const int rc = step(); rc != SQLITE_DONE) {
         throw errors::CacheError{"step", __func__, rc};

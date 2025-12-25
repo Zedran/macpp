@@ -101,7 +101,7 @@ public:
     Vendor get_row() noexcept;
 
     // Binds Vendor instance to the statement.
-    void insert_row(const Vendor& v, const std::source_location loc = std::source_location::current());
+    void insert_row(const Vendor& v);
 
     // Resets the statement. Throws if SQLite error is encountered.
     void reset(const std::source_location loc = std::source_location::current());
