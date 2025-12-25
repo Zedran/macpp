@@ -8,13 +8,13 @@
 
 Stmt::Stmt(sqlite3* const conn, const char* str_stmt, const std::source_location loc) {
     if (const int rc = sqlite3_prepare_v2(conn, str_stmt, -1, &stmt, nullptr); rc != SQLITE_OK) {
-        throw errors::CacheError{"prepare", fmt_loc(loc), rc};
+        throw errors::CacheError{__func__, fmt_loc(loc), rc};
     }
 }
 
 Stmt::Stmt(sqlite3* const conn, const std::string& str_stmt, const std::source_location loc) {
     if (const int rc = sqlite3_prepare_v2(conn, str_stmt.c_str(), -1, &stmt, nullptr); rc != SQLITE_OK) {
-        throw errors::CacheError{"prepare", fmt_loc(loc), rc};
+        throw errors::CacheError{__func__, fmt_loc(loc), rc};
     }
 }
 
@@ -59,7 +59,7 @@ void Stmt::bind(const int coln, const std::string& value, const std::source_loca
 
 void Stmt::clear_bindings(const std::source_location loc) {
     if (const int rc = sqlite3_clear_bindings(stmt); rc != SQLITE_OK) {
-        throw errors::CacheError{"clear_bindings", fmt_loc(loc), rc};
+        throw errors::CacheError{"__func__", fmt_loc(loc), rc};
     }
 }
 
@@ -92,7 +92,7 @@ void Stmt::insert_row(const Vendor& v) {
 
 void Stmt::reset(const std::source_location loc) {
     if (const int rc = sqlite3_reset(stmt); rc != SQLITE_OK) {
-        throw errors::CacheError{"reset", fmt_loc(loc), rc};
+        throw errors::CacheError{__func__, fmt_loc(loc), rc};
     }
 }
 
