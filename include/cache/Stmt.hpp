@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <source_location>
 #include <sqlite3.h>
 #include <string>
 
@@ -9,36 +10,36 @@
 
 // A RAII wrapper for sqlite3_stmt object.
 class Stmt {
-    // Result code returned by sqlite3_prepare function.
-    int prepare_rc;
-
     // Pointer to SQLite statement object.
     sqlite3_stmt* stmt;
 
 public:
-    Stmt(sqlite3* const conn, const char* str_stmt) noexcept;
+    Stmt(sqlite3* const conn, const char* str_stmt, const std::source_location loc = std::source_location::current());
 
-    Stmt(sqlite3* const conn, const std::string& str_stmt) noexcept;
+    Stmt(sqlite3* const conn, const std::string& str_stmt, const std::source_location loc = std::source_location::current());
 
     Stmt(const Stmt&)            = delete;
     Stmt& operator=(const Stmt&) = delete;
 
     ~Stmt();
 
-    // Binds an int64 to coln of the statement. Returns SQLite result code.
-    int bind(const int coln, const int64_t value) noexcept;
+    // Binds an int64 to coln of the statement. Throws CacheError if SQLite
+    // error is encountered.
+    void bind(const int coln, const int64_t value, const std::source_location loc = std::source_location::current());
 
     // Binds a Registry enum class value to coln of the statement.
     // Registry::Unknown is bound as NULL.
-    // Returns SQLite result code.
-    int bind(const int coln, const Registry value) noexcept;
+    // Throws CacheError if SQLite error is encountered.
+    void bind(const int coln, const Registry value, const std::source_location loc = std::source_location::current());
 
     // Binds a string to coln of the statement. Returns SQLite result code.
     // Empty string is bound as NULL.
-    int bind(const int coln, const std::string& value) noexcept;
+    // Throws CacheError if SQLite error is encountered.
+    void bind(const int coln, const std::string& value, const std::source_location loc = std::source_location::current());
 
-    // Clears parameters that were bound to the statement.
-    int clear_bindings() noexcept;
+    // Clears parameters that were bound to the statement. Throws CacheError
+    // if SQLite error is encountered.
+    void clear_bindings(const std::source_location loc = std::source_location::current());
 
     // Returns pointer to the wrapped sqlite3_stmt object.
     sqlite3_stmt* get() const noexcept;
@@ -99,21 +100,13 @@ public:
     // Retrieves Vendor instance from SQLite row.
     Vendor get_row() noexcept;
 
-    // Returns true if statement has been prepared correctly.
-    bool good() const noexcept;
-
-    // Binds Vendor instance to the statement.
+    // Binds Vendor instance to the statement. Throws CacheError if any SQLite
+    // operation fails.
     void insert_row(const Vendor& v);
 
-    // Returns result code returned by sqlite3_prepare function.
-    int rc() const noexcept;
+    // Resets the statement. Throws CacheError if SQLite error is encountered.
+    void reset(const std::source_location loc = std::source_location::current());
 
-    // Resets the statement.
-    int reset() noexcept;
-
-    // Steps the statement.
+    // Steps the statement. Returns SQLite response code.
     int step() noexcept;
-
-    // Returns true if statement has been prepared correctly.
-    explicit operator bool() const noexcept;
 };

@@ -3,6 +3,7 @@ set(test_name t)
 add_executable(${test_name}
     test_Conn.cpp
     test_Registry.cpp
+    test_Stmt.cpp
     test_Updater.cpp
     test_Vendor.cpp
     test_utils.cpp

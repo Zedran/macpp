@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <source_location>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -58,6 +59,11 @@ std::string escape_spec_chars(const std::string& str) noexcept {
     }
 
     return escaped;
+}
+
+// Parses information stored in source_location into standardized format.
+inline std::string fmt_loc(const std::source_location loc) noexcept {
+    return std::string{loc.function_name()} + " (line " + std::to_string(loc.line()) + ')';
 }
 
 // Returns a vendor identifier block of length block_len extracted from addr.

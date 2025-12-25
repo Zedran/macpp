@@ -1,40 +1,66 @@
 #include <cassert>
+#include <source_location>
 
 #include "Registry.hpp"
 #include "cache/Stmt.hpp"
 #include "exception.hpp"
+#include "utils.hpp"
 
-Stmt::Stmt(sqlite3* const conn, const char* str_stmt) noexcept
-    : prepare_rc{sqlite3_prepare_v2(conn, str_stmt, -1, &stmt, nullptr)} {}
+Stmt::Stmt(sqlite3* const conn, const char* str_stmt, const std::source_location loc) {
+    if (const int rc = sqlite3_prepare_v2(conn, str_stmt, -1, &stmt, nullptr); rc != SQLITE_OK) {
+        throw errors::CacheError{__func__, fmt_loc(loc), rc};
+    }
+}
 
-Stmt::Stmt(sqlite3* const conn, const std::string& str_stmt) noexcept
-    : prepare_rc{sqlite3_prepare_v2(conn, str_stmt.c_str(), -1, &stmt, nullptr)} {}
+Stmt::Stmt(sqlite3* const conn, const std::string& str_stmt, const std::source_location loc) {
+    if (const int rc = sqlite3_prepare_v2(conn, str_stmt.c_str(), -1, &stmt, nullptr); rc != SQLITE_OK) {
+        throw errors::CacheError{__func__, fmt_loc(loc), rc};
+    }
+}
 
 Stmt::~Stmt() {
     [[maybe_unused]] const int rc = sqlite3_finalize(stmt);
     assert(rc == SQLITE_OK || rc == SQLITE_NOTADB);
 }
 
-int Stmt::bind(const int coln, const int64_t value) noexcept {
-    return sqlite3_bind_int64(stmt, coln, value);
+void Stmt::bind(const int coln, const int64_t value, const std::source_location loc) {
+    if (const int rc = sqlite3_bind_int64(stmt, coln, value); rc != SQLITE_OK) {
+        throw errors::CacheError{"col" + std::to_string(coln), fmt_loc(loc), rc};
+    }
 }
 
-int Stmt::bind(const int coln, const Registry value) noexcept {
+void Stmt::bind(const int coln, const Registry value, const std::source_location loc) {
+    int rc;
+
     if (value == Registry::Unknown) {
-        return sqlite3_bind_null(stmt, coln);
+        rc = sqlite3_bind_null(stmt, coln);
+    } else {
+        rc = sqlite3_bind_int(stmt, coln, static_cast<int>(value));
     }
-    return sqlite3_bind_int(stmt, coln, static_cast<int>(value));
+
+    if (rc != SQLITE_OK) {
+        throw errors::CacheError{"col" + std::to_string(coln), fmt_loc(loc), rc};
+    }
 }
 
-int Stmt::bind(const int coln, const std::string& value) noexcept {
+void Stmt::bind(const int coln, const std::string& value, const std::source_location loc) {
+    int rc;
+
     if (value.empty()) {
-        return sqlite3_bind_null(stmt, coln);
+        rc = sqlite3_bind_null(stmt, coln);
+    } else {
+        rc = sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
     }
-    return sqlite3_bind_text(stmt, coln, value.c_str(), -1, SQLITE_STATIC);
+
+    if (rc != SQLITE_OK) {
+        throw errors::CacheError{"col" + std::to_string(coln), fmt_loc(loc), rc};
+    }
 }
 
-int Stmt::clear_bindings() noexcept {
-    return sqlite3_clear_bindings(stmt);
+void Stmt::clear_bindings(const std::source_location loc) {
+    if (const int rc = sqlite3_clear_bindings(stmt); rc != SQLITE_OK) {
+        throw errors::CacheError{"__func__", fmt_loc(loc), rc};
+    }
 }
 
 sqlite3_stmt* Stmt::get() const noexcept {
@@ -51,49 +77,25 @@ Vendor Stmt::get_row() noexcept {
     };
 }
 
-bool Stmt::good() const noexcept {
-    return prepare_rc == SQLITE_OK;
-}
-
 void Stmt::insert_row(const Vendor& v) {
-    int rc;
+    bind(1, v.mac_prefix);
+    bind(2, v.vendor_name);
+    bind(3, v.is_private);
+    bind(4, v.block_type);
+    bind(5, v.last_update);
 
-    if (rc = bind(1, v.mac_prefix); rc != SQLITE_OK) {
-        throw errors::CacheError{"col1", __func__, rc};
-    }
-    if (rc = bind(2, v.vendor_name); rc != SQLITE_OK) {
-        throw errors::CacheError{"col2", __func__, rc};
-    }
-    if (rc = bind(3, v.is_private); rc != SQLITE_OK) {
-        throw errors::CacheError{"col3", __func__, rc};
-    }
-    if (rc = bind(4, v.block_type); rc != SQLITE_OK) {
-        throw errors::CacheError{"col4", __func__, rc};
-    }
-    if (rc = bind(5, v.last_update); rc != SQLITE_OK) {
-        throw errors::CacheError{"col5", __func__, rc};
-    }
-
-    if (rc = step(); rc != SQLITE_DONE) {
+    if (const int rc = step(); rc != SQLITE_DONE) {
         throw errors::CacheError{"step", __func__, rc};
     }
-    if (rc = reset(); rc != SQLITE_OK) {
-        throw errors::CacheError{"reset", __func__, rc};
+    reset();
+}
+
+void Stmt::reset(const std::source_location loc) {
+    if (const int rc = sqlite3_reset(stmt); rc != SQLITE_OK) {
+        throw errors::CacheError{__func__, fmt_loc(loc), rc};
     }
-}
-
-int Stmt::rc() const noexcept {
-    return prepare_rc;
-}
-
-int Stmt::reset() noexcept {
-    return sqlite3_reset(stmt);
 }
 
 int Stmt::step() noexcept {
     return sqlite3_step(stmt);
-}
-
-Stmt::operator bool() const noexcept {
-    return good();
 }

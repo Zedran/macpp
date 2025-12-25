@@ -27,7 +27,6 @@ TEST_CASE("ConnRW::insert") {
     REQUIRE_NOTHROW(conn_rw.insert(good_file, false));
 
     Stmt stmt{conn_rw.get(), "SELECT * FROM vendors"};
-    REQUIRE(stmt.rc() == SQLITE_OK);
 
     std::vector<Vendor> out;
 
@@ -44,7 +43,7 @@ TEST_CASE("ConnRW::insert") {
     }
 
     REQUIRE(conn_rw.clear_table() == SQLITE_OK);
-    REQUIRE(stmt.reset() == SQLITE_OK);
+    REQUIRE_NOTHROW(stmt.reset());
     out.clear();
 
     // Line length limits
@@ -94,7 +93,6 @@ TEST_CASE("ConnRW::customize_db: success") {
     REQUIRE(err_messages.empty());
 
     Stmt stmt{conn.get(), "SELECT * FROM vendors"};
-    REQUIRE(stmt.rc() == SQLITE_OK);
 
     std::vector<Vendor> out;
 
@@ -155,7 +153,6 @@ TEST_CASE("ConnR construction") {
     REQUIRE_THROWS(ConnR{db_path, true});
 
     Stmt stmt{conn_rw.get(), "DROP TABLE vendors"};
-    REQUIRE(stmt.good());
     REQUIRE(stmt.step() == SQLITE_DONE);
 
     // Throws, because there is no table
@@ -196,11 +193,10 @@ TEST_CASE("ConnRW destruction") {
     ConnRW conn_master{db_path, true};
 
     Stmt stmt{conn_master.get(), "SELECT COUNT(*) FROM vendors"};
-    REQUIRE(stmt.rc() == SQLITE_OK);
 
     REQUIRE(stmt.step() == SQLITE_ROW);
     REQUIRE(stmt.get_col<int>(0) == 0);
-    REQUIRE(stmt.reset() == SQLITE_OK);
+    REQUIRE_NOTHROW(stmt.reset());
 
     {
         // Correctly structured file causes transaction to be committed
@@ -212,7 +208,7 @@ TEST_CASE("ConnRW destruction") {
 
     REQUIRE(stmt.step() == SQLITE_ROW);
     REQUIRE(stmt.get_col<int>(0) == 3);
-    REQUIRE(stmt.reset() == SQLITE_OK);
+    REQUIRE_NOTHROW(stmt.reset());
 
     REQUIRE(conn_master.clear_table() == SQLITE_OK);
 
