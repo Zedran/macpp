@@ -34,30 +34,24 @@ ConnRW::~ConnRW() {
     }
 }
 
-int ConnRW::begin() noexcept {
+void ConnRW::begin() {
     assert(!transaction_open && "transaction already open");
 
-    int rc = sqlite3_exec(conn, "BEGIN", nullptr, nullptr, nullptr);
-    if (rc == SQLITE_OK) {
-        transaction_open = true;
-    }
-    return rc;
+    exec("BEGIN");
+    transaction_open = true;
 }
 
-int ConnRW::clear_table() noexcept {
-    return sqlite3_exec(conn, "DELETE FROM vendors", nullptr, nullptr, nullptr);
+void ConnRW::clear_table() {
+    exec("DELETE FROM vendors");
 }
 
-int ConnRW::commit() noexcept {
-    int rc = sqlite3_exec(conn, "COMMIT", nullptr, nullptr, nullptr);
-    if (rc == SQLITE_OK) {
-        transaction_open = false;
-    }
-    return rc;
+void ConnRW::commit() {
+    exec("COMMIT");
+    transaction_open = false;
 }
 
-int ConnRW::create_table() noexcept {
-    return sqlite3_exec(conn, CREATE_TABLE_STMT, nullptr, nullptr, nullptr);
+void ConnRW::create_table() {
+    exec(CREATE_TABLE_STMT);
 }
 
 void ConnRW::customize_db(std::ostream& err) {
@@ -67,10 +61,7 @@ void ConnRW::customize_db(std::ostream& err) {
     };
 
     for (const auto& stmt : mods) {
-        int rc = sqlite3_exec(conn, stmt.data(), nullptr, nullptr, nullptr);
-        if (rc != SQLITE_OK) {
-            throw errors::CacheError(stmt.data(), __func__, rc);
-        }
+        exec(stmt);
 
         int changes = sqlite3_changes(conn);
         if (changes != 1) {
@@ -94,8 +85,8 @@ void ConnRW::customize_db(std::ostream& err) {
     }
 }
 
-int ConnRW::drop_table() noexcept {
-    return sqlite3_exec(conn, "DROP TABLE IF EXISTS vendors", nullptr, nullptr, nullptr);
+void ConnRW::drop_table() {
+    exec("DROP TABLE IF EXISTS vendor");
 }
 
 void ConnRW::exec(std::string_view stmt_str, const std::source_location loc) {
@@ -107,9 +98,7 @@ void ConnRW::exec(std::string_view stmt_str, const std::source_location loc) {
 }
 
 void ConnRW::insert(std::istream& is, const bool update, std::ostream& err) {
-    if (int rc = begin(); rc != SQLITE_OK) {
-        throw errors::CacheError{"begin", __func__, rc};
-    }
+    begin();
 
     if (update) {
         clear_table();
@@ -132,18 +121,14 @@ void ConnRW::insert(std::istream& is, const bool update, std::ostream& err) {
         customize_db(err);
     }
 
-    if (int rc = commit(); rc != SQLITE_OK) {
-        throw errors::CacheError{"commit", __func__, rc};
-    }
+    commit();
 }
 
 void ConnRW::prepare_db() {
     bool needs_table;
 
     if (version() != EXPECTED_CACHE_VERSION) {
-        if (int rc = drop_table(); rc != SQLITE_OK) {
-            throw errors::CacheError{"drop", __func__, rc};
-        }
+        drop_table();
         needs_table = true;
         set_version(EXPECTED_CACHE_VERSION);
     } else {
@@ -151,9 +136,7 @@ void ConnRW::prepare_db() {
     }
 
     if (needs_table) {
-        if (int rc = create_table(); rc != SQLITE_OK) {
-            throw errors::CacheError{"create_table", __func__, rc};
-        }
+        create_table();
     }
 }
 
@@ -167,12 +150,6 @@ int ConnRW::rollback() noexcept {
     return rc;
 }
 
-int ConnRW::set_version(const int version) noexcept {
-    return sqlite3_exec(
-        conn,
-        ("PRAGMA user_version = " + std::to_string(version)).c_str(),
-        nullptr,
-        nullptr,
-        nullptr
-    );
+void ConnRW::set_version(const int version) {
+    exec("PRAGMA user_version = " + std::to_string(version));
 }

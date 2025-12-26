@@ -35,17 +35,18 @@ class ConnRW : public Conn {
     // Signals whether database transaction is opened.
     bool transaction_open;
 
-    // Creates table vendors in the database. Returns the result code
-    // by sqlite3_exec.
-    int create_table() noexcept;
+    // Creates table vendors in the database. Throws CacheError if a SQLite
+    // error is encountered.
+    void create_table();
 
     // Performs database modifications on update. Inserts custom entries
     // and modifies a few existing ones. Data is hard-coded for simplicity.
     // Parameter err is used to redirect warnings for testing.
+    // Throws if a SQLite error is encountered.
     void customize_db(std::ostream& err);
 
-    // Drops table vendors. Returns the result code reported by sqlite3_exec.
-    int drop_table() noexcept;
+    // Drops table vendors. Throws CacheError if a SQLite error is encountered.
+    void drop_table();
 
     // Handles the initial preparation stage. Ensures the database exists
     // and has been correctly formatted.
@@ -68,14 +69,17 @@ public:
     // Rolls back currently running transaction.
     ~ConnRW();
 
-    // Opens database transaction.
-    int begin() noexcept;
+    // Opens database transaction. Throws CacheError if a SQLite error
+    // is encountered.
+    void begin();
 
-    // Deletes all records from the vendors table.
-    int clear_table() noexcept;
+    // Deletes all records from the vendors table. Throws CacheError
+    // if a SQLite error is encountered.
+    void clear_table();
 
-    // Commits database transaction.
-    int commit() noexcept;
+    // Commits database transaction. Throws CacheError if a SQLite error
+    // is encountered.
+    void commit();
 
     // Constructs a statement from string literal and executes it.
     // Throws CacheError if rc is not SQLITE_OK or SQLITE_DONE.
@@ -91,10 +95,10 @@ public:
     // Optional parameter err is used to redirect warnings for testing.
     void insert(std::istream& is, const bool update, std::ostream& err = std::cerr);
 
-    // Reverts uncommitted database transaction.
+    // Reverts uncommitted database transaction. Returns SQLite result code.
     int rollback() noexcept;
 
-    // Assigns the user_version value as specifed. Returns the result code
-    // reported by sqlite3_exec.
-    int set_version(const int version) noexcept;
+    // Assigns the user_version value as specifed. Commits database transaction.
+    // Throws CacheError if a SQLite error is encountered.
+    void set_version(const int version);
 };
