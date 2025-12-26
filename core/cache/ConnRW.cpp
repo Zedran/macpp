@@ -6,6 +6,7 @@
 #include "cache/ConnRW.hpp"
 #include "cache/Stmt.hpp"
 #include "exception.hpp"
+#include "utils.hpp"
 
 std::once_flag ConnRW::db_prepared{};
 
@@ -95,6 +96,14 @@ void ConnRW::customize_db(std::ostream& err) {
 
 int ConnRW::drop_table() noexcept {
     return sqlite3_exec(conn, "DROP TABLE IF EXISTS vendors", nullptr, nullptr, nullptr);
+}
+
+void ConnRW::exec(std::string_view stmt_str, const std::source_location loc) {
+    Stmt stmt{conn, stmt_str.data()};
+
+    if (const int rc = stmt.step(); rc != SQLITE_OK && rc != SQLITE_DONE) {
+        throw errors::CacheError{stmt_str.data(), fmt_loc(loc), rc};
+    }
 }
 
 void ConnRW::insert(std::istream& is, const bool update, std::ostream& err) {

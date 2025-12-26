@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <mutex>
+#include <source_location>
 #include <string>
 
 #include "Conn.hpp"
@@ -75,6 +76,10 @@ public:
 
     // Commits database transaction.
     int commit() noexcept;
+
+    // Constructs a statement from string literal and executes it.
+    // Throws CacheError if rc is not SQLITE_OK or SQLITE_DONE.
+    void exec(std::string_view stmt_str, std::source_location loc = std::source_location::current());
 
     // Opens a new transaction, parses CSV lines contained in is and
     // inserts them into the database. The function expects the first line
