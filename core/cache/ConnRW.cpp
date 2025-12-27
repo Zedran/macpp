@@ -10,8 +10,6 @@
 
 std::once_flag ConnRW::db_prepared{};
 
-ConnRW::ConnRW() noexcept : Conn{} {}
-
 ConnRW::ConnRW(const std::string& path, const bool override_once_flags)
     : Conn(path, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE),
       override_once_flags{override_once_flags},

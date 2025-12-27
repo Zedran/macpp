@@ -21,8 +21,6 @@ protected:
     // Result code returned by sqlite3_open_v2 function.
     int sqlite_open_rc;
 
-    Conn() noexcept;
-
     // Constructs new Conn, given a path to the database file and open mode.
     // Initializes SQLite on first instantiation.
     Conn(const std::string& path, const int flags);

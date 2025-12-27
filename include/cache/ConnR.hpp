@@ -27,8 +27,6 @@ class ConnR : public Conn {
     int64_t count_records() const;
 
 public:
-    ConnR() noexcept;
-
     // Constructs new read-only database connection given the database path.
     // If override_once_flags is set to true, the constructor ignores static
     // once_flag class members that prevent doing extra work during

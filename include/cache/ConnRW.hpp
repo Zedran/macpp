@@ -57,8 +57,6 @@ class ConnRW : public Conn {
     void prepare_db();
 
 public:
-    ConnRW() noexcept;
-
     // Constructs new read-write database connection given the database path.
     // If the file is not present, it is created.
     // If override_once_flags is set to true, the constructor ignores static

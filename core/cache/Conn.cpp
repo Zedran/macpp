@@ -6,8 +6,6 @@
 
 std::once_flag Conn::sqlite_initialized{};
 
-Conn::Conn() noexcept : conn{nullptr}, sqlite_open_rc{SQLITE_NOTADB} {}
-
 Conn::Conn(const std::string& path, const int flags) : conn{nullptr} {
     std::call_once(sqlite_initialized, [&] {
         if (sqlite_open_rc = sqlite3_initialize(); sqlite_open_rc != SQLITE_OK) {

@@ -5,8 +5,6 @@
 
 std::once_flag ConnR::db_checked{};
 
-ConnR::ConnR() noexcept : Conn{} {}
-
 ConnR::ConnR(const std::string& path, const bool override_once_flags)
     : Conn{path, SQLITE_OPEN_READONLY},
       override_once_flags{override_once_flags} {
