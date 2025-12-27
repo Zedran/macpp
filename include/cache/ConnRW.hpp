@@ -48,6 +48,10 @@ class ConnRW : public Conn {
     // Drops table vendors. Throws CacheError if a SQLite error is encountered.
     void drop_table();
 
+    // Constructs a statement from string literal and executes it.
+    // Throws CacheError if rc is not SQLITE_OK or SQLITE_DONE.
+    void exec(std::string_view stmt_str, std::source_location loc = std::source_location::current());
+
     // Handles the initial preparation stage. Ensures the database exists
     // and has been correctly formatted.
     void prepare_db();
@@ -80,10 +84,6 @@ public:
     // Commits database transaction. Throws CacheError if a SQLite error
     // is encountered.
     void commit();
-
-    // Constructs a statement from string literal and executes it.
-    // Throws CacheError if rc is not SQLITE_OK or SQLITE_DONE.
-    void exec(std::string_view stmt_str, std::source_location loc = std::source_location::current());
 
     // Opens a new transaction, parses CSV lines contained in is and
     // inserts them into the database. The function expects the first line
