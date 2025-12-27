@@ -265,6 +265,7 @@ TEST_CASE("ConnR::find_by_addr") {
         {{"00:00:0C", "00:00:0C"}, {cisco}}, // duplicate search terms
         {{"00:00:0C", "12:34:56"}, {cisco}}, // one unknown
         {{"012345"}, {}},                    // valid, not found
+        {{"000000", "741AE0C", "0050C2003", "024201234567"}, {}}, // trigger all placeholders in the pool
     };
 
     for (const auto& [input, expected] : cases) {
