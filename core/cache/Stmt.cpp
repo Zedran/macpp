@@ -18,6 +18,10 @@ Stmt::Stmt(sqlite3* const conn, const std::string& str_stmt, const std::source_l
     }
 }
 
+Stmt::Stmt(Stmt&& other) noexcept : stmt{other.stmt} {
+    other.stmt = nullptr;
+}
+
 Stmt::~Stmt() {
     [[maybe_unused]] const int rc = sqlite3_finalize(stmt);
     assert(rc == SQLITE_OK || rc == SQLITE_NOTADB);
