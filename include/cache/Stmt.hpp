@@ -21,6 +21,8 @@ public:
     Stmt(const Stmt&)            = delete;
     Stmt& operator=(const Stmt&) = delete;
 
+    Stmt(Stmt&& other) noexcept;
+
     ~Stmt();
 
     // Binds an int64 to coln of the statement. Throws CacheError if SQLite

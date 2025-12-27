@@ -3,6 +3,7 @@ set(CORE_SOURCES
     cache/ConnR.cpp
     cache/ConnRW.cpp
     cache/Stmt.cpp
+    cache/StmtPool.cpp
     update/Downloader.cpp
     update/Reader.cpp
     Registry.cpp

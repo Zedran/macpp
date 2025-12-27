@@ -1,5 +1,6 @@
 #include "cache/ConnR.hpp"
 #include "cache/Stmt.hpp"
+#include "cache/StmtPool.hpp"
 #include "exception.hpp"
 #include "utils.hpp"
 
@@ -64,6 +65,8 @@ std::set<Vendor> ConnR::find_by_addr(std::span<const std::string> addresses) con
 
     std::set<Vendor> results;
 
+    StmtPool pool;
+
     for (const auto& va : addresses) {
         const std::string stripped_address = remove_addr_separators(va);
 
@@ -71,10 +74,9 @@ std::set<Vendor> ConnR::find_by_addr(std::span<const std::string> addresses) con
             throw errors::Error{"empty MAC address encountered"};
         }
 
-        const std::vector<int64_t> queries     = construct_queries(stripped_address);
-        const std::string          stmt_string = build_find_by_addr_stmt(queries.size());
+        const std::vector<int64_t> queries = construct_queries(stripped_address);
 
-        Stmt stmt{conn, stmt_string};
+        Stmt& stmt = pool.get(conn, queries.size());
 
         for (size_t i = 0; i < queries.size(); i++) {
             stmt.bind(static_cast<int>(i + 1), queries[i]);
@@ -83,6 +85,9 @@ std::set<Vendor> ConnR::find_by_addr(std::span<const std::string> addresses) con
         while (stmt.step() == SQLITE_ROW) {
             results.emplace(stmt.get_row());
         }
+
+        stmt.clear_bindings();
+        stmt.reset();
     }
 
     return results;

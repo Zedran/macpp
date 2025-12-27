@@ -1,6 +1,7 @@
 set(bench_name b)
 
 add_executable(${bench_name}
+    bench_Conn.cpp
     bench_Vendor.cpp
 )
 

@@ -253,18 +253,19 @@ TEST_CASE("ConnR::find_by_addr") {
 
     // <input, expected>
     const std::map<std::vector<std::string>, std::set<Vendor>> cases = {
-        {{"00:00:0C"}, {cisco}},             // with separators, short
-        {{"00:00:0C:12:3"}, {cisco}},        // with separators, partial
-        {{"00:00:0C:12:34:56"}, {cisco}},    // with separators, full
-        {{"00000C"}, {cisco}},               // no separators, short
-        {{"00000C123"}, {cisco}},            // no separators, partial
-        {{"00000C123456"}, {cisco}},         // no separators, full
-        {{"00:::00::::0C"}, {cisco}},        // many separators in row
-        {{"00000c"}, {cisco}},               // lower-case hex, no separators
-        {{"00:00:aa:12:34:56"}, {xerox}},    // lower case hex, separators
-        {{"00:00:0C", "00:00:0C"}, {cisco}}, // duplicate search terms
-        {{"00:00:0C", "12:34:56"}, {cisco}}, // one unknown
-        {{"012345"}, {}},                    // valid, not found
+        {{"00:00:0C"}, {cisco}},                                  // with separators, short
+        {{"00:00:0C:12:3"}, {cisco}},                             // with separators, partial
+        {{"00:00:0C:12:34:56"}, {cisco}},                         // with separators, full
+        {{"00000C"}, {cisco}},                                    // no separators, short
+        {{"00000C123"}, {cisco}},                                 // no separators, partial
+        {{"00000C123456"}, {cisco}},                              // no separators, full
+        {{"00:::00::::0C"}, {cisco}},                             // many separators in row
+        {{"00000c"}, {cisco}},                                    // lower-case hex, no separators
+        {{"00:00:aa:12:34:56"}, {xerox}},                         // lower case hex, separators
+        {{"00:00:0C", "00:00:0C"}, {cisco}},                      // duplicate search terms
+        {{"00:00:0C", "12:34:56"}, {cisco}},                      // one unknown
+        {{"012345"}, {}},                                         // valid, not found
+        {{"000000", "741AE0C", "0050C2003", "024201234567"}, {}}, // trigger all placeholders in the pool
     };
 
     for (const auto& [input, expected] : cases) {
