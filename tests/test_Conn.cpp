@@ -42,7 +42,7 @@ TEST_CASE("ConnRW::insert") {
         REQUIRE(found);
     }
 
-    REQUIRE(conn_rw.clear_table() == SQLITE_OK);
+    REQUIRE_NOTHROW(conn_rw.clear_table());
     REQUIRE_NOTHROW(stmt.reset());
     out.clear();
 
@@ -210,7 +210,7 @@ TEST_CASE("ConnRW destruction") {
     REQUIRE(stmt.get_col<int>(0) == 3);
     REQUIRE_NOTHROW(stmt.reset());
 
-    REQUIRE(conn_master.clear_table() == SQLITE_OK);
+    REQUIRE_NOTHROW(conn_master.clear_table());
 
     {
         // Incorrectly structured file causes current transaction to be
@@ -371,7 +371,7 @@ TEST_CASE("user_version") {
     const std::string path = "file:memdb_user_version?mode=memory&cache=shared";
 
     ConnRW conn_rw{path, true};
-    REQUIRE(conn_rw.set_version(0) == SQLITE_OK);
+    REQUIRE_NOTHROW(conn_rw.set_version(0));
 
     REQUIRE_THROWS(ConnR{path, true});
 }
