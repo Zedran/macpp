@@ -13,7 +13,7 @@ class StmtPool {
     std::array<std::optional<Stmt>, 4> stmts;
 
 public:
-    StmtPool() noexcept;
+    StmtPool() noexcept = default;
 
     StmtPool(const StmtPool& other)            = delete;
     StmtPool& operator=(const StmtPool& other) = delete;

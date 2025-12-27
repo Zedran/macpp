@@ -3,8 +3,6 @@
 #include "cache/StmtPool.hpp"
 #include "utils.hpp"
 
-StmtPool::StmtPool() noexcept {}
-
 Stmt& StmtPool::get(sqlite3* const conn, const size_t num_queries) noexcept {
     assert(num_queries > 0);
     assert(num_queries <= stmts.size());
