@@ -88,7 +88,7 @@ void ConnRW::drop_table() {
 }
 
 void ConnRW::exec(std::string_view stmt_str, const std::source_location loc) {
-    Stmt stmt{conn, stmt_str.data()};
+    Stmt stmt{conn, stmt_str.data(), loc};
 
     if (const int rc = stmt.step(); rc != SQLITE_OK && rc != SQLITE_DONE) {
         throw errors::CacheError{stmt_str.data(), fmt_loc(loc), rc};
