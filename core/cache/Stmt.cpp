@@ -8,13 +8,13 @@
 
 Stmt::Stmt(sqlite3* const conn, const char* str_stmt, const std::source_location loc) {
     if (const int rc = sqlite3_prepare_v2(conn, str_stmt, -1, &stmt, nullptr); rc != SQLITE_OK) {
-        throw errors::CacheError{__func__, fmt_loc(loc), rc};
+        throw errors::CacheError{str_stmt, fmt_loc(loc), rc};
     }
 }
 
 Stmt::Stmt(sqlite3* const conn, const std::string& str_stmt, const std::source_location loc) {
     if (const int rc = sqlite3_prepare_v2(conn, str_stmt.c_str(), -1, &stmt, nullptr); rc != SQLITE_OK) {
-        throw errors::CacheError{__func__, fmt_loc(loc), rc};
+        throw errors::CacheError{str_stmt, fmt_loc(loc), rc};
     }
 }
 
