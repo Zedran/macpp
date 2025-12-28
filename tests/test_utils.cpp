@@ -41,11 +41,11 @@ TEST_CASE("construct_queries") {
         {"8C1F64F5A", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
         {"8C1F64F5A000", {0x8C1F64, 0x8C1F64F, 0x8C1F64F5A}},
         {"000222", {0x000222}},
-        {"0242", {0x024200}},                                                    // 02:42 received
-        {"024200", {0x024200}},                                                  // 02:42:00 received, which is how Docker is represented in cache
-        {"000242", {0x000242}},                                                  // Videoframe Systems - conflict if Docker was represented by 0x0242
-        {"024256789012", {0x024256, 0x0242567, 0x024256789, 0x024200}},          // Full Docker container's MAC address
-        {"02421", {0x024200}}                                                    // Allow shorter query for Docker prefix
+        {"0242", {0x024200}},                                           // 02:42 received
+        {"024200", {0x024200}},                                         // 02:42:00 received, which is how Docker is represented in cache
+        {"000242", {0x000242}},                                         // Videoframe Systems - conflict if Docker was represented by 0x0242
+        {"024256789012", {0x024256, 0x0242567, 0x024256789, 0x024200}}, // Full Docker container's MAC address
+        {"02421", {0x024200}},                                          // Allow shorter query for Docker prefix
     };
 
     for (const auto& c : cases) {
