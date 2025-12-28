@@ -84,7 +84,7 @@ void ConnRW::customize_db(std::ostream& err) {
 }
 
 void ConnRW::drop_table() {
-    exec("DROP TABLE IF EXISTS vendor");
+    exec("DROP TABLE IF EXISTS vendors");
 }
 
 void ConnRW::exec(std::string_view stmt_str, const std::source_location loc) {
