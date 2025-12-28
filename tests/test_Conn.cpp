@@ -366,3 +366,15 @@ TEST_CASE("user_version") {
 
     REQUIRE_THROWS(ConnR{path, true});
 }
+
+// In this test, a version mismatch is created to ensure that a new connection
+// correctly handles database preparation.
+TEST_CASE("ConnRW::prepare_db: version mismatch") {
+    const std::string path = "file:memdb_user_version?mode=memory&cache=shared";
+
+    ConnRW conn_rw{path, true};
+    conn_rw.set_version(ConnRW::EXPECTED_CACHE_VERSION - 1);
+
+    REQUIRE_NOTHROW(ConnRW{path, true});
+    REQUIRE(conn_rw.version() == ConnRW::EXPECTED_CACHE_VERSION);
+}
