@@ -1,4 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+
 #include <map>
 #include <span>
 #include <sstream>
@@ -92,17 +94,11 @@ TEST_CASE("Vendor(string)") {
     for (const auto& [input, expected_error] : throw_cases) {
         CAPTURE(input);
 
-        try {
-            Vendor v{input};
-        } catch (const errors::ParsingError& e) {
-            CAPTURE(e);
-            REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
-            continue;
-        } catch (const std::exception& e) {
-            FAIL("unexpected exception was thrown: '" + std::string{e.what()} + "'");
-        }
-
-        FAIL("no exception was thrown");
+        REQUIRE_THROWS_MATCHES(
+            Vendor{input},
+            errors::ParsingError,
+            Catch::Matchers::Message(expected_error.what())
+        );
     }
 }
 

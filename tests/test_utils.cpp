@@ -1,4 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+
 #include <map>
 
 #include "exception.hpp"
@@ -70,17 +72,11 @@ TEST_CASE("construct_queries") {
     for (const auto& [input, expected_error] : throw_cases) {
         CAPTURE(input);
 
-        try {
-            construct_queries(input);
-        } catch (const errors::Error& e) {
-            CAPTURE(e);
-            REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
-            continue;
-        } catch (const std::exception& e) {
-            FAIL("unexpected exception was thrown: '" + std::string{e.what()} + "'");
-        }
-
-        FAIL("no exception was thrown");
+        REQUIRE_THROWS_MATCHES(
+            construct_queries(input),
+            errors::Error,
+            Catch::Matchers::Message(expected_error.what())
+        );
     }
 }
 

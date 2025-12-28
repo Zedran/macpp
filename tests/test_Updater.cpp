@@ -1,4 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+
 #include <filesystem>
 
 #include "exception.hpp"
@@ -11,15 +13,11 @@ TEST_CASE("Reader") {
 
     const auto expected_error = errors::Error{"file '" + bad_path + "' not found"};
 
-    try {
-        Reader r{bad_path};
-        FAIL("no exception was thrown");
-    } catch (const errors::Error& e) {
-        CAPTURE(e);
-        REQUIRE((e.what() == expected_error.what()) == 0);
-    } catch (const std::exception& e) {
-        FAIL("unexpected exception was thrown: " + std::string{e.what()} + "'");
-    }
+    REQUIRE_THROWS_MATCHES(
+        Reader{bad_path},
+        errors::Error,
+        Catch::Matchers::Message(expected_error.what())
+    );
 
     namespace fs = std::filesystem;
 

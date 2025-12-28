@@ -1,6 +1,8 @@
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+
 #include <algorithm>
 #include <array>
-#include <catch2/catch_test_macros.hpp>
 #include <fstream>
 #include <map>
 #include <set>
@@ -297,17 +299,11 @@ TEST_CASE("ConnR::find_by_addr") {
     for (const auto& [input, expected_error] : throw_cases) {
         CAPTURE(input);
 
-        try {
-            conn.find_by_addr(input);
-        } catch (const errors::Error& e) {
-            CAPTURE(e);
-            REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
-            continue;
-        } catch (const std::exception& e) {
-            FAIL("unexpected exception was thrown: " + std::string{e.what()} + "'");
-        }
-
-        FAIL("no exception was thrown");
+        REQUIRE_THROWS_MATCHES(
+            conn.find_by_addr(input),
+            errors::Error,
+            Catch::Matchers::Message(expected_error.what())
+        );
     }
 }
 
@@ -354,17 +350,11 @@ TEST_CASE("ConnR::find_by_name") {
     for (const auto& [input, expected_error] : throw_cases) {
         CAPTURE(input);
 
-        try {
-            conn.find_by_name(input);
-        } catch (const errors::Error& e) {
-            CAPTURE(e);
-            REQUIRE(strcmp(e.what(), expected_error.what()) == 0);
-            continue;
-        } catch (const std::exception& e) {
-            FAIL("unexpected exception was thrown: " + std::string{e.what()} + "'");
-        }
-
-        FAIL("no exception was thrown");
+        REQUIRE_THROWS_MATCHES(
+            conn.find_by_name(input),
+            errors::Error,
+            Catch::Matchers::Message(expected_error.what())
+        );
     }
 }
 
