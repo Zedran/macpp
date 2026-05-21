@@ -20,7 +20,7 @@ target_link_libraries(core PRIVATE CURL::libcurl SQLite::SQLite3)
 
 add_dependencies(core config_hpp)
 
-if (COVER)
+if (MAKE_TESTS AND COVER)
     add_library(core_coverage ${CORE_SOURCES})
 
     target_include_directories(core_coverage PRIVATE ${INC_DIR})
