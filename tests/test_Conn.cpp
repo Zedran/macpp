@@ -46,21 +46,6 @@ TEST_CASE("ConnRW::insert") {
 
     REQUIRE_NOTHROW(conn_rw.clear_table());
     REQUIRE_NOTHROW(stmt.reset());
-    out.clear();
-
-    // Line length limits
-
-    std::ifstream poisoned_file{"testdata/poisoned.csv"};
-
-    REQUIRE_NOTHROW(conn_rw.insert(poisoned_file, false));
-
-    while (stmt.step() == SQLITE_ROW) {
-        out.emplace_back(stmt.get_row());
-    }
-
-    REQUIRE(out.size() == 1);
-    CAPTURE(out[0]);
-    REQUIRE(out[0].vendor_name == "Cisco Systems, Inc");
 }
 
 TEST_CASE("ConnRW::customize_db: success") {

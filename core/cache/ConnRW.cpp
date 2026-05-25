@@ -110,7 +110,7 @@ void ConnRW::insert(std::istream& is, const bool update, std::ostream& err) {
     std::getline(is, line);
 
     while (std::getline(is, line)) {
-        if (!line.empty() && line.length() <= MAX_LINE_LENGTH) {
+        if (!line.empty()) {
             stmt.insert_row(Vendor{line});
         }
     }

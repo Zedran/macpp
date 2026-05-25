@@ -9,9 +9,6 @@
 
 // Wrapper for read-write database connection.
 class ConnRW : public Conn {
-    // More than twice the length of the longest CSV line.
-    static constexpr size_t MAX_LINE_LENGTH = 300;
-
     static constexpr const char* CREATE_TABLE_STMT =
         "CREATE TABLE vendors ("
         "prefix  INTEGER PRIMARY KEY,"
