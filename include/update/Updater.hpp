@@ -7,8 +7,8 @@
 class Updater {
 public:
     // Maximum file size that is allowed to be processed by the application.
-    // Set at 8 MiB.
-    static constexpr size_t MAX_FSIZE = 1 << 23;
+    // Set at 16 MiB.
+    static constexpr size_t MAX_FSIZE = 1 << 24;
 
     virtual ~Updater() = default;
 
