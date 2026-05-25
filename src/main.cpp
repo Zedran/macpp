@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <curl/curl.h>
 #include <iostream>
 #include <optional>
@@ -121,7 +122,7 @@ int main(int argc, char* argv[]) {
                 update_fpath = sc_update.get<std::string>("--file");
             }
             update(cache_path, update_fpath);
-            return 0;
+            return EXIT_SUCCESS;
         }
 
         const ConnR conn{cache_path};
@@ -137,19 +138,19 @@ int main(int argc, char* argv[]) {
         }
     } catch (const errors::Error& e) {
         std::cerr << e << '\n';
-        return 1;
+        return EXIT_FAILURE;
     } catch (const std::runtime_error& e) {
         // Expected Argparse parsing errors
         std::cerr << e.what() << '\n';
-        return 1;
+        return EXIT_FAILURE;
     } catch (const std::logic_error& e) {
         // Expected Argparse getter errors
         std::cerr << e.what() << '\n';
-        return 1;
+        return EXIT_FAILURE;
     } catch (const std::exception& e) {
         std::cerr << "unexpected error: " << e.what() << '\n';
-        return 1;
+        return EXIT_FAILURE;
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
