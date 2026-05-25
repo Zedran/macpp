@@ -180,6 +180,8 @@ TEST_CASE("prefix_to_int") {
         "-FF:FF:FF",  // Negative
         "FF:FF:FF:x", // Invalid character
         "xxxxxx",     // Only invalid characters
+        "8000000000000000", // Overflows int64
+        "ffffffffffffffff", // Overflows uint64
     };
 
     for (const auto& c : throw_cases) {

@@ -1,6 +1,7 @@
 #include <algorithm>
+#include <charconv>
 #include <sstream>
-#include <stdexcept>
+#include <system_error>
 
 #include "exception.hpp"
 #include "utils.hpp"
@@ -57,17 +58,24 @@ std::optional<std::string> get_ieee_block(const std::string& addr, const size_t 
 int64_t prefix_to_int(const std::string& prefix) {
     std::string clean = remove_addr_separators(prefix);
 
-    size_t  pos = 0;
-    int64_t conv;
+    int64_t conv{};
 
-    try {
-        conv = std::stoll(clean, &pos, 16);
-    } catch (const std::invalid_argument&) {
+    const auto [ptr, ec] = std::from_chars(
+        clean.data(),
+        clean.data() + clean.size(),
+        conv,
+        16
+    );
+
+    if (ec == std::errc::invalid_argument) {
         throw errors::Error{"specified MAC address contains invalid characters"};
+    } else if (ec == std::errc::result_out_of_range) {
+        throw errors::Error{"specified MAC address is too large"};
+    } else if (ec != std::errc{}) {
+        throw errors::Error{"unexpected error encountered during MAC address parsing (" + std::make_error_code(ec).message() + ')'};
     }
 
-    // Check if stoll did not stop too early
-    if (pos != clean.length()) {
+    if (static_cast<size_t>(ptr - clean.data()) != clean.size()) {
         throw errors::Error{"specified MAC address contains invalid characters"};
     }
 
