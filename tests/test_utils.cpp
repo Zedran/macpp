@@ -176,10 +176,10 @@ TEST_CASE("prefix_to_int") {
     }
 
     const std::string throw_cases[] = {
-        "-101010",    // Negative
-        "-FF:FF:FF",  // Negative
-        "FF:FF:FF:x", // Invalid character
-        "xxxxxx",     // Only invalid characters
+        "-101010",          // Negative
+        "-FF:FF:FF",        // Negative
+        "FF:FF:FF:x",       // Invalid character
+        "xxxxxx",           // Only invalid characters
         "8000000000000000", // Overflows int64
         "ffffffffffffffff", // Overflows uint64
     };
